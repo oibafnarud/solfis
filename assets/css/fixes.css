@@ -1,0 +1,152 @@
+/* Correcciones para la sección de Industrias y Casos de Éxito */
+.industries {
+    padding: var(--spacing-2xl) 0;
+    position: relative;
+    background: var(--white);
+    overflow: hidden;
+}
+
+.industries-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-2xl);
+}
+
+/* Separador entre Industrias y Casos de Éxito */
+.success-cases {
+    margin-top: var(--spacing-2xl);
+    padding-top: var(--spacing-2xl);
+    border-top: 1px solid var(--gray-200);
+}
+
+.success-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-lg);
+}
+
+/* Correcciones para la sección de Blog */
+.blog-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-xl);
+}
+
+.blog-grid-secondary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+}
+
+.blog-card {
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.blog-card .blog-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.blog-card .blog-meta {
+    margin-top: auto;
+}
+
+/* Correcciones para la sección de Testimonios */
+.testimonials-slider {
+    position: relative;
+    padding: var(--spacing-xl) 0;
+    overflow: hidden;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.testimonial-card {
+    background: var(--white);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    margin: 0 auto;
+    max-width: 800px;
+    position: relative;
+}
+
+/* Correcciones para el Formulario de Contacto */
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: var(--spacing-2xl);
+    align-items: start;
+}
+
+.contact-form {
+    background: var(--white);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+}
+
+/* Imagen Why Us */
+.why-us-image {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.why-us-image img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Media Queries */
+@media (max-width: 1200px) {
+    .industries-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .blog-grid-secondary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .industries-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .success-grid,
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .blog-grid-secondary {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .industries-grid,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}

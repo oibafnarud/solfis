@@ -1,0 +1,231 @@
+/* mobile-layout.css - Optimizaciones generales para móvil */
+
+/* Hero secciones */
+@media (max-width: 768px) {
+    .service-hero {
+        padding: 100px 0 40px;
+        text-align: center;
+    }
+    
+    .service-hero .container {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .hero-content {
+        order: 2;
+        padding: 30px 15px 0;
+    }
+    
+    .hero-image {
+        order: 1;
+        margin: 0 -15px;
+        border-radius: 0;
+    }
+    
+    .hero-content h1 {
+        font-size: 28px;
+        margin-bottom: 15px;
+    }
+    
+    .hero-content p {
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .special-badge {
+        margin-bottom: 10px;
+    }
+}
+
+/* Secciones principales */
+@media (max-width: 768px) {
+    section {
+        padding: 50px 0;
+    }
+    
+    .section-header h2,
+    section h2 {
+        font-size: 26px;
+    }
+    
+    .section-header p,
+    section > .container > p {
+        font-size: 16px;
+    }
+    
+    /* Optimización de espaciado */
+    .container {
+        padding: 0 20px;
+    }
+    
+    /* Grid reducido para móvil */
+    .overview-grid,
+    .benefits-grid,
+    .law-benefits,
+    .success-cards,
+    .process-steps,
+    .faq-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    /* Proceso de trabajo */
+    .step:not(:last-child)::after {
+        display: none;
+    }
+    
+    .step {
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        text-align: left;
+    }
+    
+    .step-number {
+        margin: 0 20px 0 0;
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+    }
+    
+    /* CTA Sección */
+    .service-cta {
+        padding: 40px 0;
+    }
+    
+    .service-cta h2 {
+        font-size: 24px;
+    }
+    
+    /* Footer */
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .footer-brand,
+    .footer-contact {
+        padding-right: 0;
+    }
+    
+    .footer-logo {
+        max-width: 150px;
+        margin: 0 auto 20px;
+    }
+    
+    .brand-description {
+        text-align: center;
+    }
+    
+    .social-links {
+        justify-content: center;
+    }
+    
+    .footer-links h3,
+    .footer-contact h3 {
+        text-align: center;
+    }
+    
+    .footer-links h3::after,
+    .footer-contact h3::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .footer-links ul li {
+        text-align: center;
+    }
+    
+    .contact-info li {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .contact-info li i {
+        margin: 0 auto;
+    }
+    
+    .copyright,
+    .legal-links {
+        text-align: center;
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* Beneficios Cards - Optimizado para móvil */
+@media (max-width: 768px) {
+    .benefit-card {
+        margin-bottom: 20px;
+    }
+    
+    .benefit-card-header {
+        padding: 20px;
+    }
+    
+    .benefit-card-body {
+        padding: 20px;
+    }
+    
+    /* Success Cards en móvil */
+    .success-card-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .success-logo {
+        margin: 0 auto 15px;
+    }
+    
+    .success-card-body {
+        padding: 20px;
+    }
+    
+    .success-metrics {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .metric-box {
+        padding: 12px;
+    }
+}
+
+/* Priority content for mobile - hide less important items */
+@media (max-width: 480px) {
+    .key-features li:nth-child(n+4),
+    .service-faqs .faq-item:nth-child(n+3) {
+        display: none;
+    }
+    
+    .key-features h3::after {
+        content: ' Esenciales';
+    }
+    
+    .service-faqs h2::after {
+        content: ' Principales';
+    }
+    
+    /* Add 'Ver más' buttons for hidden content */
+    .key-features::after,
+    .service-faqs::after {
+        content: 'Ver más';
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        color: var(--primary-blue);
+        font-weight: 500;
+        text-decoration: underline;
+    }
+}

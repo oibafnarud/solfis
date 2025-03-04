@@ -1,0 +1,41 @@
+<!-- navbar.html mejorado -->
+<nav class="navbar">
+    <div class="container">
+        <div class="navbar-brand">
+            <a href="index.php">
+                <img src="img/logo.png" alt="Solfis - Precisión Financiera" class="logo">
+            </a>
+        </div>
+        
+        <button class="mobile-menu-btn" aria-label="Menú" id="mobileMenuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <div class="navbar-menu" id="navbarMenu">
+            <a href="index.php" class="nav-link">Inicio</a>
+            
+            <!-- Dropdown Services Menu - Mejorado -->
+            <div class="nav-dropdown">
+                <a href="servicios.php" class="nav-link dropdown-toggle">
+                    Servicios 
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="contabilidad.php" class="dropdown-item">Contabilidad Integrada</a>
+                    <a href="auditoria.php" class="dropdown-item">Auditoría de Empresas</a>
+                    <a href="fiscal.php" class="dropdown-item">Servicios Fiscales</a>
+                    <a href="sistemas.php" class="dropdown-item">Sistemas de Gestión</a>
+                    <a href="empresarial.php" class="dropdown-item">Servicios Empresariales</a>
+                    <a href="fronteriza.php" class="dropdown-item special-item">Ley Fronteriza</a>
+                </div>
+            </div>
+            
+            <a href="nosotros.php" class="nav-link">Nosotros</a>
+            <a href="#proceso" class="nav-link">Proceso</a>
+            <a href="contacto.php" class="nav-link">Contacto</a>
+            <a href="https://portal.solfis.com.do" class="nav-button">Portal Cliente</a>
+        </div>
+    </div>
+</nav>

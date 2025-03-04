@@ -1,0 +1,111 @@
+/* text-contrast-fixes.css */
+
+/* Correcciones generales de contraste para textos sobre fondos azules */
+.service-hero {
+    color: white;
+}
+
+.service-hero h1,
+.service-hero p {
+    color: white;
+}
+
+.benefits-section {
+    color: var(--gray-800);
+}
+
+.benefits-section h2,
+.benefits-section h3,
+.benefits-section p {
+    color: var(--gray-800);
+}
+
+.service-cta {
+    color: white;
+}
+
+.service-cta h2,
+.service-cta p {
+    color: white;
+}
+
+.final-cta {
+    color: white;
+}
+
+.final-cta h2,
+.final-cta p {
+    color: white;
+}
+
+/* Newsletter */
+.newsletter {
+    color: white;
+}
+
+.newsletter h2,
+.newsletter p {
+    color: white;
+}
+
+/* Footer */
+.footer h3,
+.footer p,
+.footer a {
+    color: white;
+}
+
+.footer-contact .contact-info li div p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Contact Section */
+.info-panel {
+    color: white;
+}
+
+.info-panel h3,
+.info-panel h4,
+.info-panel p {
+    color: white;
+}
+
+/* Form Panel */
+.form-panel h3 {
+    color: var(--gray-800);
+}
+
+.form-panel p {
+    color: var(--gray-800);
+}
+
+/* Override general text colors on dark backgrounds */
+[class*="bg-primary"],
+[class*="bg-secondary"],
+[class*="bg-navy"] {
+    color: white;
+}
+
+[class*="bg-primary"] h1,
+[class*="bg-primary"] h2,
+[class*="bg-primary"] h3,
+[class*="bg-primary"] h4,
+[class*="bg-primary"] h5,
+[class*="bg-primary"] h6,
+[class*="bg-primary"] p,
+[class*="bg-secondary"] h1,
+[class*="bg-secondary"] h2,
+[class*="bg-secondary"] h3,
+[class*="bg-secondary"] h4,
+[class*="bg-secondary"] h5,
+[class*="bg-secondary"] h6,
+[class*="bg-secondary"] p,
+[class*="bg-navy"] h1,
+[class*="bg-navy"] h2,
+[class*="bg-navy"] h3,
+[class*="bg-navy"] h4,
+[class*="bg-navy"] h5,
+[class*="bg-navy"] h6,
+[class*="bg-navy"] p {
+    color: white;
+}

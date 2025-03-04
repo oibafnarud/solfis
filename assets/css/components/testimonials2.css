@@ -1,0 +1,225 @@
+/* testimonials.css */
+.testimonials {
+    padding: var(--spacing-2xl) 0;
+    background: linear-gradient(135deg, var(--white) 0%, var(--light-gray) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Background Pattern */
+.testimonials::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(var(--primary-blue) 1px, transparent 1px),
+        radial-gradient(var(--primary-blue) 1px, transparent 1px);
+    background-size: 50px 50px;
+    background-position: 0 0, 25px 25px;
+    opacity: 0.05;
+}
+
+.testimonials-slider {
+    position: relative;
+    padding: var(--spacing-xl) 0;
+}
+
+.testimonial-card {
+    background: var(--white);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    margin: 0 var(--spacing-md);
+    transition: all var(--transition-normal);
+    position: relative;
+}
+
+/* Quote Icon */
+.testimonial-card::before {
+    content: '"';
+    position: absolute;
+    top: -30px;
+    left: 30px;
+    font-size: 120px;
+    color: var(--primary-blue);
+    opacity: 0.1;
+    font-family: Georgia, serif;
+    line-height: 1;
+}
+
+.testimonial-content {
+    font-size: 1.1rem;
+    color: var(--gray-800);
+    line-height: 1.8;
+    margin-bottom: var(--spacing-lg);
+    position: relative;
+    font-style: italic;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.author-image {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid var(--primary-blue);
+}
+
+.author-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.author-info h4 {
+    color: var(--primary-navy);
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.author-info p {
+    color: var(--gray-800);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Rating Stars */
+.rating {
+    display: flex;
+    gap: 4px;
+    margin-top: 0.5rem;
+}
+
+.star {
+    color: var(--primary-blue);
+    font-size: 1rem;
+}
+
+/* Slider Navigation */
+.slider-nav {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+}
+
+.slider-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 2px solid var(--primary-blue);
+    color: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.slider-btn:hover {
+    background: var(--primary-blue);
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+/* Client Logos */
+.client-logos {
+    margin-top: var(--spacing-2xl);
+    padding-top: var(--spacing-xl);
+    border-top: 1px solid var(--gray-200);
+}
+
+.logos-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--spacing-lg);
+    align-items: center;
+}
+
+.client-logo {
+    opacity: 0.6;
+    transition: all var(--transition-normal);
+    filter: grayscale(1);
+}
+
+.client-logo:hover {
+    opacity: 1;
+    filter: grayscale(0);
+    transform: scale(1.1);
+}
+
+/* Slider Dots */
+.slider-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: var(--spacing-lg);
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gray-300);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.dot.active {
+    background: var(--primary-blue);
+    transform: scale(1.3);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .logos-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .logos-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .testimonial-card {
+        margin: 0;
+        padding: var(--spacing-lg);
+    }
+}
+
+@media (max-width: 576px) {
+    .logos-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .slider-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Animations */
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.testimonial-card.active {
+    animation: fadeSlide 0.6s ease forwards;
+}

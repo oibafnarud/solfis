@@ -1,0 +1,147 @@
+/* industries.css */
+.industries {
+    padding: var(--spacing-2xl) 0;
+    background: var(--white);
+    position: relative;
+    overflow: hidden;
+}
+
+.industries::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 177, 235, 0.05) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.industries-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+}
+
+.industry-card {
+    background: var(--white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal);
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.industry-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 0;
+    background: var(--primary-blue);
+    transition: height var(--transition-normal);
+}
+
+.industry-card:hover::before {
+    height: 100%;
+}
+
+.industry-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.industry-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 177, 235, 0.1);
+    border-radius: var(--border-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-md);
+    color: var(--primary-blue);
+    font-size: 1.5rem;
+    transition: all var(--transition-normal);
+}
+
+.industry-card:hover .industry-icon {
+    background: var(--primary-blue);
+    color: var(--white);
+    transform: rotateY(180deg);
+}
+
+.industry-card h3 {
+    font-size: 1.25rem;
+    color: var(--primary-navy);
+    margin-bottom: var(--spacing-md);
+}
+
+.industry-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--spacing-md);
+    flex-grow: 1;
+}
+
+.industry-features li {
+    padding: var(--spacing-xs) 0;
+    padding-left: var(--spacing-lg);
+    position: relative;
+    color: var(--gray-700);
+}
+
+.industry-features li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--primary-blue);
+    transition: transform var(--transition-normal);
+}
+
+.industry-card:hover .industry-features li::before {
+    transform: translateX(5px);
+}
+
+.industry-stats {
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--gray-200);
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+@media (max-width: 1200px) {
+    .industries-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .industries-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .industries-grid {
+        grid-template-columns: 1fr;
+    }
+}

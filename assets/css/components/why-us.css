@@ -1,0 +1,203 @@
+/* why-us.css */
+.why-us {
+    padding: var(--spacing-2xl) 0;
+    background: var(--white);
+    position: relative;
+    overflow: hidden;
+}
+
+.why-us::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 177, 235, 0.05) 0%, transparent 100%);
+    clip-path: polygon(70% 0, 100% 0, 100% 100%, 30% 100%);
+}
+
+.why-us-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-2xl);
+    align-items: center;
+    margin-top: var(--spacing-xl);
+}
+
+/* Features Side */
+.why-us-features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.feature-card {
+    background: var(--white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 0;
+    background: var(--primary-blue);
+    transition: height var(--transition-normal);
+}
+
+.feature-card:hover::before {
+    height: 100%;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--light-gray);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-md);
+    color: var(--primary-blue);
+    font-size: 1.5rem;
+    transition: all var(--transition-normal);
+}
+
+.feature-card:hover .feature-icon {
+    background: var(--primary-blue);
+    color: var(--white);
+    transform: rotateY(180deg);
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    color: var(--primary-navy);
+    margin-bottom: var(--spacing-sm);
+}
+
+.feature-card p {
+    color: var(--gray-800);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Image Side */
+.why-us-image-wrapper {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.why-us-image {
+    position: relative;
+    width: 100%;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.why-us-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--border-radius-lg);
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 35, 94, 0.2), rgba(0, 177, 235, 0.2));
+    border-radius: var(--border-radius-lg);
+}
+
+.experience-badge {
+    position: absolute;
+    bottom: 30px;
+    right: -20px;
+    background: var(--primary-blue);
+    color: var(--white);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    z-index: 2;
+}
+
+.experience-badge span:first-child {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.experience-badge span:last-child {
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .why-us-grid {
+        gap: var(--spacing-xl);
+    }
+}
+
+@media (max-width: 992px) {
+    .why-us-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .why-us-image-wrapper {
+        order: -1;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .experience-badge {
+        right: 0;
+        bottom: -20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .why-us-features {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-card {
+        padding: var(--spacing-md);
+    }
+
+    .experience-badge {
+        width: 100px;
+        height: 100px;
+        padding: var(--spacing-sm);
+    }
+
+    .experience-badge span:first-child {
+        font-size: 2rem;
+    }
+}

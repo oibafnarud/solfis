@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Solfis</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/admin.css">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="img/logo-white.png" alt="Solfis Admin">
+            </div>
+            
+            <nav class="admin-nav">
+                <a href="dashboard.html" class="admin-nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <div class="nav-section">
+                    <h3 class="nav-section-title">Blog</h3>
+                    <a href="posts/index.html" class="admin-nav-item">
+                        <i class="fas fa-newspaper"></i>
+                        <span>Artículos</span>
+                    </a>
+                    <a href="categories/index.html" class="admin-nav-item">
+                        <i class="fas fa-folder"></i>
+                        <span>Categorías</span>
+                    </a>
+                    <a href="comments/index.html" class="admin-nav-item">
+                        <i class="fas fa-comments"></i>
+                        <span>Comentarios</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <h3 class="nav-section-title">Medios</h3>
+                    <a href="media/index.html" class="admin-nav-item">
+                        <i class="fas fa-images"></i>
+                        <span>Biblioteca</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <h3 class="nav-section-title">Usuarios</h3>
+                    <a href="users/index.html" class="admin-nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>Usuarios</span>
+                    </a>
+                    <a href="subscribers/index.html" class="admin-nav-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>Suscriptores</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <h3 class="nav-section-title">Configuración</h3>
+                    <a href="settings/general.html" class="admin-nav-item">
+                        <i class="fas fa-cog"></i>
+                        <span>General</span>
+                    </a>
+                    <a href="settings/appearance.html" class="admin-nav-item">
+                        <i class="fas fa-paint-brush"></i>
+                        <span>Apariencia</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="admin-user">
+                <div class="user-info">
+                    <img src="img/admin-avatar.jpg" alt="Admin" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name">John Doe</span>
+                        <span class="user-role">Administrador</span>
+                    </div>
+                </div>
+                <button class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">Dashboard</h1>
+                </div>
+                
+                <div class="header-right">
+                    <div class="header-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Buscar...">
+                    </div>
+                    
+                    <div class="header-actions">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Nuevo Artículo
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(37, 99, 235, 0.1)">
+                            <i class="fas fa-newspaper" style="color: #2563eb"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-number">254</h3>
+                            <p class="stat-label">Artículos Publicados</p>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>12%</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1)">
+                            <i class="fas fa-users" style="color: #10b981"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-number">1,458</h3>
+                            <p class="stat-label">Suscriptores</p>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>8%</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1)">
+                            <i class="fas fa-eye" style="color: #f59e0b"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-number">45.2K</h3>
+                            <p class="stat-label">Visitas Mensuales</p>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>15%</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1)">
+                            <i class="fas fa-comments" style="color: #ef4444"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-number">128</h3>
+                            <p class="stat-label">Comentarios Nuevos</p>
+                        </div>
+                        <div class="stat-trend down">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>3%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Traffic Chart -->
+                    <div class="dashboard-card chart-card">
+                        <div class="card-header">
+                            <h3>Tráfico del Blog</h3>
+                            <div class="card-actions">
+                                <select class="time-range">
+                                    <option value="7">Última Semana</option>
+                                    <option value="30" selected>Último Mes</option>
+                                    <option value="90">Último Trimestre</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="trafficChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Posts -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Artículos Recientes</h3>
+                            <a href="posts/index.html" class="btn btn-text">Ver Todos</a>
+                        </div>
+                        <div class="recent-posts">
+                            <div class="post-item">
+                                <div class="post-info">
+                                    <h4>Cambios Fiscales 2025</h4>
+                                    <span class="post-meta">
+                                        <i class="far fa-clock"></i> Hace 2 horas
+                                    </span>
+                                </div>
+                                <div class="post-status published">Publicado</div>
+                            </div>
+                            <!-- Más posts aquí -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Feed -->
+                <div class="activity-feed">
+                    <h3>Actividad Reciente</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p><strong>Juan Pérez</strong> publicó un nuevo artículo</p>
+                                <span class="activity-time">Hace 2 horas</span>
+                            </div>
+                        </div>
+                        <!-- Más actividades aquí -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/admin.js"></script>
+</body>
+</html>

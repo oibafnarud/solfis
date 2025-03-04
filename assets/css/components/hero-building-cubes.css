@@ -1,0 +1,134 @@
+/* hero-building-cubes.css */
+.cubes-composition {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    perspective: 1000px;
+}
+
+.floating-cube {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    transform-style: preserve-3d;
+    opacity: 0;
+}
+
+/* Posiciones finales de los cubos */
+.cube-first {
+    bottom: 40px;
+    left: 40px;
+    animation: buildFirst 1s ease forwards;
+}
+
+.cube-second {
+    bottom: 40px;
+    right: 40px;
+    animation: buildSecond 1s ease forwards 1s;
+}
+
+.cube-last {
+    top: 40px;
+    left: 50%;
+    animation: buildLast 1s ease forwards 2s;
+}
+
+.cube-face {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    border: 2px solid rgba(0, 177, 235, 0.1);
+    backface-visibility: visible;
+}
+
+/* Estilos de las caras */
+.cube-face.front {
+    transform: translateZ(80px);
+    background: rgba(0, 177, 235, 0.1);
+}
+
+.cube-face.back {
+    transform: translateZ(-80px) rotateY(180deg);
+    background: rgba(0, 177, 235, 0.05);
+}
+
+.cube-face.right {
+    transform: rotateY(90deg) translateZ(80px);
+    background: rgba(0, 177, 235, 0.15);
+}
+
+.cube-face.left {
+    transform: rotateY(-90deg) translateZ(80px);
+    background: rgba(0, 177, 235, 0.08);
+}
+
+.cube-face.top {
+    transform: rotateX(90deg) translateZ(80px);
+    background: rgba(0, 177, 235, 0.2);
+}
+
+.cube-face.bottom {
+    transform: rotateX(-90deg) translateZ(80px);
+    background: rgba(0, 177, 235, 0.05);
+}
+
+/* Animaciones de construcción */
+@keyframes buildFirst {
+    0% {
+        opacity: 0;
+        transform: translateY(100px) rotateX(30deg) rotateY(45deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) rotateX(30deg) rotateY(45deg);
+    }
+}
+
+@keyframes buildSecond {
+    0% {
+        opacity: 0;
+        transform: translateY(100px) rotateX(30deg) rotateY(45deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) rotateX(30deg) rotateY(45deg);
+    }
+}
+
+@keyframes buildLast {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(100px) rotateX(30deg) rotateY(45deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) rotateX(30deg) rotateY(45deg);
+    }
+}
+
+/* Animación de flotación continua después de construir */
+.floating-cube.active {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotateX(30deg) rotateY(45deg);
+    }
+    50% {
+        transform: translateY(-20px) rotateX(30deg) rotateY(45deg);
+    }
+}
+
+/* Media queries */
+@media (max-width: 992px) {
+    .cubes-composition {
+        transform: scale(0.8);
+    }
+}
+
+@media (max-width: 768px) {
+    .cubes-composition {
+        transform: scale(0.6);
+    }
+}

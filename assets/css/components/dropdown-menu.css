@@ -1,0 +1,168 @@
+/* dropdown-menu.css - Versión mejorada */
+
+/* Contenedor del dropdown */
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Estilo para el toggle del dropdown */
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    padding-right: 1.5rem;
+}
+
+.dropdown-toggle i {
+    font-size: 0.75rem;
+    transition: transform 0.3s ease;
+    position: absolute;
+    right: 0.5rem;
+}
+
+/* Rotación de la flecha cuando está activo */
+.nav-dropdown:hover .dropdown-toggle i,
+.nav-dropdown.active .dropdown-toggle i {
+    transform: rotate(180deg);
+}
+
+/* Menú desplegable */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    min-width: 220px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    padding: 0.75rem 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 100;
+    border-top: 3px solid var(--primary-blue);
+}
+
+/* Mostrar el menú al hacer hover */
+.nav-dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Items del dropdown */
+.dropdown-item {
+    display: block;
+    padding: 0.75rem 1.5rem;
+    color: var(--gray-800);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(0, 177, 235, 0.1);
+    color: var(--primary-blue);
+    border-left: 3px solid var(--primary-blue);
+}
+
+/* CSS para destacar el servicio especial en el dropdown */
+.special-item {
+    background-color: rgba(255, 152, 0, 0.1);
+    position: relative;
+    border-left: 3px solid #ff9800;
+}
+
+.special-item::after {
+    content: 'Nuevo';
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background-color: #ff9800;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.special-item:hover {
+    background-color: rgba(255, 152, 0, 0.2);
+    border-left: 3px solid #ff9800;
+}
+
+/* Estilos para card de servicio especial */
+.special-service {
+    position: relative;
+    border-top: 3px solid #ff9800;
+    box-shadow: 0 10px 20px rgba(255, 152, 0, 0.1);
+}
+
+.special-service .special-badge {
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    background: #ff9800;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 2;
+}
+
+.special-service:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(255, 152, 0, 0.2);
+}
+
+/* Estilos para dispositivos móviles */
+@media (max-width: 768px) {
+    .dropdown-toggle {
+        justify-content: space-between;
+        padding: 1rem;
+        width: 100%;
+    }
+    
+    .dropdown-toggle i {
+        position: static;
+    }
+    
+    .nav-dropdown {
+        width: 100%;
+    }
+    
+    .dropdown-menu {
+        position: static;
+        box-shadow: none;
+        border-radius: 8px;
+        background-color: rgba(0, 0, 0, 0.03);
+        transform: none;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 1;
+        visibility: visible;
+        border-top: none;
+        padding: 0;
+        margin: 0 1rem;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+    
+    .nav-dropdown.active .dropdown-menu {
+        max-height: 500px;
+        padding: 0.75rem 0;
+    }
+    
+    .special-item {
+        border-left: none;
+        border-left: 3px solid #ff9800;
+    }
+    
+    .dropdown-item {
+        padding: 0.75rem 1rem;
+    }
+}

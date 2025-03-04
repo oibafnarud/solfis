@@ -1,0 +1,140 @@
+/* newsletter-section.css */
+.newsletter {
+    padding: 40px 0;
+    background: linear-gradient(135deg, #00235E 0%, #0051BE 100%);
+    color: white;
+}
+
+.newsletter-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.text-content {
+    flex: 1;
+}
+
+.text-content h2 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: white;
+}
+
+.text-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    margin: 0;
+}
+
+.newsletter-form {
+    flex: 1;
+    max-width: 500px;
+}
+
+.form-group {
+    display: flex;
+    gap: 12px;
+}
+
+.newsletter-form input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 16px;
+}
+
+.newsletter-form input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.newsletter-form input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+
+@media (max-width: 768px) {
+    .newsletter-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 24px;
+    }
+
+    .form-group {
+        flex-direction: column;
+    }
+
+    .newsletter-form {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .subscribe-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Estilos actualizados para el botón del newsletter */
+.subscribe-btn {
+    /* Estructura base */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    /* Dimensiones y padding */
+    height: 48px;
+    padding: 0 32px;
+    
+    /* Estilos visuales */
+    background-color: #00B1EB;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    
+    /* Tipografía */
+    font-size: 16px;
+    font-weight: 500;
+    font-family: inherit;
+    
+    /* Cursor y transición */
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.subscribe-btn i {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+/* Efectos hover */
+.subscribe-btn:hover {
+    background-color: #0095C8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 177, 235, 0.3);
+}
+
+.subscribe-btn:hover i {
+    transform: translateX(4px);
+}
+
+/* Estado activo */
+.subscribe-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 177, 235, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .subscribe-btn {
+        width: 100%;
+        height: 44px;
+    }
+}

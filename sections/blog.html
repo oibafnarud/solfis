@@ -1,0 +1,121 @@
+<!-- blog.html -->
+<section class="blog">
+    <div class="container">
+        <div class="section-header" data-aos="fade-up">
+            <h2>Blog & Actualizaciones</h2>
+            <p>Manténgase informado sobre las últimas novedades fiscales y financieras</p>
+        </div>
+
+        <!-- Filtro de Categorías -->
+        <div class="blog-categories" data-aos="fade-up">
+            <button class="category-btn active" data-category="all">Todos</button>
+            <button class="category-btn" data-category="fiscal">Fiscal</button>
+            <button class="category-btn" data-category="contabilidad">Contabilidad</button>
+            <button class="category-btn" data-category="finanzas">Finanzas</button>
+            <button class="category-btn" data-category="tecnologia">Tecnología</button>
+            <button class="category-btn" data-category="legal">Legal</button>
+        </div>
+
+        <div class="blog-grid">
+            <!-- Artículo Destacado -->
+            <article class="featured-post" data-aos="fade-up" data-category="fiscal">
+                <div class="featured-image">
+                    <img src="img/blog/featured-post.jpg" alt="Cambios Fiscales 2025">
+                </div>
+                <div class="featured-content">
+                    <span class="blog-category">Fiscal</span>
+                    <h3 class="featured-title">Principales Cambios Fiscales para 2025</h3>
+                    <p class="blog-excerpt">
+                        Análisis detallado de las nuevas regulaciones fiscales y su impacto en las empresas dominicanas. 
+                        Descubra cómo prepararse para los cambios venideros.
+                    </p>
+                    <div class="blog-meta">
+                        <div class="blog-author">
+                            <div class="author-avatar">
+                                <img src="img/team/author1.jpg" alt="Juan Pérez">
+                            </div>
+                            <span class="author-name">Juan Pérez</span>
+                        </div>
+                        <span class="blog-date">
+                            <i class="far fa-calendar"></i>
+                            15 Feb 2025
+                        </span>
+                    </div>
+                    <a href="blog/cambios-fiscales-2025" class="blog-link">
+                        Leer más <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Artículos Regulares -->
+            <article class="blog-card" data-aos="fade-up" data-category="contabilidad">
+                <div class="blog-image">
+                    <img src="img/blog/post1.jpg" alt="Contabilidad Digital">
+                    <span class="blog-category">Contabilidad</span>
+                </div>
+                <div class="blog-content">
+                    <h3 class="blog-title">
+                        Transformación Digital en la Contabilidad Empresarial
+                    </h3>
+                    <p class="blog-excerpt">
+                        Descubra cómo la tecnología está revolucionando los procesos contables y 
+                        cómo su empresa puede beneficiarse de esta transformación.
+                    </p>
+                    <div class="blog-meta">
+                        <div class="blog-author">
+                            <div class="author-avatar">
+                                <img src="img/team/author2.jpg" alt="María Gómez">
+                            </div>
+                            <span class="author-name">María Gómez</span>
+                        </div>
+                        <span class="blog-date">
+                            <i class="far fa-calendar"></i>
+                            10 Feb 2025
+                        </span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Más artículos aquí... -->
+        </div>
+
+        <!-- Newsletter -->
+        <div class="blog-newsletter" data-aos="fade-up">
+            <div class="newsletter-content">
+                <h3>Suscríbase a Nuestro Newsletter</h3>
+                <p>Reciba actualizaciones importantes y consejos útiles para su empresa</p>
+                <form class="newsletter-form" id="newsletterForm">
+                    <input 
+                        type="email" 
+                        class="newsletter-input" 
+                        placeholder="Su correo electrónico"
+                        required
+                    >
+                    <button type="submit" class="btn btn-primary">
+                        Suscribirse
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        <div class="blog-pagination" data-aos="fade-up">
+            <button class="pagination-btn prev">
+                <i class="fas fa-chevron-left"></i>
+                Anterior
+            </button>
+            <div class="pagination-numbers">
+                <span class="active">1</span>
+                <span>2</span>
+                <span>3</span>
+                <span>...</span>
+                <span>8</span>
+            </div>
+            <button class="pagination-btn next">
+                Siguiente
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</section>

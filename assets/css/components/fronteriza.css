@@ -1,0 +1,634 @@
+/* fronteriza.css - CSS completo revisado */
+
+/* Hero especial */
+.fronteriza-hero {
+    background: linear-gradient(135deg, #002e6d 0%, #005295 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.fronteriza-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../img/services/map-pattern.png');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.1;
+    z-index: 1;
+}
+
+.fronteriza-hero .container {
+    position: relative;
+    z-index: 2;
+}
+
+.fronteriza-hero h1,
+.fronteriza-hero p {
+    color: white;
+}
+
+.special-badge {
+    display: inline-block;
+    background-color: #ff9800;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+    animation: pulse 2s infinite;
+}
+
+/* Pulsating button */
+.pulse-btn {
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.98);
+        box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
+    }
+    
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
+    }
+    
+    100% {
+        transform: scale(0.98);
+        box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+    }
+}
+
+/* Law info section */
+.law-info {
+    padding: 80px 0;
+    background-color: #f8f9fa;
+    position: relative;
+}
+
+.law-header {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 50px;
+}
+
+.law-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-navy);
+}
+
+.law-header p {
+    font-size: 1.2rem;
+    color: var(--gray-700);
+}
+
+/* BENEFICIOS - ESTILO VERTICAL SIMPLE */
+.law-benefits {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.benefit-item {
+    background: white;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.benefit-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.benefit-item-header {
+    background: #f0f7ff;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.benefit-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 177, 235, 0.1);
+    border-radius: 50%;
+    margin-right: 20px;
+    flex-shrink: 0;
+}
+
+.benefit-icon i {
+    font-size: 28px;
+    color: #00B1EB;
+}
+
+.benefit-item-header h3 {
+    margin: 0;
+    color: var(--primary-navy);
+    font-size: 1.5rem;
+}
+
+.benefit-item-body {
+    padding: 25px;
+    border-top: 1px solid #eee;
+}
+
+.benefit-item-body p {
+    color: var(--gray-700);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Success Stories Section */
+.success-stories {
+    padding: 80px 0;
+    background: #f8f9fa;
+}
+
+.success-stories h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 50px;
+    color: var(--primary-navy);
+}
+
+.stories-grid {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 30px;
+}
+
+.story-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.story-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.story-header {
+    background: linear-gradient(to right, #f0f7ff, #f8f9fa);
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+.story-logo {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.story-logo img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.story-title h3 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: var(--primary-navy);
+    font-size: 1.5rem;
+}
+
+.story-badge {
+    display: inline-block;
+    background: #00B1EB;
+    color: white;
+    font-size: 0.8rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+.story-content {
+    padding: 25px;
+    flex-grow: 1;
+}
+
+.story-content p {
+    color: var(--gray-700);
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.story-results {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.result-item {
+    text-align: center;
+}
+
+.result-number {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #00B1EB;
+    margin-bottom: 5px;
+}
+
+.result-label {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+}
+
+/* Special CTA */
+.special-cta {
+    background: linear-gradient(135deg, #002e6d 0%, #0064a8 100%);
+    position: relative;
+    color: white;
+}
+
+.special-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../img/services/map-pattern.png');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.1;
+}
+
+.special-cta .cta-content {
+    position: relative;
+    z-index: 2;
+}
+
+.special-cta h2,
+.special-cta p {
+    color: white;
+}
+
+/* Service Overview section */
+.service-overview {
+    background-color: white;
+}
+
+.service-overview h2,
+.service-overview h3,
+.service-overview h4 {
+    color: var(--primary-navy);
+}
+
+.service-overview p {
+    color: var(--gray-700);
+}
+
+.key-features li i {
+    color: #00B1EB;
+}
+
+/* Work Process */
+.work-process {
+    background-color: #f8f9fa;
+}
+
+.work-process h2,
+.work-process h3 {
+    color: var(--primary-navy);
+}
+
+.work-process p {
+    color: var(--gray-700);
+}
+
+.step-number {
+    background-color: #00B1EB;
+    color: white;
+}
+
+/* FAQs section */
+.service-faqs {
+    background-color: white;
+}
+
+.service-faqs h2,
+.service-faqs h3 {
+    color: var(--primary-navy);
+}
+
+.service-faqs p {
+    color: var(--gray-700);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .story-results {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .benefit-item-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .benefit-icon {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .story-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .story-logo {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .story-results {
+        grid-template-columns: 1fr;
+    }
+    
+    .law-header h2,
+    .success-stories h2 {
+        font-size: 2rem;
+    }
+    
+    .special-badge {
+        font-size: 0.8rem;
+    }
+    
+    .fronteriza-hero .hero-content h1 {
+        font-size: 2.2rem;
+    }
+}
+
+/* Estilos para formato de cards horizontales */
+
+/* Law info section */
+.law-info {
+    padding: 80px 0;
+    background-color: #f8f9fa;
+    position: relative;
+}
+
+.law-header {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 50px;
+}
+
+.law-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-navy);
+}
+
+.law-header p {
+    font-size: 1.2rem;
+    color: var(--gray-700);
+}
+
+/* BENEFICIOS - ESTILO CARDS */
+.law-benefits {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.benefit-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.benefit-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.benefit-card-header {
+    background: linear-gradient(135deg, #f0f7ff 0%, #f8fafc 100%);
+    padding: 25px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.benefit-icon-wrapper {
+    margin: 0 auto 15px;
+    width: 70px;
+    height: 70px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 177, 235, 0.1);
+}
+
+.benefit-icon-wrapper i {
+    font-size: 30px;
+    color: #00B1EB;
+}
+
+.benefit-card-header h3 {
+    color: var(--primary-navy);
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+.benefit-card-body {
+    padding: 25px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.benefit-card-body p {
+    color: var(--gray-700);
+    line-height: 1.6;
+    margin: 0;
+    flex: 1;
+}
+
+/* Success Stories */
+.success-stories {
+    padding: 80px 0;
+    background: #f0f7ff;
+}
+
+.success-stories h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 50px;
+    color: var(--primary-navy);
+}
+
+.success-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.success-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.success-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.success-card-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 25px;
+    background: linear-gradient(to right, #f0f7ff, white);
+    border-bottom: 1px solid #eee;
+}
+
+.success-logo {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+}
+
+.success-logo img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.success-title h3 {
+    color: var(--primary-navy);
+    font-size: 1.4rem;
+    margin: 0 0 5px 0;
+}
+
+.success-badge {
+    display: inline-block;
+    background: #00B1EB;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.success-card-body {
+    padding: 25px;
+}
+
+.success-description {
+    color: var(--gray-700);
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.success-metrics {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.metric-box {
+    flex: 1;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.metric-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #00B1EB;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .law-benefits {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .success-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .law-benefits {
+        grid-template-columns: 1fr;
+    }
+    
+    .success-card-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .success-metrics {
+        flex-direction: column;
+    }
+}

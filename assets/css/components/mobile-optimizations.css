@@ -1,0 +1,153 @@
+/* mobile-optimizations.css - Mejoras específicas para móviles */
+
+@media (max-width: 768px) {
+    /* Ajustes generales */
+    h1 { font-size: 2rem !important; }
+    h2 { font-size: 1.75rem !important; }
+    h3 { font-size: 1.5rem !important; }
+    
+    .container {
+        padding: 0 15px;
+    }
+    
+    /* Hero adaptativo */
+    .hero {
+        padding: 100px 0 60px;
+    }
+    
+    .hero-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero-text {
+        text-align: center;
+        order: 1;
+    }
+    
+    .hero-visual {
+        order: 2;
+        transform: scale(0.8);
+        margin: 20px auto;
+    }
+    
+    .hero-cta {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .hero-cta .btn {
+        width: 100%;
+    }
+    
+    /* Servicios adaptativo */
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .service-card {
+        margin-bottom: 20px;
+    }
+    
+    /* Ocultar elementos menos importantes */
+    .services .services-grid > div:nth-child(n+4) {
+        display: none;
+    }
+    
+    .industries-grid > div:nth-child(n+3) {
+        display: none;
+    }
+    
+    /* Mostrar en index.php móvil solo */
+    .mobile-view-more {
+        display: block;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .desktop-only {
+        display: none;
+    }
+    
+    /* Menu móvil ajustes adicionales */
+    .navbar {
+        height: 70px;
+    }
+    
+    .navbar-menu {
+        padding-top: 20px;
+    }
+    
+    .nav-link, .dropdown-toggle {
+        font-size: 18px;
+        padding: 15px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    /* Footer simplificado */
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .footer-links, .footer-contact {
+        margin-top: 30px;
+    }
+    
+    /* Slide testimoniales */
+    .testimonial-card {
+        padding: 15px;
+    }
+    
+    /* Stats responsive */
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    /* Blog section simplificado */
+    .blog-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* CTA y formularios */
+    .service-cta h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Prioritized content para móvil */
+    .mobile-priority-1 {
+        order: 1;
+    }
+    
+    .mobile-priority-2 {
+        order: 2;
+    }
+    
+    .mobile-priority-3 {
+        order: 3;
+    }
+    
+    /* Botón para ver más en móvil */
+    .mobile-more-btn {
+        display: block;
+        background: var(--primary-blue);
+        color: white;
+        text-align: center;
+        padding: 12px;
+        border-radius: 8px;
+        margin: 20px auto;
+        max-width: 80%;
+        text-decoration: none;
+    }
+}

@@ -1,0 +1,497 @@
+/* about-us.css */
+
+/* Hero Section */
+.about-hero {
+    padding: 120px 0 80px;
+    background: linear-gradient(135deg, #002C6B 0%, #004AAD 100%);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    color: white;
+}
+
+.about-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.about-hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.about-hero p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    max-width: 700px;
+    margin: 0 auto;
+    color: white;
+}
+
+/* Historia */
+.about-story {
+    padding: 80px 0;
+    background: white;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.about-content h2 {
+    color: #002C6B;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.about-content p {
+    color: #4B5563;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+}
+
+.story-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2.5rem;
+}
+
+.story-stats .stat-item {
+    text-align: center;
+}
+
+.story-stats .stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #00B1EB;
+    margin-bottom: 0.5rem;
+}
+
+.story-stats .stat-label {
+    color: #4B5563;
+    font-size: 1rem;
+}
+
+.about-image {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.about-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.experience-badge {
+    position: absolute;
+    bottom: 30px;
+    right: -20px;
+    background: #00B1EB;
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    box-shadow: 0 10px 20px rgba(0, 177, 235, 0.3);
+    z-index: 2;
+}
+
+.experience-badge span:first-child {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.experience-badge span:last-child {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-top: 0.5rem;
+}
+
+/* Misión, Visión y Valores */
+.about-mvv {
+    padding: 80px 0;
+    background: #F8FAFC;
+}
+
+.mvv-grid {
+    margin-top: 50px;
+}
+
+/* Estilos para la fila de Misión y Visión */
+.mvv-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.mvv-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.mvv-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+}
+
+.mvv-icon {
+    width: 70px;
+    height: 70px;
+    background: rgba(0, 177, 235, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 25px;
+    color: #00B1EB;
+    font-size: 28px;
+    transition: all 0.3s ease;
+}
+
+.mvv-card:hover .mvv-icon {
+    background: #00B1EB;
+    color: white;
+    transform: rotateY(180deg);
+}
+
+.mvv-card h3 {
+    color: #002C6B;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.mvv-card p {
+    color: #4B5563;
+    font-size: 1rem;
+    line-height: 1.7;
+    flex-grow: 1;
+}
+
+/* Estilos específicos para la tarjeta de Valores */
+.values-row {
+    margin-top: 30px;
+}
+
+.values-card {
+    padding: 40px;
+}
+
+.values-columns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.values-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.values-list li {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.values-list li:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.value-name {
+    display: block;
+    color: #002C6B;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.values-list p {
+    margin: 0;
+}
+
+/* Equipo */
+.about-team {
+    padding: 80px 0;
+    background: white;
+}
+
+.team-grid {
+    margin-top: 50px;
+}
+
+.team-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.team-member {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.team-member:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+}
+
+.member-photo {
+    position: relative;
+    overflow: hidden;
+}
+
+.member-photo img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.team-member:hover .member-photo img {
+    transform: scale(1.05);
+}
+
+.member-social {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 177, 235, 0.9);
+    display: flex;
+    justify-content: center;
+    padding: 15px 0;
+    gap: 15px;
+    transform: translateY(100%);
+    transition: all 0.3s ease;
+}
+
+.team-member:hover .member-social {
+    transform: translateY(0);
+}
+
+.social-link {
+    width: 36px;
+    height: 36px;
+    background: white;
+    color: #00B1EB;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.social-link:hover {
+    background: #002C6B;
+    color: white;
+    transform: scale(1.1);
+}
+
+.member-info {
+    padding: 25px;
+}
+
+.member-info h3 {
+    color: #002C6B;
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+}
+
+.member-position {
+    display: block;
+    color: #00B1EB;
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+.member-info p {
+    color: #4B5563;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.team-cta {
+    text-align: center;
+    margin-top: 60px;
+}
+
+.team-cta h3 {
+    color: #002C6B;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+/* Certificaciones */
+.about-certifications {
+    padding: 80px 0;
+    background: #F8FAFC;
+}
+
+.certifications-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-top: 50px;
+}
+
+.certification-item {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.certification-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+}
+
+.certification-item img {
+    height: 80px;
+    width: auto;
+    margin-bottom: 20px;
+}
+
+.certification-item h3 {
+    color: #002C6B;
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+}
+
+.certification-item p {
+    color: #4B5563;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* CTA Final */
+.about-cta {
+    padding: 80px 0;
+    background: linear-gradient(135deg, #002C6B 0%, #004AAD 100%);
+    color: white;
+    text-align: center;
+}
+
+.cta-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.cta-content p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    color: white;
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Media Queries */
+@media (max-width: 1200px) {
+    .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .mvv-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .values-columns {
+        grid-template-columns: 1fr;
+    }
+    
+    .team-row {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .certifications-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .about-image {
+        order: -1;
+        margin-bottom: 30px;
+    }
+    
+    .experience-badge {
+        right: 10px;
+        bottom: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .story-stats {
+        flex-direction: column;
+        gap: 25px;
+    }
+    
+    .values-card {
+        padding: 30px 20px;
+    }
+}
