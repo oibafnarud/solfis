@@ -287,7 +287,7 @@ $assets_path = 'assets/';
 						</a>
 					</div>
 					<div class="service-image">
-						<img src="assets/img/services/empresarial.jpg" alt="Servicios Empresariales">
+						<img src="img/services/empresarial.jpg" alt="Servicios Empresariales">
 					</div>
 				</div>
 			</div>

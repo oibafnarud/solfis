@@ -1,90 +1,384 @@
-<!-- industries.html -->
-<section class="industries">
+<!-- industries.html - Versión mejorada -->
+<section id="industrias" class="industries">
     <div class="container">
         <div class="section-header" data-aos="fade-up">
-            <h2>Sectores Empresariales</h2>
-            <p>Experiencia especializada en diferentes industrias</p>
+            <span class="section-badge">Especialización Sectorial</span>
+            <h2>Experiencia por Industrias</h2>
+            <p>Soluciones especializadas adaptadas a las necesidades específicas de cada sector empresarial</p>
         </div>
 
-        <div class="industries-grid">
-            <!-- Comercio -->
-            <div class="industry-card" data-aos="fade-up">
-                <div class="industry-icon">
+        <div class="industries-tabs">
+            <div class="tabs-nav" data-aos="fade-up">
+                <button class="tab-btn active" data-target="comercio">
                     <i class="fas fa-store"></i>
-                </div>
-                <h3>Comercio y Distribución</h3>
-                <ul class="industry-features">
-                    <li>Retail y Mayoristas</li>
-                    <li>E-commerce</li>
-                    <li>Importación/Exportación</li>
-                    <li>Gestión de Inventarios</li>
-                </ul>
-                <div class="industry-stats">
-                    <div class="stat">
-                        <span class="stat-number">350+</span>
-                        <span class="stat-label">Empresas</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Manufactura -->
-            <div class="industry-card" data-aos="fade-up" data-aos-delay="100">
-                <div class="industry-icon">
+                    <span>Comercio</span>
+                </button>
+                <button class="tab-btn" data-target="manufactura">
                     <i class="fas fa-industry"></i>
-                </div>
-                <h3>Manufactura</h3>
-                <ul class="industry-features">
-                    <li>Producción Industrial</li>
-                    <li>Control de Costos</li>
-                    <li>Gestión de Calidad</li>
-                    <li>Cadena de Suministro</li>
-                </ul>
-                <div class="industry-stats">
-                    <div class="stat">
-                        <span class="stat-number">200+</span>
-                        <span class="stat-label">Empresas</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Construcción -->
-            <div class="industry-card" data-aos="fade-up" data-aos-delay="200">
-                <div class="industry-icon">
-                    <i class="fas fa-hard-hat"></i>
-                </div>
-                <h3>Construcción</h3>
-                <ul class="industry-features">
-                    <li>Proyectos Inmobiliarios</li>
-                    <li>Control de Obras</li>
-                    <li>Gestión de Contratos</li>
-                    <li>Fiscalización</li>
-                </ul>
-                <div class="industry-stats">
-                    <div class="stat">
-                        <span class="stat-number">150+</span>
-                        <span class="stat-label">Empresas</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Servicios Profesionales -->
-            <div class="industry-card" data-aos="fade-up" data-aos-delay="300">
-                <div class="industry-icon">
+                    <span>Manufactura</span>
+                </button>
+                <button class="tab-btn" data-target="servicios">
                     <i class="fas fa-briefcase"></i>
-                </div>
-                <h3>Servicios Profesionales</h3>
-                <ul class="industry-features">
-                    <li>Consultoría</li>
-                    <li>Servicios Legales</li>
-                    <li>Tecnología</li>
-                    <li>Marketing</li>
-                </ul>
-                <div class="industry-stats">
-                    <div class="stat">
-                        <span class="stat-number">450+</span>
-                        <span class="stat-label">Empresas</span>
+                    <span>Servicios</span>
+                </button>
+                <button class="tab-btn" data-target="construccion">
+                    <i class="fas fa-hard-hat"></i>
+                    <span>Construcción</span>
+                </button>
+                <button class="tab-btn" data-target="salud">
+                    <i class="fas fa-hospital"></i>
+                    <span>Salud</span>
+                </button>
+                <button class="tab-btn" data-target="tecnologia">
+                    <i class="fas fa-microchip"></i>
+                    <span>Tecnología</span>
+                </button>
+            </div>
+
+            <div class="tabs-content" data-aos="fade-up">
+                <!-- Comercio -->
+                <div class="tab-panel active" id="comercio">
+                    <div class="panel-grid">
+                        <div class="panel-content">
+                            <h3>Comercio y Distribución</h3>
+                            <p>Soluciones específicas para optimizar operaciones comerciales, gestionar inventarios eficientemente y cumplir con requisitos fiscales del sector retail y distribución.</p>
+                            
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Retail y Mayoristas</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>E-commerce</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Importación/Exportación</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Gestión de Inventarios</span>
+                                </div>
+                            </div>
+                            
+                            <div class="industry-stats">
+                                <div class="industry-stat-item">
+                                    <div class="stat-circle">
+                                        <span class="stat-number counter" data-target="350">0</span><span>+</span>
+                                    </div>
+                                    <span class="stat-label">Empresas Atendidas</span>
+                                </div>
+                                <div class="industry-stat-item">
+                                    <div class="stat-circle">
+                                        <span class="stat-number">40</span><span>%</span>
+                                    </div>
+                                    <span class="stat-label">Reducción de Costos</span>
+                                </div>
+                            </div>
+                            
+                            <a href="#contacto" class="industry-cta">
+                                Consultar para este sector
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="panel-image">
+                            <img src="img/industries/comercio.jpg" alt="Comercio y Distribución">
+                            <div class="image-overlay"></div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Manufactura -->
+                <div class="tab-panel" id="manufactura">
+                    <div class="panel-grid">
+                        <div class="panel-content">
+                            <h3>Manufactura e Industria</h3>
+                            <p>Acompañamiento integral para empresas industriales, enfocado en la optimización de procesos productivos y el control de costos operativos.</p>
+                            
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Producción Industrial</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Control de Costos</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Gestión de Calidad</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Cadena de Suministro</span>
+                                </div>
+                            </div>
+                            
+                            <div class="industry-stats">
+                                <div class="industry-stat-item">
+                                    <div class="stat-circle">
+                                        <span class="stat-number counter" data-target="200">0</span><span>+</span>
+                                    </div>
+                                    <span class="stat-label">Empresas Atendidas</span>
+                                </div>
+                                <div class="industry-stat-item">
+                                    <div class="stat-circle">
+                                        <span class="stat-number">35</span><span>%</span>
+                                    </div>
+                                    <span class="stat-label">Aumento de Eficiencia</span>
+                                </div>
+                            </div>
+                            
+                            <a href="#contacto" class="industry-cta">
+                                Consultar para este sector
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="panel-image">
+                            <img src="img/industries/manufactura.jpg" alt="Manufactura e Industria">
+                            <div class="image-overlay"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Servicios Profesionales -->
+                <div class="tab-panel" id="servicios">
+                    <div class="panel-grid">
+                        <div class="panel-content">
+                            <h3>Servicios Profesionales</h3>
+                            <p>Soluciones financieras y administrativas diseñadas para empresas de servicios profesionales, optimizando su gestión y cumplimiento regulatorio.</p>
+                            
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Consultoría</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Servicios Legales</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Tecnología</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Marketing y Publicidad</span>
+                                </div>
+                            </div>
+                            
+                            <div class="industry-stats">
+                                <div class="industry-stat-item">
+                                    <div class="stat-circle">
+                                        <span class="stat-number counter" data-target="450">0</span><span>+</span>
+                                    </div>
+                                    <span class="stat-label">Empresas Atendidas</span>
+                                </div>
+                                <div class="industry-stat-item">
+                                    <div class="stat-circle">
+                                        <span class="stat-number">45</span><span>%</span>
+                                    </div>
+                                    <span class="stat-label">Mejora en Rentabilidad</span>
+                                </div>
+                            </div>
+                            
+                            <a href="#contacto" class="industry-cta">
+                                Consultar para este sector
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="panel-image">
+                            <img src="img/industries/servicios.jpg" alt="Servicios Profesionales">
+                            <div class="image-overlay"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Construcción -->
+                <div class="tab-panel" id="construccion">
+                    <div class="panel-grid">
+                        <div class="panel-content">
+                            <h3>Construcción e Inmobiliaria</h3>
+                            <p>Gestión financiera especializada para el sector construcción, con enfoque en el control de proyectos y optimización de recursos.</p>
+                            
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Proyectos Inmobiliarios</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Control de Obras</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Gestión de Contratos</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Fiscalización de Obras</span>
+                                </div>
+                            </div>
+                            
+                            <div class="industry-stats">
+                                <div class="industry-stat-item">
+                                    <div class="stat-circle">
+                                        <span class="stat-number counter" data-target="150">0</span><span>+</span>
+                                    </div>
+                                    <span class="stat-label">Empresas Atendidas</span>
+                                </div>
+                                <div class="industry-stat-item">
+                                    <div class="stat-circle">
+                                        <span class="stat-number">30</span><span>%</span>
+                                    </div>
+                                    <span class="stat-label">Reducción de Riesgos</span>
+                                </div>
+                            </div>
+                            
+                            <a href="#contacto" class="industry-cta">
+                                Consultar para este sector
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="panel-image">
+                            <img src="img/industries/construccion.jpg" alt="Construcción e Inmobiliaria">
+                            <div class="image-overlay"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Servicios de Salud -->
+                <div class="tab-panel" id="salud">
+                    <div class="panel-grid">
+                        <div class="panel-content">
+                            <h3>Servicios de Salud</h3>
+                            <p>Soluciones administrativas y financieras adaptadas a las necesidades específicas del sector salud, garantizando cumplimiento y eficiencia.</p>
+                            
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Clínicas y Hospitales</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Laboratorios</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Servicios Médicos</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Farmacias</span>
+                                </div>
+                            </div>
+                            
+                            <div class="industry-stats">
+                                <div class="industry-stat-item">
+                                    <div class="stat-circle">
+                                        <span class="stat-number counter" data-target="180">0</span><span>+</span>
+                                    </div>
+                                    <span class="stat-label">Empresas Atendidas</span>
+                                </div>
+                                <div class="industry-stat-item">
+                                    <div class="stat-circle">
+                                        <span class="stat-number">25</span><span>%</span>
+                                    </div>
+                                    <span class="stat-label">Mejora Operativa</span>
+                                </div>
+                            </div>
+                            
+                            <a href="#contacto" class="industry-cta">
+                                Consultar para este sector
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="panel-image">
+                            <img src="img/industries/salud.jpg" alt="Servicios de Salud">
+                            <div class="image-overlay"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tecnología y Software -->
+                <div class="tab-panel" id="tecnologia">
+                    <div class="panel-grid">
+                        <div class="panel-content">
+                            <h3>Tecnología y Software</h3>
+                            <p>Asesoría especializada para empresas tecnológicas, con énfasis en modelos de negocio innovadores y planificación financiera para el crecimiento.</p>
+                            
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Desarrollo de Software</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Servicios IT</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Telecomunicaciones</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Startups</span>
+                                </div>
+                            </div>
+                            
+                            <div class="industry-stats">
+                                <div class="industry-stat-item">
+                                    <div class="stat-circle">
+                                        <span class="stat-number counter" data-target="120">0</span><span>+</span>
+                                    </div>
+                                    <span class="stat-label">Empresas Atendidas</span>
+                                </div>
+                                <div class="industry-stat-item">
+                                    <div class="stat-circle">
+                                        <span class="stat-number">50</span><span>%</span>
+                                    </div>
+                                    <span class="stat-label">Tasa de Crecimiento</span>
+                                </div>
+                            </div>
+                            
+                            <a href="#contacto" class="industry-cta">
+                                Consultar para este sector
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="panel-image">
+                            <img src="img/industries/tecnologia.jpg" alt="Tecnología y Software">
+                            <div class="image-overlay"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen de experiencia por industrias -->
+        <div class="industry-summary" data-aos="fade-up">
+            <div class="summary-content">
+                <h3>Experiencia Diversificada</h3>
+                <p>Más de 1500 empresas de diferentes sectores confían en nuestros servicios</p>
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <span class="stat-value">15+</span>
+                        <span class="stat-desc">Años de Experiencia</span>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="stat-value">6</span>
+                        <span class="stat-desc">Sectores Especializados</span>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="stat-value">98%</span>
+                        <span class="stat-desc">Tasa de Satisfacción</span>
+                    </div>
+                </div>
+                <a href="#contacto" class="btn btn-primary">
+                    Consultar por su Industria
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
             </div>
         </div>
     </div>

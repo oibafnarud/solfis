@@ -165,7 +165,7 @@ $assets_path = 'assets/';
                         <!-- Miembro 1 -->
                         <div class="team-member" data-aos="fade-up">
                             <div class="member-photo">
-                                <img src="img/team/member1.jpg" alt="Juan Pérez">
+                                <img src="img/team/member1.jpg" alt="Zuleiny Reyes">
                                 <div class="member-social">
                                     <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
                                     <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
@@ -173,8 +173,8 @@ $assets_path = 'assets/';
                                 </div>
                             </div>
                             <div class="member-info">
-                                <h3>Juan Pérez</h3>
-                                <span class="member-position">Director General</span>
+                                <h3>Zuly Reyes</h3>
+                                <span class="member-position">Directora General - Founder</span>
                                 <p>Contador Público Autorizado con más de 20 años de experiencia en asesoría financiera y estratégica para empresas de diversos sectores.</p>
                             </div>
                         </div>
@@ -182,7 +182,7 @@ $assets_path = 'assets/';
                         <!-- Miembro 2 -->
                         <div class="team-member" data-aos="fade-up" data-aos-delay="100">
                             <div class="member-photo">
-                                <img src="img/team/member2.jpg" alt="María Gómez">
+                                <img src="img/team/member2.jpg" alt="Jennifer Guerra">
                                 <div class="member-social">
                                     <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
                                     <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
@@ -190,7 +190,7 @@ $assets_path = 'assets/';
                                 </div>
                             </div>
                             <div class="member-info">
-                                <h3>María Gómez</h3>
+                                <h3>Jennifer Guerra</h3>
                                 <span class="member-position">Directora de Contabilidad</span>
                                 <p>Especialista en contabilidad corporativa y auditoría interna con amplia experiencia en implementación de sistemas contables eficientes.</p>
                             </div>
@@ -202,7 +202,7 @@ $assets_path = 'assets/';
                         <!-- Miembro 3 -->
                         <div class="team-member" data-aos="fade-up" data-aos-delay="200">
                             <div class="member-photo">
-                                <img src="img/team/member3.jpg" alt="Carlos Rodríguez">
+                                <img src="img/team/member3.jpg" alt="Fabio Duran">
                                 <div class="member-social">
                                     <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
                                     <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
@@ -210,9 +210,9 @@ $assets_path = 'assets/';
                                 </div>
                             </div>
                             <div class="member-info">
-                                <h3>Carlos Rodríguez</h3>
-                                <span class="member-position">Director de Auditoría</span>
-                                <p>Auditor certificado con experiencia en empresas multinacionales y sólidos conocimientos en normativas internacionales de contabilidad.</p>
+                                <h3>Fabio Durán</h3>
+                                <span class="member-position">Director de Tecnología - Co-Founder</span>
+                                <p>Ingeniero con especialización en sistemas financieros y amplia experiencia en implementación de soluciones tecnológicas para el sector contable. Experto en optimización de procesos, seguridad de datos y cumplimiento normativo.</p>
                             </div>
                         </div>
                         

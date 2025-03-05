@@ -1,87 +1,175 @@
-/* stats.css */
+/* stats.css - Estilos mejorados para la sección de estadísticas */
 .stats {
-    padding: var(--spacing-2xl) 0;
-    background: linear-gradient(135deg, var(--primary-navy) 0%, var(--secondary-blue) 100%);
     position: relative;
-    overflow: hidden;
+    padding: 100px 0;
+    background: linear-gradient(135deg, var(--primary-navy) 0%, var(--secondary-blue) 100%);
     color: var(--white);
+    overflow: hidden;
 }
 
-/* Efecto de patrón de fondo */
-.stats::before {
+/* Elementos de fondo */
+.stats-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.stats-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+}
+
+.shape-left {
+    top: -20%;
+    left: -10%;
+    width: 40%;
+    height: 60%;
+    background: rgba(0, 177, 235, 0.3);
+    opacity: 0.2;
+}
+
+.shape-right {
+    bottom: -20%;
+    right: -10%;
+    width: 50%;
+    height: 70%;
+    background: rgba(0, 177, 235, 0.2);
+    opacity: 0.15;
+}
+
+/* Encabezado de la sección */
+.stats-header {
+    text-align: center;
+    margin-bottom: 60px;
+    position: relative;
+    z-index: 2;
+}
+
+.stats-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    color: white;
+}
+
+.stats-header p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Grid de estadísticas */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Tarjeta de estadística */
+.stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 30px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.stat-card:hover {
+    transform: translateY(-10px);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: 
-        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    z-index: -1;
 }
 
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--spacing-lg);
-}
-
-.stat-card {
-    background: rgba(255, 255, 255, 0.1);
-    padding: var(--spacing-lg);
-    border-radius: var(--border-radius-lg);
-    text-align: center;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all var(--transition-normal);
-}
-
-.stat-card:hover {
-    transform: translateY(-10px);
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-}
-
+/* Ícono de la estadística */
 .stat-icon {
     width: 60px;
     height: 60px;
-    margin: 0 auto var(--spacing-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 177, 235, 0.2);
+    color: white;
     border-radius: 50%;
-    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-size: 24px;
+    transition: all 0.3s ease;
 }
 
-.stat-icon i {
-    transition: transform var(--transition-normal);
+.stat-card:hover .stat-icon {
+    transform: scale(1.1) rotate(10deg);
+    background: rgba(0, 177, 235, 0.4);
 }
 
-.stat-card:hover .stat-icon i {
-    transform: scale(1.2);
+/* Contenido de la estadística */
+.stat-content {
+    margin-bottom: 15px;
 }
 
 .stat-number {
     font-size: 3rem;
     font-weight: 700;
+    color: white;
     line-height: 1.2;
-    margin-bottom: var(--spacing-sm);
-   background: #00b1eb;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: baseline;
+}
+
+.counter {
+    display: inline-block;
+}
+
+.stat-suffix {
+    font-size: 2rem;
+    margin-left: 2px;
 }
 
 .stat-label {
     font-size: 1.1rem;
-    opacity: 0.9;
+    color: rgba(255, 255, 255, 0.8);
     font-weight: 500;
 }
 
-/* Animation for counter */
-@keyframes countUp {
+/* Barra de progreso */
+.stat-progress {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #00B1EB 0%, #0095c8 100%);
+    border-radius: 3px;
+    width: 0;
+    transition: width 2s ease;
+}
+
+/* Animaciones */
+@keyframes count-up {
     from {
         opacity: 0;
         transform: translateY(20px);
@@ -93,47 +181,61 @@
 }
 
 .stat-number {
-    animation: countUp 1s ease-out forwards;
+    animation: count-up 1.5s ease-out forwards;
 }
+
+.stat-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: appear 0.8s ease forwards;
+}
+
+@keyframes appear {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.3s; }
+.stat-card:nth-child(3) { animation-delay: 0.5s; }
+.stat-card:nth-child(4) { animation-delay: 0.7s; }
 
 /* Responsive */
 @media (max-width: 1200px) {
     .stats-grid {
-        gap: var(--spacing-md);
-    }
-}
-
-@media (max-width: 992px) {
-    .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
     }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
+    .stats {
+        padding: 80px 0;
+    }
+    
+    .stats-header h2 {
+        font-size: 2rem;
+    }
+    
     .stats-grid {
         grid-template-columns: 1fr;
-    }
-
-    .stat-card {
-        max-width: 300px;
+        max-width: 450px;
         margin: 0 auto;
     }
-
+    
+    .stat-card {
+        padding: 25px;
+    }
+    
     .stat-number {
         font-size: 2.5rem;
     }
-}
-
-/* Floating animation for cards */
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0);
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
     }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-.stat-card:hover {
-    animation: float 3s ease-in-out infinite;
 }
