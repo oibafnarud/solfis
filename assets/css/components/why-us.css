@@ -1,7 +1,8 @@
-/* why-us.css */
+/* why-us-fixed.css - CSS optimizado para resolver problemas en la sección Why Us */
+
 .why-us {
     padding: var(--spacing-2xl) 0;
-    background: var(--white);
+    background-color: var(--white);
     position: relative;
     overflow: hidden;
 }
@@ -15,6 +16,12 @@
     height: 100%;
     background: linear-gradient(135deg, rgba(0, 177, 235, 0.05) 0%, transparent 100%);
     clip-path: polygon(70% 0, 100% 0, 100% 100%, 30% 100%);
+    z-index: 1;
+}
+
+.why-us .container {
+    position: relative;
+    z-index: 2;
 }
 
 .why-us-grid {
@@ -40,6 +47,7 @@
     transition: all var(--transition-normal);
     position: relative;
     overflow: hidden;
+    height: 100%;
 }
 
 .feature-card::before {
@@ -68,7 +76,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--light-gray);
+    background: rgba(0, 177, 235, 0.1);
     border-radius: var(--border-radius-md);
     margin-bottom: var(--spacing-md);
     color: var(--primary-blue);
@@ -89,7 +97,7 @@
 }
 
 .feature-card p {
-    color: var(--gray-800);
+    color: var(--gray-700);
     font-size: 0.9rem;
     line-height: 1.6;
     margin: 0;
@@ -99,6 +107,7 @@
 .why-us-image-wrapper {
     position: relative;
     height: 100%;
+    min-height: 500px;
     display: flex;
     align-items: center;
 }
@@ -109,13 +118,21 @@
     border-radius: var(--border-radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-lg);
+    height: 100%;
+    min-height: 500px;
 }
 
 .why-us-image img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     display: block;
     border-radius: var(--border-radius-lg);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 .image-overlay {
@@ -126,6 +143,7 @@
     height: 100%;
     background: linear-gradient(135deg, rgba(0, 35, 94, 0.2), rgba(0, 177, 235, 0.2));
     border-radius: var(--border-radius-lg);
+    z-index: 1;
 }
 
 .experience-badge {
@@ -163,6 +181,14 @@
     .why-us-grid {
         gap: var(--spacing-xl);
     }
+    
+    .why-us-image-wrapper {
+        min-height: 450px;
+    }
+    
+    .why-us-image {
+        min-height: 450px;
+    }
 }
 
 @media (max-width: 992px) {
@@ -173,7 +199,12 @@
     .why-us-image-wrapper {
         order: -1;
         max-width: 600px;
-        margin: 0 auto;
+        margin: 0 auto 40px;
+        min-height: 400px;
+    }
+    
+    .why-us-image {
+        min-height: 400px;
     }
 
     .experience-badge {
@@ -199,5 +230,13 @@
 
     .experience-badge span:first-child {
         font-size: 2rem;
+    }
+    
+    .why-us-image-wrapper {
+        min-height: 350px;
+    }
+    
+    .why-us-image {
+        min-height: 350px;
     }
 }

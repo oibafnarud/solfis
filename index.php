@@ -49,6 +49,7 @@ if (isset($_SERVER['HTTP_USER_AGENT'])) {
     <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/components/text-contrast-fixes.css">
     <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/components/popup.css">
     <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/mobile-optimizations.css">
+	<link rel="stylesheet" href="<?php echo $assets_path; ?>/css/components/industries-tabs.css">
     
     <!-- Fuentes -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -88,6 +89,9 @@ if (isset($_SERVER['HTTP_USER_AGENT'])) {
 		<!-- Casos -->
         <?php include $base_path . 'success-cases.html'; ?>
 		
+		<!-- Contacto -->
+        <?php include $base_path . 'contact-section.html'; ?>
+		
 
     </main>
 
@@ -109,17 +113,16 @@ if (isset($_SERVER['HTTP_USER_AGENT'])) {
     <!-- Scripts Componentes -->
     <script src="<?php echo $assets_path; ?>/js/main.js"></script>
     <script src="<?php echo $assets_path; ?>/js/components/navbar.js"></script>
-    <script src="<?php echo $assets_path; ?>/js/components/hero.js"></script>
     <script src="<?php echo $assets_path; ?>/js/components/stats.js"></script>
     <script src="<?php echo $assets_path; ?>/js/components/why-us.js"></script>
     <script src="<?php echo $assets_path; ?>/js/components/testimonials.js"></script>
     <script src="<?php echo $assets_path; ?>/js/components/contact.js"></script>
     <script src="<?php echo $assets_path; ?>/js/components/footer.js"></script>
-    <script src="<?php echo $assets_path; ?>/js/components/industries.js"></script>
     <script src="<?php echo $assets_path; ?>/js/components/success-cases.js"></script>
     <script src="<?php echo $assets_path; ?>/js/components/hero-cubes.js"></script>
     <script src="<?php echo $assets_path; ?>/js/components/popup.js"></script>
 	<script src="<?php echo $assets_path; ?>/js/components/hero-banner.js"></script>
+	<script src="<?php echo $assets_path; ?>/js/components/industries-tabs.js"></script>
 
     <!-- Inicialización de AOS -->
     <script>
