@@ -1,113 +1,138 @@
-// fixed-stats.js - Script optimizado para asegurar funcionamiento de contadores
+// stats.js - Archivo optimizado para garantizar la animación de contadores
 document.addEventListener('DOMContentLoaded', function() {
-    // Buscar todos los counters en la página
-    initializeCounters();
+    initCounters();
+    initProgressBars();
     
-    // También inicializar counters cuando se carga después con AJAX
-    document.addEventListener('DOMNodeInserted', function(e) {
-        if (e.target.querySelectorAll) {
-            const newCounters = e.target.querySelectorAll('.counter');
-            if (newCounters.length > 0) {
-                initializeCounters();
+    // Inicializar contadores
+    function initCounters() {
+        // Configuración específica para cada contador
+        const countersConfig = {
+            'counter-experience': {
+                target: 15,
+                suffix: '+',
+                duration: 1500
+            },
+            'counter-clients': {
+                target: 1500,
+                suffix: '+', 
+                duration: 2000
+            },
+            'counter-retention': {
+                target: 98,
+                suffix: '%',
+                duration: 1800
             }
-        }
-    });
-    
-    function initializeCounters() {
-        // Seleccionar todos los elementos con clase .counter
-        const counters = document.querySelectorAll('.counter');
+            // El contador "24/7" es estático, no necesita animación
+        };
         
-        if (counters.length === 0) {
-            console.log('No se encontraron elementos con clase .counter');
-            return;
-        }
-        
-        console.log(`Inicializando ${counters.length} contadores`);
-        
-        counters.forEach(counter => {
-            // Verificar si ya está inicializado para evitar reiniciar contadores en proceso
-            if (counter.dataset.initialized === 'true') return;
-            
-            // Marcar como inicializado
-            counter.dataset.initialized = 'true';
-            
-            // El valor objetivo viene del atributo data-target
-            const targetValue = parseInt(counter.getAttribute('data-target'));
-            if (isNaN(targetValue)) {
-                console.log('Counter sin data-target válido:', counter);
-                return;
+        // Obtener todos los contadores
+        Object.keys(countersConfig).forEach(id => {
+            const counterElement = document.getElementById(id);
+            if (counterElement) {
+                setupCounter(
+                    counterElement, 
+                    countersConfig[id].target, 
+                    countersConfig[id].suffix,
+                    countersConfig[id].duration
+                );
             }
-            
-            // Configurar la animación
-            let startValue = 0;
-            const duration = 2000; // 2 segundos
-            
-            // Función que actualiza el contador
-            function updateCounter() {
-                if (startValue < targetValue) {
-                    // Cálculo del incremento con curva de aceleración
-                    const increment = Math.ceil((targetValue - startValue) / 20);
-                    startValue += increment;
-                    
-                    // Asegurar que no sobrepasamos el objetivo
-                    if (startValue > targetValue) {
-                        startValue = targetValue;
-                    }
-                    
-                    // Actualizar el texto del counter
-                    counter.textContent = startValue;
-                    
-                    // Continuar actualizando si no hemos llegado al objetivo
-                    if (startValue < targetValue) {
-                        setTimeout(updateCounter, 50);
-                    }
+        });
+        
+        // Implementación alternativa: buscar por clase
+        const genericCounters = document.querySelectorAll('.stat-number');
+        genericCounters.forEach(counter => {
+            // Solo procesar contadores que no tengan ID específico
+            if (!counter.id) {
+                const label = counter.closest('.stat-card')?.querySelector('.stat-label')?.textContent.toLowerCase() || '';
+                let target = 0;
+                let suffix = '';
+                
+                if (label.includes('experiencia')) {
+                    target = 15;
+                    suffix = '+';
+                } else if (label.includes('clientes') || label.includes('satisfechos')) {
+                    target = 1500;
+                    suffix = '+';
+                } else if (label.includes('retención')) {
+                    target = 98;
+                    suffix = '%';
+                } else if (label.includes('soporte') || label.includes('cliente')) {
+                    // No hacer nada para "24/7", es estático
+                    return;
+                }
+                
+                if (target > 0) {
+                    setupCounter(counter, target, suffix, 2000);
                 }
             }
-            
-            // Iniciar cuando el elemento es visible
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        // Elemento visible, iniciar animación
-                        counter.textContent = '0'; // Iniciar desde cero
-                        setTimeout(updateCounter, 200); // Pequeño retraso para efecto visual
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1 });
-            
-            observer.observe(counter);
         });
     }
     
-    // También inicializar las barras de progreso si existen
-    initializeProgressBars();
+    // Configurar un contador individual
+    function setupCounter(element, targetValue, suffix, duration) {
+        // Establecer valor inicial
+        element.textContent = "0" + suffix;
+        
+        // Observador para iniciar la animación cuando el elemento esté visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter(element, targetValue, suffix, duration);
+                    observer.unobserve(element);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        observer.observe(element);
+    }
     
-    function initializeProgressBars() {
+    // Animación del contador
+    function animateCounter(element, target, suffix, duration) {
+        const startTime = performance.now();
+        const initialValue = 0;
+        
+        // Función para la curva de animación (ease-out)
+        const easeOutQuad = t => t * (2 - t);
+        
+        // Función de actualización de la animación
+        function updateCounter(currentTime) {
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(elapsedTime / duration, 1);
+            const easedProgress = easeOutQuad(progress);
+            const currentValue = Math.floor(initialValue + (target - initialValue) * easedProgress);
+            
+            element.textContent = currentValue + suffix;
+            
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            }
+        }
+        
+        requestAnimationFrame(updateCounter);
+    }
+    
+    // Inicializar barras de progreso
+    function initProgressBars() {
         const progressBars = document.querySelectorAll('.stat-progress .progress-bar');
         
         progressBars.forEach(bar => {
-            // Animación de las barras cuando son visibles
+            // Guardar el ancho objetivo
+            const targetWidth = bar.style.width;
+            
+            // Iniciar en cero
+            bar.style.width = '0%';
+            
+            // Observador para animar cuando sea visible
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        // Guardar el ancho original
-                        const targetWidth = bar.style.width;
-                        
-                        // Resetear a cero y luego animar
-                        bar.style.transition = 'none';
-                        bar.style.width = '0%';
-                        
-                        // Forzar un reflow para que tome el ancho cero
-                        void bar.offsetWidth;
-                        
                         // Animar al ancho objetivo
-                        bar.style.transition = 'width 1.5s ease-out';
                         setTimeout(() => {
+                            bar.style.transition = 'width 1.5s ease-out';
                             bar.style.width = targetWidth;
-                        }, 100);
+                        }, 200);
                         
-                        observer.unobserve(entry.target);
+                        observer.unobserve(bar);
                     }
                 });
             }, { threshold: 0.1 });
@@ -115,4 +140,15 @@ document.addEventListener('DOMContentLoaded', function() {
             observer.observe(bar);
         });
     }
+    
+    // Solución de respaldo: asegurar que los valores estáticos estén correctos
+    function ensureStaticValues() {
+        const supportCounter = document.getElementById('counter-support');
+        if (supportCounter && supportCounter.textContent !== '24/7') {
+            supportCounter.textContent = '24/7';
+        }
+    }
+    
+    // Ejecutar después de un breve retraso para asegurar que los DOM están listos
+    setTimeout(ensureStaticValues, 100);
 });
