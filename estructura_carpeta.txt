@@ -1,0 +1,733 @@
+: C:\xampp2\htdocs\solfis 
+
+|   .gitattributes
+|   .htaccess
+|   articulo.php
+|   auditoria.php
+|   blog-buscar.php
+|   blog.php
+|   config.php
+|   contabilidad.php
+|   contacto.php
+|   empresarial.php
+|   estructura_carpeta.txt
+|   fiscal.php
+|   fronteriza.php
+|   index.php
+|   listar_estructura.bat
+|   nosotros.php
+|   README.md
+|   servicios.php
+|   sistemas.php
+|   suscribir.php
+|   temp_tree.txt
+|   
++---admin
+|   |   categories.php
+|   |   category-delete.php
+|   |   comment-approve.php
+|   |   comment-delete.php
+|   |   comment-reject.php
+|   |   comments.php
+|   |   config.php
+|   |   index.html
+|   |   index.php
+|   |   login.php
+|   |   logout.php
+|   |   media-delete.php
+|   |   media-upload.php
+|   |   media.php
+|   |   post-delete.php
+|   |   post-edit.php
+|   |   posts.php
+|   |   subscriber-activate.php
+|   |   subscriber-add.php
+|   |   subscriber-deactivate.php
+|   |   subscriber-delete.php
+|   |   subscribers-export.php
+|   |   subscribers.php
+|   |   
+|   +---img
+|   |   \---blog
+|   |       \---uploads
+|   \---includes
+|           header.php
+|           
++---assets
+|   +---css
+|   |   |   fixes.css
+|   |   |   main.css
+|   |   |   
+|   |   \---components
+|   |           about-us.css
+|   |           admin-styles.css
+|   |           admin.css
+|   |           blog-section.css
+|   |           blog.css
+|   |           contact-section.css
+|   |           contact.css
+|   |           dropdown-menu.css
+|   |           footer.css
+|   |           fronteriza.css
+|   |           hero-banner.css
+|   |           hero-building-cubes.css
+|   |           hero-cubes.css
+|   |           hero.css
+|   |           industries-section.css
+|   |           industries-tabs.css
+|   |           industries.css
+|   |           mobile-layout.css
+|   |           mobile-menu.css
+|   |           mobile-optimizations.css
+|   |           nav.css
+|   |           newsletter.css
+|   |           popup.css
+|   |           service-detail.css
+|   |           services-page.css
+|   |           services.css
+|   |           simple-mobile.css
+|   |           stats.css
+|   |           success-cases.css
+|   |           testimonials-compact.css
+|   |           testimonials.css
+|   |           testimonials2.css
+|   |           text-contrast-fixes.css
+|   |           why-us.css
+|   |           
+|   \---js
+|       |   main.js
+|       |   
+|       \---components
+|               admin.js
+|               contact.js
+|               footer.js
+|               hero-banner.js
+|               hero-building-cubes.js
+|               hero-cubes.js
+|               hero.js
+|               industries-tabs.js
+|               industries.js
+|               mobile-menu-jquery.js
+|               navbar.js
+|               popup.js
+|               stats.js
+|               success-cases.js
+|               testimonials.js
+|               testimonials2.js
+|               why-us.js
+|               
++---blog
+|       index.php
+|       
++---img
+|   |   logo-white.png
+|   |   logo.png
+|   |   why-us.jpg
+|   |   
+|   +---about
+|   |       about-story.jpg
+|   |       
+|   +---cases
+|   |       logo_jaz.png
+|   |       logo_teamlogic.png
+|   |       
+|   +---industries
+|   |       comercio.jpg
+|   |       construccion.jpg
+|   |       manufactura.jpg
+|   |       salud.jpg
+|   |       servicios.jpg
+|   |       tecnologia.jpg
+|   |       
+|   +---services
+|   |       2.jpg
+|   |       auditoria-hero.jpg
+|   |       auditoria.jpg
+|   |       contabilidad-hero.jpg
+|   |       contabilidad.jpg
+|   |       empresarial-hero.jpg
+|   |       empresarial.jpg
+|   |       fiscal-hero.jpg
+|   |       fiscal.jpg
+|   |       fronteriza-hero.jpg
+|   |       fronteriza-popup.jpg
+|   |       fronteriza-popup2.jpg
+|   |       sistemas-hero.jpg
+|   |       sistemas.jpg
+|   |       
+|   +---team
+|   |       author1.jpg
+|   |       member1.jpg
+|   |       member2.jpg
+|   |       member3.jpg
+|   |       member33.jpg
+|   |       
+|   \---testimonials
+|           client1.jpg
+|           client2.jpg
+|           client3.jpg
+|           client4.jpg
+|           
++---includes
+|       blog-system.php
+|       
+\---sections
+        blog-section.html
+        blog.html
+        contact-section.html
+        footer.html
+        hero-banner.html
+        hero.html
+        industries.html
+        navbar.html
+        newsletter-section.html
+        popup.html
+        services.html
+        stats.html
+        success-cases.html
+        testimonials.html
+        why-us.html
+        
+ 
+Lista detallada de archivos: 
+ 
+C:\xampp2\htdocs\solfis\.gitattributes
+C:\xampp2\htdocs\solfis\.htaccess
+C:\xampp2\htdocs\solfis\articulo.php
+C:\xampp2\htdocs\solfis\auditoria.php
+C:\xampp2\htdocs\solfis\blog-buscar.php
+C:\xampp2\htdocs\solfis\blog.php
+C:\xampp2\htdocs\solfis\config.php
+C:\xampp2\htdocs\solfis\contabilidad.php
+C:\xampp2\htdocs\solfis\contacto.php
+C:\xampp2\htdocs\solfis\empresarial.php
+C:\xampp2\htdocs\solfis\estructura_carpeta.txt
+C:\xampp2\htdocs\solfis\fiscal.php
+C:\xampp2\htdocs\solfis\fronteriza.php
+C:\xampp2\htdocs\solfis\index.php
+C:\xampp2\htdocs\solfis\listar_estructura.bat
+C:\xampp2\htdocs\solfis\nosotros.php
+C:\xampp2\htdocs\solfis\README.md
+C:\xampp2\htdocs\solfis\servicios.php
+C:\xampp2\htdocs\solfis\sistemas.php
+C:\xampp2\htdocs\solfis\suscribir.php
+C:\xampp2\htdocs\solfis\.git\COMMIT_EDITMSG
+C:\xampp2\htdocs\solfis\.git\config
+C:\xampp2\htdocs\solfis\.git\description
+C:\xampp2\htdocs\solfis\.git\FETCH_HEAD
+C:\xampp2\htdocs\solfis\.git\HEAD
+C:\xampp2\htdocs\solfis\.git\index
+C:\xampp2\htdocs\solfis\.git\ORIG_HEAD
+C:\xampp2\htdocs\solfis\.git\hooks\applypatch-msg.sample
+C:\xampp2\htdocs\solfis\.git\hooks\commit-msg.sample
+C:\xampp2\htdocs\solfis\.git\hooks\fsmonitor-watchman.sample
+C:\xampp2\htdocs\solfis\.git\hooks\post-update.sample
+C:\xampp2\htdocs\solfis\.git\hooks\pre-applypatch.sample
+C:\xampp2\htdocs\solfis\.git\hooks\pre-commit.sample
+C:\xampp2\htdocs\solfis\.git\hooks\pre-merge-commit.sample
+C:\xampp2\htdocs\solfis\.git\hooks\pre-push.sample
+C:\xampp2\htdocs\solfis\.git\hooks\pre-rebase.sample
+C:\xampp2\htdocs\solfis\.git\hooks\pre-receive.sample
+C:\xampp2\htdocs\solfis\.git\hooks\prepare-commit-msg.sample
+C:\xampp2\htdocs\solfis\.git\hooks\push-to-checkout.sample
+C:\xampp2\htdocs\solfis\.git\hooks\sendemail-validate.sample
+C:\xampp2\htdocs\solfis\.git\hooks\update.sample
+C:\xampp2\htdocs\solfis\.git\info\exclude
+C:\xampp2\htdocs\solfis\.git\logs\HEAD
+C:\xampp2\htdocs\solfis\.git\logs\refs\heads\main
+C:\xampp2\htdocs\solfis\.git\logs\refs\remotes\origin\HEAD
+C:\xampp2\htdocs\solfis\.git\logs\refs\remotes\origin\main
+C:\xampp2\htdocs\solfis\.git\objects\00\5c8839f38d28221cff8a821f3bd353e082c739
+C:\xampp2\htdocs\solfis\.git\objects\01\23c55ffb157542e9756fb1f7c2a7d9168263c5
+C:\xampp2\htdocs\solfis\.git\objects\05\68a58f7437b344c6eeb8cd696b975d17afbad0
+C:\xampp2\htdocs\solfis\.git\objects\06\305dd7c50a3156c8e95be2073defd8fc8ab208
+C:\xampp2\htdocs\solfis\.git\objects\07\1f14ef627f993b33bc4308e4465981e70fd58b
+C:\xampp2\htdocs\solfis\.git\objects\08\75dab262c69f4e86c84f51a5874589c41c1ee8
+C:\xampp2\htdocs\solfis\.git\objects\08\8dab466850576784278faae82e08697247cc7c
+C:\xampp2\htdocs\solfis\.git\objects\09\1ed508bcd46237eef5ed0c4e975c1dc707c4c4
+C:\xampp2\htdocs\solfis\.git\objects\09\43405192b1de6516e066ebd0f08e0b3ebc27bd
+C:\xampp2\htdocs\solfis\.git\objects\0c\fe0d46067f1d0c1b3ead637087ff2d9ca7e149
+C:\xampp2\htdocs\solfis\.git\objects\0d\221fc13513cb19c7252fdc72422f3530a2392e
+C:\xampp2\htdocs\solfis\.git\objects\0d\f9a1593186d42079a26eaae497846caed57813
+C:\xampp2\htdocs\solfis\.git\objects\0e\ac1d2853c2e3387d5dcc7617e497225071aa77
+C:\xampp2\htdocs\solfis\.git\objects\11\2914a518b1c66372f7d0abecffbeedae814f93
+C:\xampp2\htdocs\solfis\.git\objects\11\b7b1afc628fdf64df6483a42234e68ac508220
+C:\xampp2\htdocs\solfis\.git\objects\15\2f7d68d2427c066dde4e0db6872dd5e8f60a02
+C:\xampp2\htdocs\solfis\.git\objects\16\be8b5661fbd78103f1f2b6ac719a41b3cd9f42
+C:\xampp2\htdocs\solfis\.git\objects\18\1a59636c6c6e534ef04b017e0b7a149675d1fd
+C:\xampp2\htdocs\solfis\.git\objects\1b\f51646734a7d4b394f4d2d96c6d25376f23232
+C:\xampp2\htdocs\solfis\.git\objects\1e\b4956814a720417285fb30bcc01da13de71736
+C:\xampp2\htdocs\solfis\.git\objects\21\8be52e1307d862cc6f3e1914a0e9987b3188ed
+C:\xampp2\htdocs\solfis\.git\objects\25\c34e86a844de556bac4986ceb0eb92673fe106
+C:\xampp2\htdocs\solfis\.git\objects\26\004297750679bfc8b77ecb36fe4ec76fb73ae5
+C:\xampp2\htdocs\solfis\.git\objects\26\dbdc8522b05931ce814e0be387ca8a836956fa
+C:\xampp2\htdocs\solfis\.git\objects\28\22a9cfb61574980a9c7b3a93298e184b195035
+C:\xampp2\htdocs\solfis\.git\objects\29\32ed152fca7728df6cc8ef75c3872a9e2f9b0c
+C:\xampp2\htdocs\solfis\.git\objects\29\635a04c751892849e896fa66dea816829434fd
+C:\xampp2\htdocs\solfis\.git\objects\2c\0a92bd415cd580e0634277c864fe3f4077f942
+C:\xampp2\htdocs\solfis\.git\objects\2d\0e15b040ab283711fcc39a0d8298e6690711b9
+C:\xampp2\htdocs\solfis\.git\objects\2e\8ec15680c219454497b49078e8cf2991100eb4
+C:\xampp2\htdocs\solfis\.git\objects\2e\e391893085a26703788056bcf947edeb8b82b8
+C:\xampp2\htdocs\solfis\.git\objects\32\869ce5ba1ab49d34efadb6bbc8658d1068f3a7
+C:\xampp2\htdocs\solfis\.git\objects\33\a40d42df7d2c916de661b9b51eeef58a3fced7
+C:\xampp2\htdocs\solfis\.git\objects\34\4387c2bc7a31c5ca543566f51cb889e785e4b2
+C:\xampp2\htdocs\solfis\.git\objects\35\f3311f9769229af6f599b53eb4c4cd796619ee
+C:\xampp2\htdocs\solfis\.git\objects\35\f9ec1120ea43bac97e69011f0df5b30721e32f
+C:\xampp2\htdocs\solfis\.git\objects\36\1a5296bbd4c9da5cc0c1440b7abb2256b2427e
+C:\xampp2\htdocs\solfis\.git\objects\37\af0030773f2d12a725d00f0e96f2b9f2dcba89
+C:\xampp2\htdocs\solfis\.git\objects\38\666b5c9ecefd77d012e599e7f60c2f3583736f
+C:\xampp2\htdocs\solfis\.git\objects\38\bdf0b6dee5cb8a4ff24c622893b3887742d794
+C:\xampp2\htdocs\solfis\.git\objects\39\453c793e34c42f9dd1debefad881348aaa059d
+C:\xampp2\htdocs\solfis\.git\objects\3a\9c834f80d256c3fb768417f0ad30ac9180fb2c
+C:\xampp2\htdocs\solfis\.git\objects\3a\c69b69a96f138414a609e03ce51227782998a4
+C:\xampp2\htdocs\solfis\.git\objects\3b\fdfaffe08da43b2056e8e409ee6263d106ba46
+C:\xampp2\htdocs\solfis\.git\objects\3c\22785c85b8900c331dd831c1949adfa73f7f80
+C:\xampp2\htdocs\solfis\.git\objects\3d\288be6c18db3f76d7b54da7a25355e3cab3872
+C:\xampp2\htdocs\solfis\.git\objects\3d\b3fdcb67df51fa27ea56ff4a21e5e0b5e073f2
+C:\xampp2\htdocs\solfis\.git\objects\41\2c4985fc56b5786ba255e852b5b4cc20a8ab2b
+C:\xampp2\htdocs\solfis\.git\objects\42\1b0459cf5049df84ce82589a58021ff54b4bf5
+C:\xampp2\htdocs\solfis\.git\objects\43\d5815a49aa67d45d84831b6643531dd387aece
+C:\xampp2\htdocs\solfis\.git\objects\47\0853161b62f046a3139234c878639e2967ee9c
+C:\xampp2\htdocs\solfis\.git\objects\48\b8e4cce2ccce15dfaa88c3346c471ccd6a93e0
+C:\xampp2\htdocs\solfis\.git\objects\4b\ca014379c4d4ce01ef33459440901fa00d9d82
+C:\xampp2\htdocs\solfis\.git\objects\4b\ef2737f0f27548a2361fa6fb5c42dcd4718cec
+C:\xampp2\htdocs\solfis\.git\objects\4d\5ccba6c613fbb77063b62c65dcfaa8435e58db
+C:\xampp2\htdocs\solfis\.git\objects\4d\985b7075919889cf843e3bb03abe8ef7722196
+C:\xampp2\htdocs\solfis\.git\objects\4d\cc878066b964b26f125945b4eb63475a48b931
+C:\xampp2\htdocs\solfis\.git\objects\4f\40d1c59a692bb7c4ce700511ab75ec5b2f9ae5
+C:\xampp2\htdocs\solfis\.git\objects\52\cd36a60a62b0e103d6a2897432e046c8eb823b
+C:\xampp2\htdocs\solfis\.git\objects\53\007cc4b6c840e2288c8bf4443bf75d8342fb61
+C:\xampp2\htdocs\solfis\.git\objects\53\2728264994da2288354ff6078c3d1ed47187eb
+C:\xampp2\htdocs\solfis\.git\objects\54\51a3e2286152ec336eb48b29f0f0fa613c7b4a
+C:\xampp2\htdocs\solfis\.git\objects\55\b1b42db4e1fd478da1773620516c7a533b4dd4
+C:\xampp2\htdocs\solfis\.git\objects\57\c6ed233fe95e4e2d9acafad3aa55b14847f43b
+C:\xampp2\htdocs\solfis\.git\objects\5a\01c7439d287767ce4aab4900288f77d2dfa935
+C:\xampp2\htdocs\solfis\.git\objects\5a\41ed5235c57b35126916b6e1a7f6ee5d691786
+C:\xampp2\htdocs\solfis\.git\objects\5a\bb55948cbb69d68b86e62429130ec5d96e3370
+C:\xampp2\htdocs\solfis\.git\objects\5b\c7adbc2aa4f4717cc7dcb9f89633093d73415a
+C:\xampp2\htdocs\solfis\.git\objects\5c\d32afd9dd1dd4bc702a839195a4b8839ee60d2
+C:\xampp2\htdocs\solfis\.git\objects\5f\03c3378d9ca7795e13e544c818118397ca6a48
+C:\xampp2\htdocs\solfis\.git\objects\5f\0ccf068b0e7da0cd435f964d8cc14249dee026
+C:\xampp2\htdocs\solfis\.git\objects\61\5ca890672fb24b1adab27681594d8cb010aec5
+C:\xampp2\htdocs\solfis\.git\objects\62\d44310c32eacf7514396c2ba55866b6366e6f8
+C:\xampp2\htdocs\solfis\.git\objects\64\ce5eeb306f047a3c4d16e8522c20e34be4a61d
+C:\xampp2\htdocs\solfis\.git\objects\64\e5afc75ef58d51114848e1589a033179e355ba
+C:\xampp2\htdocs\solfis\.git\objects\66\1adcf00b210a92e28fe1bfc4a2c0dbbce5e5c2
+C:\xampp2\htdocs\solfis\.git\objects\68\76864f1c658bf8d5ef21a7039de210a00e212f
+C:\xampp2\htdocs\solfis\.git\objects\69\09bf1fe9f44ef3d209c74701b70ff14f15cd72
+C:\xampp2\htdocs\solfis\.git\objects\69\3be3ca909fb123bcc3006911b4a5fbc5c41ebe
+C:\xampp2\htdocs\solfis\.git\objects\6a\582768433408eba015c1fa4a9e0f5a0fc1d529
+C:\xampp2\htdocs\solfis\.git\objects\6d\a9be373f18991b75f027dc00cbaa7eebf1f3f5
+C:\xampp2\htdocs\solfis\.git\objects\6f\dac6aa5670501f015fdeceb843154593d614c5
+C:\xampp2\htdocs\solfis\.git\objects\70\5c4df913ae1b241ae752f975d584d454bcbceb
+C:\xampp2\htdocs\solfis\.git\objects\70\88b995f8fd6a34d2ed9ab1ca04be67e39cf84e
+C:\xampp2\htdocs\solfis\.git\objects\73\946fc505ea5a398206ebd6f4bb5d2d89a8f6f1
+C:\xampp2\htdocs\solfis\.git\objects\75\eba6644f5f0fb6fbc006fcbbdb404ddd6c5bb6
+C:\xampp2\htdocs\solfis\.git\objects\75\f99792e528f4d8608291b5a7f8df61c469eb8a
+C:\xampp2\htdocs\solfis\.git\objects\77\1e19d4d6d3eedee99389091b6d4aa77df76a34
+C:\xampp2\htdocs\solfis\.git\objects\77\54db6e199b9c98fd47ef53e1929a8620cce0be
+C:\xampp2\htdocs\solfis\.git\objects\77\ba79ed59468d2d52cb02e69e9257d4209bb08f
+C:\xampp2\htdocs\solfis\.git\objects\79\4dcc8eafab697fd6402b22289087251ea0c345
+C:\xampp2\htdocs\solfis\.git\objects\7a\91d87d40d6977b961cde62ae29cf5fba23bfcb
+C:\xampp2\htdocs\solfis\.git\objects\7b\118925636c8cf1712d314ab1c958983f2810ed
+C:\xampp2\htdocs\solfis\.git\objects\7b\9ce897006762794a6699e1cb24bb6b0b81e627
+C:\xampp2\htdocs\solfis\.git\objects\7e\c9f2cd0c8a1e930cdd5de71c63de8b092ec31d
+C:\xampp2\htdocs\solfis\.git\objects\83\5a64515a45b7129a6b0988161ae27e907e17a2
+C:\xampp2\htdocs\solfis\.git\objects\84\0357d6b4c8fa6bebdd3c5f1b26b230b2b4273a
+C:\xampp2\htdocs\solfis\.git\objects\86\c5604d50f47f8bd5e90ac130890c14f1e6e189
+C:\xampp2\htdocs\solfis\.git\objects\88\3dd1605dba25a70e732175be2ee27d15987007
+C:\xampp2\htdocs\solfis\.git\objects\88\a1016dd2c2c09017494aed7f99ca09ea969bcd
+C:\xampp2\htdocs\solfis\.git\objects\89\0d74dde1cd52637369061e34bf7f20177ec923
+C:\xampp2\htdocs\solfis\.git\objects\8a\04c6cdf3c1b6150a3231dc2405de66e4c441e8
+C:\xampp2\htdocs\solfis\.git\objects\8c\cc0892f38eace6b7634532075615a618b4bd59
+C:\xampp2\htdocs\solfis\.git\objects\8d\124469449bd7ac91bb619e13965f75335e424a
+C:\xampp2\htdocs\solfis\.git\objects\8d\e2b80f16a7435db3a37ba5249e8443d3553701
+C:\xampp2\htdocs\solfis\.git\objects\90\33d02cb30f5a142b1119e170afc6ed8206e5bd
+C:\xampp2\htdocs\solfis\.git\objects\90\e82948e0d099c5ee98e9982cf68f00c89b7ab2
+C:\xampp2\htdocs\solfis\.git\objects\91\686375bb6028bd2d498e6002f926d210514ca7
+C:\xampp2\htdocs\solfis\.git\objects\93\ec9c37992b627093740382d618d42de2309f67
+C:\xampp2\htdocs\solfis\.git\objects\95\03c796f31c2036bb13e51d7fc2a93b0d64711e
+C:\xampp2\htdocs\solfis\.git\objects\99\8b8940d18c6eacdeaf2ab7c0ef0a6f8500f2bd
+C:\xampp2\htdocs\solfis\.git\objects\99\916ad1f26d0c6fba39e3651f33e7799eb3f6aa
+C:\xampp2\htdocs\solfis\.git\objects\9a\c1350fcb9fff2d57ab6bd9977fb8fe4d4fd97d
+C:\xampp2\htdocs\solfis\.git\objects\9b\be58f2ee28a28fd077787fc234d8435af3b276
+C:\xampp2\htdocs\solfis\.git\objects\9e\3370acd209d01bae6909cf288f33fad7ec6545
+C:\xampp2\htdocs\solfis\.git\objects\a0\830520034128bf5f4ea8686b2cb4a0486083af
+C:\xampp2\htdocs\solfis\.git\objects\a2\39cba1efeb07cabc98ad51867cdcf763235793
+C:\xampp2\htdocs\solfis\.git\objects\a3\edc3638ccb53842e72d27d0ab334b57453e509
+C:\xampp2\htdocs\solfis\.git\objects\a4\9206d02bd38d41e6627511b7b70bb9d3ec7010
+C:\xampp2\htdocs\solfis\.git\objects\a7\01aa41b8f697358478b242d6d1b5ffb8359ede
+C:\xampp2\htdocs\solfis\.git\objects\a8\afc9e157e89fcee305997e7b52f099f256ea15
+C:\xampp2\htdocs\solfis\.git\objects\a9\02c088bd28f5010cfc9c6246d4c1b36e2170e2
+C:\xampp2\htdocs\solfis\.git\objects\aa\ee3e12c463bbbe6324ca290d67add1f0f6615e
+C:\xampp2\htdocs\solfis\.git\objects\ac\b0457d75afffee90f0cd1ed4ca1b56332a2ec1
+C:\xampp2\htdocs\solfis\.git\objects\ad\91213f1aa089eaa11e9c7d112d719a334bdd0f
+C:\xampp2\htdocs\solfis\.git\objects\ae\ae58e6d5c3676b079075fe78124b96b8e795a7
+C:\xampp2\htdocs\solfis\.git\objects\ae\f66471e2ff508ac68d26dce27deb5c3d4ae63d
+C:\xampp2\htdocs\solfis\.git\objects\b1\a1011cfa97d95e3d3e59bfda28f87db06efb82
+C:\xampp2\htdocs\solfis\.git\objects\b2\148fe45ccd0cc813acc628dcfeac5069f02a7f
+C:\xampp2\htdocs\solfis\.git\objects\b2\1da7aaab1f0da940d856d035e902a3998f1f73
+C:\xampp2\htdocs\solfis\.git\objects\b2\2ee4dad588579349853f32fe90722d6b5b4d42
+C:\xampp2\htdocs\solfis\.git\objects\b3\83fedc22cca8fe40f8fae96a9dedc20844f693
+C:\xampp2\htdocs\solfis\.git\objects\b4\4402016ce7b64917f7fe900cd6914e0048a6f1
+C:\xampp2\htdocs\solfis\.git\objects\b6\7a5dd6e3a4fec2aca413f16d896ede95acfe92
+C:\xampp2\htdocs\solfis\.git\objects\b8\6e42dfa65a34d29eda46fc4c770d183be3b874
+C:\xampp2\htdocs\solfis\.git\objects\ba\9b3f38641f4e3c37e39a3d5047dbb75366b23e
+C:\xampp2\htdocs\solfis\.git\objects\bc\f6aa789e5e4da87fee63511b2e29257e1e5fb2
+C:\xampp2\htdocs\solfis\.git\objects\bc\faca3adf9fb33ab2126f132c92572569a13639
+C:\xampp2\htdocs\solfis\.git\objects\c2\84e0e16cbb20a052047a8e3dc0cbf7f3dfca01
+C:\xampp2\htdocs\solfis\.git\objects\c4\883378bd76b57cba163173335316809578e9e6
+C:\xampp2\htdocs\solfis\.git\objects\c7\af6d63edf928aa16b4ce1f884bba55f99cf8a7
+C:\xampp2\htdocs\solfis\.git\objects\ca\5fbd8a335d417ff98265ff6cfdfae1d04934b6
+C:\xampp2\htdocs\solfis\.git\objects\cb\b5dc81253e404f6abc5a4e3dea67a51abcbe05
+C:\xampp2\htdocs\solfis\.git\objects\cc\1737cf7896daf8d268dd7f5722c1f11119fd81
+C:\xampp2\htdocs\solfis\.git\objects\cc\46d445b93449f7a014a8d8f6a604d01ad4ba57
+C:\xampp2\htdocs\solfis\.git\objects\cc\c5e0d4696a1739f0b6ca0789ffd2c1466d7547
+C:\xampp2\htdocs\solfis\.git\objects\cc\f63d58851ce27d5aed02e5cca6d904beaba853
+C:\xampp2\htdocs\solfis\.git\objects\cd\ece151a026217a0d130c89d09b951234487b88
+C:\xampp2\htdocs\solfis\.git\objects\cf\0f69d19ccd783d5306790c7ff28565c9c7a01b
+C:\xampp2\htdocs\solfis\.git\objects\cf\42473e1351288f1ed481c7087994d5f7ca1293
+C:\xampp2\htdocs\solfis\.git\objects\cf\c5a5e942bf52ab2988eec650624c8d0c47199a
+C:\xampp2\htdocs\solfis\.git\objects\d0\0f384e2e04614f142d347be6559e87b071b2f8
+C:\xampp2\htdocs\solfis\.git\objects\d0\ba12fd8f15af9978bd25b67c85bbf37ce4882b
+C:\xampp2\htdocs\solfis\.git\objects\d3\6d88d5b86f54ec43dc0f6295eca0b213bfd444
+C:\xampp2\htdocs\solfis\.git\objects\d4\ff697d9fd9d5741914eaea951e58b978afbfde
+C:\xampp2\htdocs\solfis\.git\objects\d5\fe3ddd6e4039c9ede67d79ae665c2ac1bd327c
+C:\xampp2\htdocs\solfis\.git\objects\d6\82f9f54686fc4a27b463287fafe8b9a7484f08
+C:\xampp2\htdocs\solfis\.git\objects\d8\3ec87218ed8404e319235efd0dfca15fe552f6
+C:\xampp2\htdocs\solfis\.git\objects\d8\9e712e564580c41bbfb9f85e9e9a3a09644a11
+C:\xampp2\htdocs\solfis\.git\objects\d8\c59c2051025a5576f41a0b1cc213ed8f5b069f
+C:\xampp2\htdocs\solfis\.git\objects\da\7990bbb42751e4943aa60a972edc9db9d7c5d9
+C:\xampp2\htdocs\solfis\.git\objects\db\25f6d0af02bf272c2f9bd3d63df29a17a412c2
+C:\xampp2\htdocs\solfis\.git\objects\db\ebf1b9e6e5ba140fb8a76b5df8f35ddfff8fb4
+C:\xampp2\htdocs\solfis\.git\objects\dc\0ad113314fe560dbf047bc1864e42f16ffdfbb
+C:\xampp2\htdocs\solfis\.git\objects\df\594c7ce022746f83b179a1fa856147ceb9ea9b
+C:\xampp2\htdocs\solfis\.git\objects\df\e0770424b2a19faf507a501ebfc23be8f54e7b
+C:\xampp2\htdocs\solfis\.git\objects\e1\444c575f87603471cff78ee2b405773bca7e47
+C:\xampp2\htdocs\solfis\.git\objects\e1\854d8fc224831f5e0eef0f3ad7c74c16dad872
+C:\xampp2\htdocs\solfis\.git\objects\e1\e0e2cd80266e90ae2fb47bd32840e9d406ed3b
+C:\xampp2\htdocs\solfis\.git\objects\e3\fbbf12afb66fb73887d566a844bcc20c727caa
+C:\xampp2\htdocs\solfis\.git\objects\e4\36f641196dee60a1914d140665db428ff758ed
+C:\xampp2\htdocs\solfis\.git\objects\e5\c5b5403102bc2473199c6c74c80a3883cf4ad2
+C:\xampp2\htdocs\solfis\.git\objects\e8\ffbb09f5887a0e7f5e78bccfce1819f5137041
+C:\xampp2\htdocs\solfis\.git\objects\e9\423375a7127ca270edc0d222743df4a2276661
+C:\xampp2\htdocs\solfis\.git\objects\ed\f4de296264d71224c3534e1b512b40caf324ff
+C:\xampp2\htdocs\solfis\.git\objects\f0\b1a91009d483c1d7a7dee8771a81bcfd3135c8
+C:\xampp2\htdocs\solfis\.git\objects\f1\6525b696380c5f0bdfed2060c242893dcde6ac
+C:\xampp2\htdocs\solfis\.git\objects\f5\34caa6367bc0189a55b4ba168e16f958c1157c
+C:\xampp2\htdocs\solfis\.git\objects\f5\88afab01985e5702e3dd053eaa3726feb0ea8b
+C:\xampp2\htdocs\solfis\.git\objects\f7\ea68939bea9741e5f27e5f8236627422f8adae
+C:\xampp2\htdocs\solfis\.git\objects\f8\d8739a31edb4cb11ba10213bbc85086f63ab40
+C:\xampp2\htdocs\solfis\.git\objects\fd\079e5f56503fcde7ed91cfaacd36602a71c5de
+C:\xampp2\htdocs\solfis\.git\objects\fe\67c3de9584bb38f9b3e5791c8910214a7608f2
+C:\xampp2\htdocs\solfis\.git\objects\ff\d2cf82c699f259da6990a8bd062aa03cb5914e
+C:\xampp2\htdocs\solfis\.git\refs\heads\main
+C:\xampp2\htdocs\solfis\.git\refs\remotes\origin\HEAD
+C:\xampp2\htdocs\solfis\.git\refs\remotes\origin\main
+C:\xampp2\htdocs\solfis\admin\categories.php
+C:\xampp2\htdocs\solfis\admin\category-delete.php
+C:\xampp2\htdocs\solfis\admin\comment-approve.php
+C:\xampp2\htdocs\solfis\admin\comment-delete.php
+C:\xampp2\htdocs\solfis\admin\comment-reject.php
+C:\xampp2\htdocs\solfis\admin\comments.php
+C:\xampp2\htdocs\solfis\admin\config.php
+C:\xampp2\htdocs\solfis\admin\index.html
+C:\xampp2\htdocs\solfis\admin\index.php
+C:\xampp2\htdocs\solfis\admin\login.php
+C:\xampp2\htdocs\solfis\admin\logout.php
+C:\xampp2\htdocs\solfis\admin\media-delete.php
+C:\xampp2\htdocs\solfis\admin\media-upload.php
+C:\xampp2\htdocs\solfis\admin\media.php
+C:\xampp2\htdocs\solfis\admin\post-delete.php
+C:\xampp2\htdocs\solfis\admin\post-edit.php
+C:\xampp2\htdocs\solfis\admin\posts.php
+C:\xampp2\htdocs\solfis\admin\subscriber-activate.php
+C:\xampp2\htdocs\solfis\admin\subscriber-add.php
+C:\xampp2\htdocs\solfis\admin\subscriber-deactivate.php
+C:\xampp2\htdocs\solfis\admin\subscriber-delete.php
+C:\xampp2\htdocs\solfis\admin\subscribers-export.php
+C:\xampp2\htdocs\solfis\admin\subscribers.php
+C:\xampp2\htdocs\solfis\admin\includes\header.php
+C:\xampp2\htdocs\solfis\assets\css\fixes.css
+C:\xampp2\htdocs\solfis\assets\css\main.css
+C:\xampp2\htdocs\solfis\assets\css\components\about-us.css
+C:\xampp2\htdocs\solfis\assets\css\components\admin-styles.css
+C:\xampp2\htdocs\solfis\assets\css\components\admin.css
+C:\xampp2\htdocs\solfis\assets\css\components\blog-section.css
+C:\xampp2\htdocs\solfis\assets\css\components\blog.css
+C:\xampp2\htdocs\solfis\assets\css\components\contact-section.css
+C:\xampp2\htdocs\solfis\assets\css\components\contact.css
+C:\xampp2\htdocs\solfis\assets\css\components\dropdown-menu.css
+C:\xampp2\htdocs\solfis\assets\css\components\footer.css
+C:\xampp2\htdocs\solfis\assets\css\components\fronteriza.css
+C:\xampp2\htdocs\solfis\assets\css\components\hero-banner.css
+C:\xampp2\htdocs\solfis\assets\css\components\hero-building-cubes.css
+C:\xampp2\htdocs\solfis\assets\css\components\hero-cubes.css
+C:\xampp2\htdocs\solfis\assets\css\components\hero.css
+C:\xampp2\htdocs\solfis\assets\css\components\industries-section.css
+C:\xampp2\htdocs\solfis\assets\css\components\industries-tabs.css
+C:\xampp2\htdocs\solfis\assets\css\components\industries.css
+C:\xampp2\htdocs\solfis\assets\css\components\mobile-layout.css
+C:\xampp2\htdocs\solfis\assets\css\components\mobile-menu.css
+C:\xampp2\htdocs\solfis\assets\css\components\mobile-optimizations.css
+C:\xampp2\htdocs\solfis\assets\css\components\nav.css
+C:\xampp2\htdocs\solfis\assets\css\components\newsletter.css
+C:\xampp2\htdocs\solfis\assets\css\components\popup.css
+C:\xampp2\htdocs\solfis\assets\css\components\service-detail.css
+C:\xampp2\htdocs\solfis\assets\css\components\services-page.css
+C:\xampp2\htdocs\solfis\assets\css\components\services.css
+C:\xampp2\htdocs\solfis\assets\css\components\simple-mobile.css
+C:\xampp2\htdocs\solfis\assets\css\components\stats.css
+C:\xampp2\htdocs\solfis\assets\css\components\success-cases.css
+C:\xampp2\htdocs\solfis\assets\css\components\testimonials-compact.css
+C:\xampp2\htdocs\solfis\assets\css\components\testimonials.css
+C:\xampp2\htdocs\solfis\assets\css\components\testimonials2.css
+C:\xampp2\htdocs\solfis\assets\css\components\text-contrast-fixes.css
+C:\xampp2\htdocs\solfis\assets\css\components\why-us.css
+C:\xampp2\htdocs\solfis\assets\js\main.js
+C:\xampp2\htdocs\solfis\assets\js\components\admin.js
+C:\xampp2\htdocs\solfis\assets\js\components\contact.js
+C:\xampp2\htdocs\solfis\assets\js\components\footer.js
+C:\xampp2\htdocs\solfis\assets\js\components\hero-banner.js
+C:\xampp2\htdocs\solfis\assets\js\components\hero-building-cubes.js
+C:\xampp2\htdocs\solfis\assets\js\components\hero-cubes.js
+C:\xampp2\htdocs\solfis\assets\js\components\hero.js
+C:\xampp2\htdocs\solfis\assets\js\components\industries-tabs.js
+C:\xampp2\htdocs\solfis\assets\js\components\industries.js
+C:\xampp2\htdocs\solfis\assets\js\components\mobile-menu-jquery.js
+C:\xampp2\htdocs\solfis\assets\js\components\navbar.js
+C:\xampp2\htdocs\solfis\assets\js\components\popup.js
+C:\xampp2\htdocs\solfis\assets\js\components\stats.js
+C:\xampp2\htdocs\solfis\assets\js\components\success-cases.js
+C:\xampp2\htdocs\solfis\assets\js\components\testimonials.js
+C:\xampp2\htdocs\solfis\assets\js\components\testimonials2.js
+C:\xampp2\htdocs\solfis\assets\js\components\why-us.js
+C:\xampp2\htdocs\solfis\blog\index.php
+C:\xampp2\htdocs\solfis\img\logo-white.png
+C:\xampp2\htdocs\solfis\img\logo.png
+C:\xampp2\htdocs\solfis\img\why-us.jpg
+C:\xampp2\htdocs\solfis\img\about\about-story.jpg
+C:\xampp2\htdocs\solfis\img\cases\logo_jaz.png
+C:\xampp2\htdocs\solfis\img\cases\logo_teamlogic.png
+C:\xampp2\htdocs\solfis\img\industries\comercio.jpg
+C:\xampp2\htdocs\solfis\img\industries\construccion.jpg
+C:\xampp2\htdocs\solfis\img\industries\manufactura.jpg
+C:\xampp2\htdocs\solfis\img\industries\salud.jpg
+C:\xampp2\htdocs\solfis\img\industries\servicios.jpg
+C:\xampp2\htdocs\solfis\img\industries\tecnologia.jpg
+C:\xampp2\htdocs\solfis\img\services\2.jpg
+C:\xampp2\htdocs\solfis\img\services\auditoria-hero.jpg
+C:\xampp2\htdocs\solfis\img\services\auditoria.jpg
+C:\xampp2\htdocs\solfis\img\services\contabilidad-hero.jpg
+C:\xampp2\htdocs\solfis\img\services\contabilidad.jpg
+C:\xampp2\htdocs\solfis\img\services\empresarial-hero.jpg
+C:\xampp2\htdocs\solfis\img\services\empresarial.jpg
+C:\xampp2\htdocs\solfis\img\services\fiscal-hero.jpg
+C:\xampp2\htdocs\solfis\img\services\fiscal.jpg
+C:\xampp2\htdocs\solfis\img\services\fronteriza-hero.jpg
+C:\xampp2\htdocs\solfis\img\services\fronteriza-popup.jpg
+C:\xampp2\htdocs\solfis\img\services\fronteriza-popup2.jpg
+C:\xampp2\htdocs\solfis\img\services\sistemas-hero.jpg
+C:\xampp2\htdocs\solfis\img\services\sistemas.jpg
+C:\xampp2\htdocs\solfis\img\team\author1.jpg
+C:\xampp2\htdocs\solfis\img\team\member1.jpg
+C:\xampp2\htdocs\solfis\img\team\member2.jpg
+C:\xampp2\htdocs\solfis\img\team\member3.jpg
+C:\xampp2\htdocs\solfis\img\team\member33.jpg
+C:\xampp2\htdocs\solfis\img\testimonials\client1.jpg
+C:\xampp2\htdocs\solfis\img\testimonials\client2.jpg
+C:\xampp2\htdocs\solfis\img\testimonials\client3.jpg
+C:\xampp2\htdocs\solfis\img\testimonials\client4.jpg
+C:\xampp2\htdocs\solfis\includes\blog-system.php
+C:\xampp2\htdocs\solfis\sections\blog-section.html
+C:\xampp2\htdocs\solfis\sections\blog.html
+C:\xampp2\htdocs\solfis\sections\contact-section.html
+C:\xampp2\htdocs\solfis\sections\footer.html
+C:\xampp2\htdocs\solfis\sections\hero-banner.html
+C:\xampp2\htdocs\solfis\sections\hero.html
+C:\xampp2\htdocs\solfis\sections\industries.html
+C:\xampp2\htdocs\solfis\sections\navbar.html
+C:\xampp2\htdocs\solfis\sections\newsletter-section.html
+C:\xampp2\htdocs\solfis\sections\popup.html
+C:\xampp2\htdocs\solfis\sections\services.html
+C:\xampp2\htdocs\solfis\sections\stats.html
+C:\xampp2\htdocs\solfis\sections\success-cases.html
+C:\xampp2\htdocs\solfis\sections\testimonials.html
+C:\xampp2\htdocs\solfis\sections\why-us.html
+ 
+Lista detallada de carpetas: 
+ 
+C:\xampp2\htdocs\solfis\.git
+C:\xampp2\htdocs\solfis\admin
+C:\xampp2\htdocs\solfis\assets
+C:\xampp2\htdocs\solfis\blog
+C:\xampp2\htdocs\solfis\img
+C:\xampp2\htdocs\solfis\includes
+C:\xampp2\htdocs\solfis\sections
+C:\xampp2\htdocs\solfis\.git\hooks
+C:\xampp2\htdocs\solfis\.git\info
+C:\xampp2\htdocs\solfis\.git\logs
+C:\xampp2\htdocs\solfis\.git\objects
+C:\xampp2\htdocs\solfis\.git\refs
+C:\xampp2\htdocs\solfis\.git\logs\refs
+C:\xampp2\htdocs\solfis\.git\logs\refs\heads
+C:\xampp2\htdocs\solfis\.git\logs\refs\remotes
+C:\xampp2\htdocs\solfis\.git\logs\refs\remotes\origin
+C:\xampp2\htdocs\solfis\.git\objects\00
+C:\xampp2\htdocs\solfis\.git\objects\01
+C:\xampp2\htdocs\solfis\.git\objects\05
+C:\xampp2\htdocs\solfis\.git\objects\06
+C:\xampp2\htdocs\solfis\.git\objects\07
+C:\xampp2\htdocs\solfis\.git\objects\08
+C:\xampp2\htdocs\solfis\.git\objects\09
+C:\xampp2\htdocs\solfis\.git\objects\0c
+C:\xampp2\htdocs\solfis\.git\objects\0d
+C:\xampp2\htdocs\solfis\.git\objects\0e
+C:\xampp2\htdocs\solfis\.git\objects\11
+C:\xampp2\htdocs\solfis\.git\objects\15
+C:\xampp2\htdocs\solfis\.git\objects\16
+C:\xampp2\htdocs\solfis\.git\objects\18
+C:\xampp2\htdocs\solfis\.git\objects\1b
+C:\xampp2\htdocs\solfis\.git\objects\1e
+C:\xampp2\htdocs\solfis\.git\objects\21
+C:\xampp2\htdocs\solfis\.git\objects\25
+C:\xampp2\htdocs\solfis\.git\objects\26
+C:\xampp2\htdocs\solfis\.git\objects\28
+C:\xampp2\htdocs\solfis\.git\objects\29
+C:\xampp2\htdocs\solfis\.git\objects\2c
+C:\xampp2\htdocs\solfis\.git\objects\2d
+C:\xampp2\htdocs\solfis\.git\objects\2e
+C:\xampp2\htdocs\solfis\.git\objects\32
+C:\xampp2\htdocs\solfis\.git\objects\33
+C:\xampp2\htdocs\solfis\.git\objects\34
+C:\xampp2\htdocs\solfis\.git\objects\35
+C:\xampp2\htdocs\solfis\.git\objects\36
+C:\xampp2\htdocs\solfis\.git\objects\37
+C:\xampp2\htdocs\solfis\.git\objects\38
+C:\xampp2\htdocs\solfis\.git\objects\39
+C:\xampp2\htdocs\solfis\.git\objects\3a
+C:\xampp2\htdocs\solfis\.git\objects\3b
+C:\xampp2\htdocs\solfis\.git\objects\3c
+C:\xampp2\htdocs\solfis\.git\objects\3d
+C:\xampp2\htdocs\solfis\.git\objects\41
+C:\xampp2\htdocs\solfis\.git\objects\42
+C:\xampp2\htdocs\solfis\.git\objects\43
+C:\xampp2\htdocs\solfis\.git\objects\47
+C:\xampp2\htdocs\solfis\.git\objects\48
+C:\xampp2\htdocs\solfis\.git\objects\4b
+C:\xampp2\htdocs\solfis\.git\objects\4d
+C:\xampp2\htdocs\solfis\.git\objects\4f
+C:\xampp2\htdocs\solfis\.git\objects\52
+C:\xampp2\htdocs\solfis\.git\objects\53
+C:\xampp2\htdocs\solfis\.git\objects\54
+C:\xampp2\htdocs\solfis\.git\objects\55
+C:\xampp2\htdocs\solfis\.git\objects\57
+C:\xampp2\htdocs\solfis\.git\objects\5a
+C:\xampp2\htdocs\solfis\.git\objects\5b
+C:\xampp2\htdocs\solfis\.git\objects\5c
+C:\xampp2\htdocs\solfis\.git\objects\5f
+C:\xampp2\htdocs\solfis\.git\objects\61
+C:\xampp2\htdocs\solfis\.git\objects\62
+C:\xampp2\htdocs\solfis\.git\objects\64
+C:\xampp2\htdocs\solfis\.git\objects\66
+C:\xampp2\htdocs\solfis\.git\objects\68
+C:\xampp2\htdocs\solfis\.git\objects\69
+C:\xampp2\htdocs\solfis\.git\objects\6a
+C:\xampp2\htdocs\solfis\.git\objects\6d
+C:\xampp2\htdocs\solfis\.git\objects\6f
+C:\xampp2\htdocs\solfis\.git\objects\70
+C:\xampp2\htdocs\solfis\.git\objects\73
+C:\xampp2\htdocs\solfis\.git\objects\75
+C:\xampp2\htdocs\solfis\.git\objects\77
+C:\xampp2\htdocs\solfis\.git\objects\79
+C:\xampp2\htdocs\solfis\.git\objects\7a
+C:\xampp2\htdocs\solfis\.git\objects\7b
+C:\xampp2\htdocs\solfis\.git\objects\7e
+C:\xampp2\htdocs\solfis\.git\objects\83
+C:\xampp2\htdocs\solfis\.git\objects\84
+C:\xampp2\htdocs\solfis\.git\objects\86
+C:\xampp2\htdocs\solfis\.git\objects\88
+C:\xampp2\htdocs\solfis\.git\objects\89
+C:\xampp2\htdocs\solfis\.git\objects\8a
+C:\xampp2\htdocs\solfis\.git\objects\8c
+C:\xampp2\htdocs\solfis\.git\objects\8d
+C:\xampp2\htdocs\solfis\.git\objects\90
+C:\xampp2\htdocs\solfis\.git\objects\91
+C:\xampp2\htdocs\solfis\.git\objects\93
+C:\xampp2\htdocs\solfis\.git\objects\95
+C:\xampp2\htdocs\solfis\.git\objects\99
+C:\xampp2\htdocs\solfis\.git\objects\9a
+C:\xampp2\htdocs\solfis\.git\objects\9b
+C:\xampp2\htdocs\solfis\.git\objects\9e
+C:\xampp2\htdocs\solfis\.git\objects\a0
+C:\xampp2\htdocs\solfis\.git\objects\a2
+C:\xampp2\htdocs\solfis\.git\objects\a3
+C:\xampp2\htdocs\solfis\.git\objects\a4
+C:\xampp2\htdocs\solfis\.git\objects\a7
+C:\xampp2\htdocs\solfis\.git\objects\a8
+C:\xampp2\htdocs\solfis\.git\objects\a9
+C:\xampp2\htdocs\solfis\.git\objects\aa
+C:\xampp2\htdocs\solfis\.git\objects\ac
+C:\xampp2\htdocs\solfis\.git\objects\ad
+C:\xampp2\htdocs\solfis\.git\objects\ae
+C:\xampp2\htdocs\solfis\.git\objects\b1
+C:\xampp2\htdocs\solfis\.git\objects\b2
+C:\xampp2\htdocs\solfis\.git\objects\b3
+C:\xampp2\htdocs\solfis\.git\objects\b4
+C:\xampp2\htdocs\solfis\.git\objects\b6
+C:\xampp2\htdocs\solfis\.git\objects\b8
+C:\xampp2\htdocs\solfis\.git\objects\ba
+C:\xampp2\htdocs\solfis\.git\objects\bc
+C:\xampp2\htdocs\solfis\.git\objects\c2
+C:\xampp2\htdocs\solfis\.git\objects\c4
+C:\xampp2\htdocs\solfis\.git\objects\c7
+C:\xampp2\htdocs\solfis\.git\objects\ca
+C:\xampp2\htdocs\solfis\.git\objects\cb
+C:\xampp2\htdocs\solfis\.git\objects\cc
+C:\xampp2\htdocs\solfis\.git\objects\cd
+C:\xampp2\htdocs\solfis\.git\objects\cf
+C:\xampp2\htdocs\solfis\.git\objects\d0
+C:\xampp2\htdocs\solfis\.git\objects\d3
+C:\xampp2\htdocs\solfis\.git\objects\d4
+C:\xampp2\htdocs\solfis\.git\objects\d5
+C:\xampp2\htdocs\solfis\.git\objects\d6
+C:\xampp2\htdocs\solfis\.git\objects\d8
+C:\xampp2\htdocs\solfis\.git\objects\da
+C:\xampp2\htdocs\solfis\.git\objects\db
+C:\xampp2\htdocs\solfis\.git\objects\dc
+C:\xampp2\htdocs\solfis\.git\objects\df
+C:\xampp2\htdocs\solfis\.git\objects\e1
+C:\xampp2\htdocs\solfis\.git\objects\e3
+C:\xampp2\htdocs\solfis\.git\objects\e4
+C:\xampp2\htdocs\solfis\.git\objects\e5
+C:\xampp2\htdocs\solfis\.git\objects\e8
+C:\xampp2\htdocs\solfis\.git\objects\e9
+C:\xampp2\htdocs\solfis\.git\objects\ed
+C:\xampp2\htdocs\solfis\.git\objects\f0
+C:\xampp2\htdocs\solfis\.git\objects\f1
+C:\xampp2\htdocs\solfis\.git\objects\f5
+C:\xampp2\htdocs\solfis\.git\objects\f7
+C:\xampp2\htdocs\solfis\.git\objects\f8
+C:\xampp2\htdocs\solfis\.git\objects\fd
+C:\xampp2\htdocs\solfis\.git\objects\fe
+C:\xampp2\htdocs\solfis\.git\objects\ff
+C:\xampp2\htdocs\solfis\.git\objects\info
+C:\xampp2\htdocs\solfis\.git\objects\pack
+C:\xampp2\htdocs\solfis\.git\refs\heads
+C:\xampp2\htdocs\solfis\.git\refs\remotes
+C:\xampp2\htdocs\solfis\.git\refs\tags
+C:\xampp2\htdocs\solfis\.git\refs\remotes\origin
+C:\xampp2\htdocs\solfis\admin\img
+C:\xampp2\htdocs\solfis\admin\includes
+C:\xampp2\htdocs\solfis\admin\img\blog
+C:\xampp2\htdocs\solfis\admin\img\blog\uploads
+C:\xampp2\htdocs\solfis\assets\css
+C:\xampp2\htdocs\solfis\assets\js
+C:\xampp2\htdocs\solfis\assets\css\components
+C:\xampp2\htdocs\solfis\assets\js\components
+C:\xampp2\htdocs\solfis\img\about
+C:\xampp2\htdocs\solfis\img\cases
+C:\xampp2\htdocs\solfis\img\industries
+C:\xampp2\htdocs\solfis\img\services
+C:\xampp2\htdocs\solfis\img\team
+C:\xampp2\htdocs\solfis\img\testimonials

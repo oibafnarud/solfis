@@ -1,37 +1,63 @@
 <?php
 /**
- * Página principal del blog (blog.php)
- * Esta página muestra la lista de artículos del blog con paginación y filtros por categoría
+ * Página de búsqueda de artículos del blog
+ * Esta página muestra los resultados de búsqueda para el blog
  */
 
 // Incluir archivos necesarios
-require_once './admin/config.php'; 
+require_once 'config.php';
 require_once 'includes/blog-system.php';
+
+// Verificar que se proporcionó un término de búsqueda
+$query = isset($_GET['q']) ? trim($_GET['q']) : '';
+if (empty($query)) {
+    header('Location: blog.php');
+    exit;
+}
 
 // Instanciar clases necesarias
 $blogPost = new BlogPost();
 $category = new Category();
 
-// Parámetros de paginación y filtrado
+// Parámetros de paginación
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$categorySlug = isset($_GET['categoria']) ? $_GET['categoria'] : null;
+$per_page = POSTS_PER_PAGE;
 
-// Obtener artículos con paginación y filtros
-$postsData = $blogPost->getPosts($page, POSTS_PER_PAGE, $categorySlug);
-$posts = $postsData['posts'];
-$totalPages = $postsData['pages'];
+// Realizar búsqueda en la base de datos
+$db = Database::getInstance();
+$searchTerm = $db->escape("%{$query}%");
+
+$sql = "SELECT p.*, c.name as category_name, c.slug as category_slug, u.name as author_name, u.image as author_image 
+        FROM posts p 
+        LEFT JOIN categories c ON p.category_id = c.id 
+        LEFT JOIN users u ON p.author_id = u.id 
+        WHERE p.status = 'published' 
+        AND (p.title LIKE '$searchTerm' OR p.content LIKE '$searchTerm' OR p.excerpt LIKE '$searchTerm')
+        ORDER BY p.published_at DESC 
+        LIMIT " . (($page - 1) * $per_page) . ", $per_page";
+
+$result = $db->query($sql);
+$posts = [];
+
+while ($row = $result->fetch_assoc()) {
+    $posts[] = $row;
+}
+
+// Contar total para paginación
+$countSql = "SELECT COUNT(*) as total 
+             FROM posts p 
+             WHERE p.status = 'published' 
+             AND (p.title LIKE '$searchTerm' OR p.content LIKE '$searchTerm' OR p.excerpt LIKE '$searchTerm')";
+
+$countResult = $db->query($countSql);
+$totalPosts = $countResult->fetch_assoc()['total'];
+$totalPages = ceil($totalPosts / $per_page);
 
 // Obtener todas las categorías para el menú lateral
 $categories = $category->getCategories();
 
-// Obtener información de la categoría actual si hay filtro
-$currentCategory = null;
-if ($categorySlug) {
-    $currentCategory = $category->getCategoryBySlug($categorySlug);
-}
-
 // Título de la página
-$pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
+$pageTitle = 'Resultados de búsqueda para: ' . $query;
 ?>
 
 <!DOCTYPE html>
@@ -54,49 +80,50 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
 
 <body>
     <!-- Incluir el encabezado del sitio -->
-    <?php include './admin/includes/header.php'; ?>
+    <?php include 'includes/header.php'; ?>
     
-    <!-- Sección de banner del blog -->
-    <section class="hero-banner bg-light py-5">
+    <!-- Sección de banner de búsqueda -->
+    <section class="search-banner bg-light py-4">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-7">
-                    <h1 class="display-4 fw-bold">Blog SolFis</h1>
-                    <p class="lead text-secondary">Información actualizada sobre contabilidad, finanzas, impuestos y gestión empresarial para profesionales y empresarios.</p>
-                    <?php if ($currentCategory): ?>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="blog.php">Todos los artículos</a></li>
-                            <li class="breadcrumb-item active" aria-current="page"><?php echo $currentCategory['name']; ?></li>
-                        </ol>
-                    </nav>
-                    <?php endif; ?>
-                </div>
-                <div class="col-lg-5">
-                    <img src="img/blog/blog-banner.svg" alt="Blog SolFis" class="img-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="h3 mb-3">Resultados de búsqueda</h1>
+                    <form action="blog-buscar.php" method="get">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control form-control-lg" placeholder="Buscar artículos..." name="q" value="<?php echo htmlspecialchars($query); ?>" required>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </form>
+                    <p class="text-muted">Se encontraron <?php echo $totalPosts; ?> resultados para "<?php echo htmlspecialchars($query); ?>"</p>
                 </div>
             </div>
         </div>
     </section>
     
-    <!-- Sección principal del blog -->
-    <section class="blog-section py-5">
+    <!-- Sección principal de resultados -->
+    <section class="search-results py-5">
         <div class="container">
             <div class="row">
-                <!-- Listado de artículos -->
+                <!-- Listado de resultados -->
                 <div class="col-lg-8">
                     <?php if (empty($posts)): ?>
                     <div class="alert alert-info">
-                        <p class="mb-0">No hay artículos disponibles en este momento.</p>
+                        <p class="mb-0">No se encontraron artículos que coincidan con tu búsqueda. Intenta con otros términos.</p>
                     </div>
                     <?php else: ?>
-                        <div class="row">
-                            <?php foreach ($posts as $post): ?>
-                            <div class="col-md-6 mb-4">
-                                <div class="card h-100 shadow-sm">
-                                    <?php if (!empty($post['image'])): ?>
-                                    <img src="<?php echo $post['image']; ?>" class="card-img-top" alt="<?php echo $post['title']; ?>">
-                                    <?php endif; ?>
+                        <?php foreach ($posts as $post): ?>
+                        <div class="card mb-4 shadow-sm">
+                            <div class="row g-0">
+                                <?php if (!empty($post['image'])): ?>
+                                <div class="col-md-4">
+                                    <img src="<?php echo $post['image']; ?>" class="img-fluid rounded-start h-100 object-fit-cover" alt="<?php echo $post['title']; ?>">
+                                </div>
+                                <div class="col-md-8">
+                                <?php else: ?>
+                                <div class="col-md-12">
+                                <?php endif; ?>
                                     <div class="card-body">
                                         <div class="mb-2">
                                             <span class="badge bg-primary"><?php echo $post['category_name']; ?></span>
@@ -107,10 +134,8 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                                                 <?php echo $post['title']; ?>
                                             </a>
                                         </h5>
-                                        <p class="card-text"><?php echo Helpers::truncate($post['excerpt'], 120); ?></p>
-                                    </div>
-                                    <div class="card-footer bg-white">
-                                        <div class="d-flex align-items-center">
+                                        <p class="card-text"><?php echo Helpers::truncate($post['excerpt'], 200); ?></p>
+                                        <div class="d-flex align-items-center mt-3">
                                             <?php if (!empty($post['author_image'])): ?>
                                             <img src="<?php echo $post['author_image']; ?>" alt="<?php echo $post['author_name']; ?>" class="rounded-circle me-2" width="30" height="30">
                                             <?php else: ?>
@@ -120,19 +145,20 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                                             <?php endif; ?>
                                             <small class="text-muted">Por <?php echo $post['author_name']; ?></small>
                                         </div>
+                                        <a href="blog/<?php echo $post['slug']; ?>" class="btn btn-outline-primary mt-3">Leer más</a>
                                     </div>
                                 </div>
                             </div>
-                            <?php endforeach; ?>
                         </div>
+                        <?php endforeach; ?>
                         
                         <!-- Paginación -->
                         <?php if ($totalPages > 1): ?>
-                        <nav aria-label="Paginación de artículos" class="mt-4">
+                        <nav aria-label="Paginación de resultados" class="mt-4">
                             <ul class="pagination justify-content-center">
                                 <?php if ($page > 1): ?>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page - 1; ?><?php echo $categorySlug ? '&categoria=' . $categorySlug : ''; ?>">
+                                    <a class="page-link" href="?q=<?php echo urlencode($query); ?>&page=<?php echo $page - 1; ?>">
                                         &laquo; Anterior
                                     </a>
                                 </li>
@@ -140,7 +166,7 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                                 
                                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                                 <li class="page-item <?php echo $page === $i ? 'active' : ''; ?>">
-                                    <a class="page-link" href="?page=<?php echo $i; ?><?php echo $categorySlug ? '&categoria=' . $categorySlug : ''; ?>">
+                                    <a class="page-link" href="?q=<?php echo urlencode($query); ?>&page=<?php echo $i; ?>">
                                         <?php echo $i; ?>
                                     </a>
                                 </li>
@@ -148,7 +174,7 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                                 
                                 <?php if ($page < $totalPages): ?>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page + 1; ?><?php echo $categorySlug ? '&categoria=' . $categorySlug : ''; ?>">
+                                    <a class="page-link" href="?q=<?php echo urlencode($query); ?>&page=<?php echo $page + 1; ?>">
                                         Siguiente &raquo;
                                     </a>
                                 </li>
@@ -161,32 +187,17 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                 
                 <!-- Barra lateral -->
                 <div class="col-lg-4">
-                    <!-- Buscador -->
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Buscar</h5>
-                            <form action="blog-buscar.php" method="get">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Buscar artículos..." name="q" required>
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    
                     <!-- Categorías -->
                     <div class="card shadow-sm mb-4">
                         <div class="card-body">
                             <h5 class="card-title">Categorías</h5>
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="blog.php" class="text-decoration-none <?php echo !$categorySlug ? 'fw-bold' : ''; ?>">Todas</a>
+                                    <a href="blog.php" class="text-decoration-none">Todas</a>
                                 </li>
                                 <?php foreach ($categories as $cat): ?>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="?categoria=<?php echo $cat['slug']; ?>" class="text-decoration-none <?php echo $categorySlug === $cat['slug'] ? 'fw-bold' : ''; ?>">
+                                    <a href="blog.php?categoria=<?php echo $cat['slug']; ?>" class="text-decoration-none">
                                         <?php echo $cat['name']; ?>
                                     </a>
                                     <span class="badge bg-primary rounded-pill"><?php echo $cat['post_count']; ?></span>
