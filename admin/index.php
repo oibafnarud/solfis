@@ -1,9 +1,4 @@
 <?php
-/**
- * Panel de Administración para el Blog de SolFis
- * admin/index.php - Página principal del panel
- */
-
 // Inicializar sesión
 session_start();
 

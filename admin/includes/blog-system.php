@@ -7,13 +7,6 @@
  */
 
 // Clase Database - Maneja las conexiones a la base de datos
-
-if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
-if (!defined('DB_USER')) define('DB_USER', 'root'); // Usuario predeterminado de XAMPP
-if (!defined('DB_PASS')) define('DB_PASS', ''); // Contraseña predeterminada de XAMPP 
-if (!defined('DB_NAME')) define('DB_NAME', 'solfis_blog');
-
-
 class Database {
     private $connection;
     private static $instance;
@@ -927,35 +920,18 @@ class Auth {
         }
     }
     
-	public function login($email, $password) {
-		$email = $this->db->escape($email);
-		
-		echo "Email escapado: $email<br>";
-		
-		$sql = "SELECT * FROM users WHERE email = '$email'";
-		echo "SQL query: $sql<br>";
-		
-		$result = $this->db->query($sql);
-		
-		echo "Filas encontradas: " . $result->num_rows . "<br>";
-		
-		if ($result->num_rows > 0) {
-			$user = $result->fetch_assoc();
-			echo "Usuario encontrado: " . $user['name'] . "<br>";
-			echo "Hash almacenado: " . $user['password'] . "<br>";
-			
-			$passwordCheck = password_verify($password, $user['password']);
-			echo "Resultado password_verify: " . ($passwordCheck ? 'true' : 'false') . "<br>";
-			
-			if ($passwordCheck) {
-				// Eliminar la contraseña antes de devolver los datos
-				unset($user['password']);
-				return $user;
-			}
-		}
-		
-		return false;
-	}
+    public function login($email, $password) {
+        $userModel = new User();
+        $user = $userModel->login($email, $password);
+        
+        if ($user) {
+            $_SESSION['user'] = $user;
+            $this->user = $user;
+            return true;
+        }
+        
+        return false;
+    }
     
     public function logout() {
         if (session_status() == PHP_SESSION_NONE) {

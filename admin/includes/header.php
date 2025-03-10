@@ -1,8 +1,10 @@
-/*
- * Archivos de inclusión para el panel de administración
- */
-
-// header.php - Encabezado común para todas las páginas del panel
+<?php
+// Verificar que Auth esté disponible
+if (!isset($auth) || $auth === null) {
+    // Si no está disponible, obtener una instancia
+    require_once __DIR__ . '/../../includes/blog-system.php';
+    $auth = Auth::getInstance();
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -10,56 +12,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($pageTitle) ? $pageTitle : 'Panel de Administración - Blog SolFis'; ?></title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    
-    <!-- Custom CSS -->
-    <style>
-        .admin-main {
-            padding-top: 20px;
-        }
-        
-        .sidebar {
-            position: sticky;
-            top: 20px;
-            height: calc(100vh - 40px);
-            padding-top: 20px;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-        
-        .sidebar .nav-link {
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .sidebar .nav-link.active {
-            color: #007bff;
-        }
-        
-        .sidebar .nav-link:hover {
-            color: #0056b3;
-        }
-        
-        .sidebar .nav-link .feather {
-            margin-right: 4px;
-            color: #999;
-        }
-        
-        .sidebar-heading {
-            font-size: .75rem;
-            text-transform: uppercase;
-        }
-        
-        .logo-admin {
-            max-height: 50px;
-            margin-bottom: 15px;
-        }
-    </style>
+	<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<!-- Custom CSS - Asegúrate de que la ruta sea correcta -->
+<link rel="stylesheet" href="../assets/css/components/admin.css">
+	
+
 </head>
 <body>
     <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
