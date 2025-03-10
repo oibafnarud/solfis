@@ -4,9 +4,20 @@
  * Esta página muestra la lista de artículos del blog con paginación y filtros por categoría
  */
 
+// Configuración básica
+$site_title = "Blog - Solfis";
+$site_description = "Información actualizada sobre contabilidad, finanzas, impuestos y gestión empresarial para profesionales y empresarios";
+$base_path = 'sections/';
+$assets_path = 'assets/';
+
 // Incluir archivos necesarios
-require_once './admin/config.php'; 
+require_once 'config.php';
 require_once 'includes/blog-system.php';
+
+// Definir constante si no existe
+if (!defined('POSTS_PER_PAGE')) {
+    define('POSTS_PER_PAGE', 6);
+}
 
 // Instanciar clases necesarias
 $blogPost = new BlogPost();
@@ -33,194 +44,220 @@ if ($categorySlug) {
 // Título de la página
 $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $pageTitle; ?> - SolFis</title>
+    <title><?php echo $site_title; ?></title>
+    <meta name="description" content="<?php echo $site_description; ?>">
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- CSS Base -->
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/normalize.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/main.css">
+    
+    <!-- CSS Componentes -->
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/components/nav.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/components/dropdown-menu.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/components/footer.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/components/blog.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/text-contrast-fixes.css">
+    
+    <!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- AOS - Animate On Scroll -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
 </head>
-
 <body>
-    <!-- Incluir el encabezado del sitio -->
-    <?php include './admin/includes/header.php'; ?>
+    <!-- Navbar -->
+    <?php include $base_path . 'navbar.html'; ?>
     
-    <!-- Sección de banner del blog -->
-    <section class="hero-banner bg-light py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-7">
-                    <h1 class="display-4 fw-bold">Blog SolFis</h1>
-                    <p class="lead text-secondary">Información actualizada sobre contabilidad, finanzas, impuestos y gestión empresarial para profesionales y empresarios.</p>
-                    <?php if ($currentCategory): ?>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="blog.php">Todos los artículos</a></li>
-                            <li class="breadcrumb-item active" aria-current="page"><?php echo $currentCategory['name']; ?></li>
-                        </ol>
-                    </nav>
-                    <?php endif; ?>
-                </div>
-                <div class="col-lg-5">
-                    <img src="img/blog/blog-banner.svg" alt="Blog SolFis" class="img-fluid">
-                </div>
+    <main>
+        <!-- Hero del Blog -->
+        <section class="blog-hero">
+            <div class="container">
+                <h1>Blog de SolFis</h1>
+                <p>Información actualizada sobre contabilidad, finanzas, impuestos y gestión empresarial para profesionales y empresarios</p>
             </div>
-        </div>
-    </section>
-    
-    <!-- Sección principal del blog -->
-    <section class="blog-section py-5">
-        <div class="container">
-            <div class="row">
-                <!-- Listado de artículos -->
-                <div class="col-lg-8">
-                    <?php if (empty($posts)): ?>
-                    <div class="alert alert-info">
-                        <p class="mb-0">No hay artículos disponibles en este momento.</p>
-                    </div>
-                    <?php else: ?>
-                        <div class="row">
-                            <?php foreach ($posts as $post): ?>
-                            <div class="col-md-6 mb-4">
-                                <div class="card h-100 shadow-sm">
-                                    <?php if (!empty($post['image'])): ?>
-                                    <img src="<?php echo $post['image']; ?>" class="card-img-top" alt="<?php echo $post['title']; ?>">
-                                    <?php endif; ?>
-                                    <div class="card-body">
-                                        <div class="mb-2">
-                                            <span class="badge bg-primary"><?php echo $post['category_name']; ?></span>
-                                            <small class="text-muted ms-2"><?php echo date('d M, Y', strtotime($post['published_at'])); ?></small>
-                                        </div>
-                                        <h5 class="card-title">
-                                            <a href="blog/<?php echo $post['slug']; ?>" class="text-decoration-none text-dark">
-                                                <?php echo $post['title']; ?>
-                                            </a>
-                                        </h5>
-                                        <p class="card-text"><?php echo Helpers::truncate($post['excerpt'], 120); ?></p>
-                                    </div>
-                                    <div class="card-footer bg-white">
-                                        <div class="d-flex align-items-center">
-                                            <?php if (!empty($post['author_image'])): ?>
-                                            <img src="<?php echo $post['author_image']; ?>" alt="<?php echo $post['author_name']; ?>" class="rounded-circle me-2" width="30" height="30">
-                                            <?php else: ?>
-                                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
-                                                <i class="fas fa-user"></i>
-                                            </div>
-                                            <?php endif; ?>
-                                            <small class="text-muted">Por <?php echo $post['author_name']; ?></small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <?php endforeach; ?>
+        </section>
+        
+        <!-- Contenido Principal -->
+        <section class="blog-section">
+            <div class="container">
+                <!-- Mostrar mensaje si hay uno -->
+                <?php if (isset($_GET['subscription'])): ?>
+                    <?php if ($_GET['subscription'] === 'success'): ?>
+                        <div class="notification notification-success">
+                            <p>¡Gracias por suscribirte! Recibirás nuestras últimas actualizaciones en tu correo.</p>
                         </div>
-                        
-                        <!-- Paginación -->
-                        <?php if ($totalPages > 1): ?>
-                        <nav aria-label="Paginación de artículos" class="mt-4">
-                            <ul class="pagination justify-content-center">
-                                <?php if ($page > 1): ?>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page - 1; ?><?php echo $categorySlug ? '&categoria=' . $categorySlug : ''; ?>">
-                                        &laquo; Anterior
-                                    </a>
-                                </li>
-                                <?php endif; ?>
-                                
-                                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                                <li class="page-item <?php echo $page === $i ? 'active' : ''; ?>">
-                                    <a class="page-link" href="?page=<?php echo $i; ?><?php echo $categorySlug ? '&categoria=' . $categorySlug : ''; ?>">
-                                        <?php echo $i; ?>
-                                    </a>
-                                </li>
-                                <?php endfor; ?>
-                                
-                                <?php if ($page < $totalPages): ?>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page + 1; ?><?php echo $categorySlug ? '&categoria=' . $categorySlug : ''; ?>">
-                                        Siguiente &raquo;
-                                    </a>
-                                </li>
-                                <?php endif; ?>
-                            </ul>
-                        </nav>
-                        <?php endif; ?>
+                    <?php elseif ($_GET['subscription'] === 'invalid-email'): ?>
+                        <div class="notification notification-error">
+                            <p>Por favor, ingresa un correo electrónico válido.</p>
+                        </div>
+                    <?php elseif ($_GET['subscription'] === 'error'): ?>
+                        <div class="notification notification-error">
+                            <p>
+                                <?php echo isset($_GET['message']) ? $_GET['message'] : 'Ocurrió un error al procesar tu suscripción. Por favor, intenta nuevamente.'; ?>
+                            </p>
+                        </div>
                     <?php endif; ?>
+                <?php endif; ?>
+                
+                <!-- Filtro de Categorías -->
+                <div class="blog-filters">
+                    <div class="filter-buttons">
+                        <a href="blog.php" class="filter-btn <?php echo !$categorySlug ? 'active' : ''; ?>">Todos</a>
+                        <?php foreach ($categories as $cat): ?>
+                        <a href="?categoria=<?php echo $cat['slug']; ?>" class="filter-btn <?php echo $categorySlug === $cat['slug'] ? 'active' : ''; ?>">
+                            <?php echo $cat['name']; ?> (<?php echo $cat['post_count']; ?>)
+                        </a>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
                 
-                <!-- Barra lateral -->
-                <div class="col-lg-4">
-                    <!-- Buscador -->
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Buscar</h5>
-                            <form action="blog-buscar.php" method="get">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Buscar artículos..." name="q" required>
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                            </form>
+                <!-- Contenido principal y sidebar -->
+                <div class="blog-content">
+                    <!-- Lista de artículos -->
+                    <div class="articles-list">
+                        <?php if (empty($posts)): ?>
+                        <div class="notification notification-info">
+                            <p>No hay artículos disponibles en este momento.</p>
                         </div>
+                        <?php else: ?>
+                            <!-- Grid de artículos -->
+                            <div class="articles-grid">
+                                <?php foreach ($posts as $post): ?>
+                                <div class="article-card">
+                                    <div class="article-image">
+                                        <?php if (!empty($post['image'])): ?>
+                                        <img src="<?php echo $post['image']; ?>" alt="<?php echo $post['title']; ?>">
+                                        <?php else: ?>
+                                        <img src="img/blog/default.jpg" alt="<?php echo $post['title']; ?>">
+                                        <?php endif; ?>
+                                        <span class="article-category"><?php echo $post['category_name']; ?></span>
+                                    </div>
+                                    <div class="article-content">
+                                        <h3 class="article-title">
+                                            <a href="articulo.php?slug=<?php echo $post['slug']; ?>"><?php echo $post['title']; ?></a>
+                                        </h3>
+                                        <p class="article-excerpt"><?php echo Helpers::truncate($post['excerpt'], 120); ?></p>
+                                        <div class="article-meta">
+                                            <div class="article-author">
+                                                <?php if (!empty($post['author_image'])): ?>
+                                                <img src="<?php echo $post['author_image']; ?>" alt="<?php echo $post['author_name']; ?>" class="author-avatar">
+                                                <?php endif; ?>
+                                                <span class="author-name"><?php echo $post['author_name']; ?></span>
+                                            </div>
+                                            <div class="article-date">
+                                                <i class="far fa-calendar-alt"></i> <?php echo date('d M, Y', strtotime($post['published_at'])); ?>
+                                            </div>
+                                        </div>
+                                        <a href="articulo.php?slug=<?php echo $post['slug']; ?>" class="read-more">Leer más →</a>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            
+                            <!-- Paginación -->
+                            <?php if ($totalPages > 1): ?>
+                            <div class="pagination">
+                                <?php if ($page > 1): ?>
+                                <a href="?page=<?php echo $page - 1; ?><?php echo $categorySlug ? '&categoria=' . $categorySlug : ''; ?>" class="page-link">
+                                    <i class="fas fa-chevron-left"></i> Anterior
+                                </a>
+                                <?php endif; ?>
+                                
+                                <div class="page-numbers">
+                                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                    <?php if ($i === $page): ?>
+                                    <span class="current-page"><?php echo $i; ?></span>
+                                    <?php else: ?>
+                                    <a href="?page=<?php echo $i; ?><?php echo $categorySlug ? '&categoria=' . $categorySlug : ''; ?>" class="page-number">
+                                        <?php echo $i; ?>
+                                    </a>
+                                    <?php endif; ?>
+                                    <?php endfor; ?>
+                                </div>
+                                
+                                <?php if ($page < $totalPages): ?>
+                                <a href="?page=<?php echo $page + 1; ?><?php echo $categorySlug ? '&categoria=' . $categorySlug : ''; ?>" class="page-link">
+                                    Siguiente <i class="fas fa-chevron-right"></i>
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
                     
-                    <!-- Categorías -->
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Categorías</h5>
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="blog.php" class="text-decoration-none <?php echo !$categorySlug ? 'fw-bold' : ''; ?>">Todas</a>
-                                </li>
+                    <!-- Sidebar -->
+                    <div class="blog-sidebar">
+                        <!-- Búsqueda -->
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title">Buscar</h3>
+                            <div class="search-form-container">
+                                <form action="blog-buscar.php" method="get" class="search-form">
+                                    <input type="text" name="q" placeholder="Buscar artículos..." required>
+                                    <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- Categorías -->
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title">Categorías</h3>
+                            <ul class="categories-list">
                                 <?php foreach ($categories as $cat): ?>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="?categoria=<?php echo $cat['slug']; ?>" class="text-decoration-none <?php echo $categorySlug === $cat['slug'] ? 'fw-bold' : ''; ?>">
+                                <li class="category-item">
+                                    <a href="?categoria=<?php echo $cat['slug']; ?>" class="category-link">
                                         <?php echo $cat['name']; ?>
+                                        <span class="count">(<?php echo $cat['post_count']; ?>)</span>
                                     </a>
-                                    <span class="badge bg-primary rounded-pill"><?php echo $cat['post_count']; ?></span>
                                 </li>
                                 <?php endforeach; ?>
                             </ul>
                         </div>
-                    </div>
-                    
-                    <!-- Suscripción al Newsletter -->
-                    <div class="card bg-primary text-white shadow-sm mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Suscríbete a nuestro Newsletter</h5>
-                            <p class="card-text">Recibe las últimas actualizaciones y consejos directamente en tu correo.</p>
-                            <form action="suscribir.php" method="post">
-                                <div class="mb-3">
-                                    <input type="email" class="form-control" placeholder="Tu correo electrónico" name="email" required>
+                        
+                        <!-- Suscripción al Newsletter -->
+                        <div class="sidebar-section newsletter-section">
+                            <h3 class="sidebar-title">Suscríbete al Newsletter</h3>
+                            <p>Recibe las últimas actualizaciones y consejos directamente en tu correo.</p>
+                            <form action="suscribir.php" method="post" class="newsletter-form-sidebar">
+                                <div class="form-group">
+                                    <input type="email" class="newsletter-input" placeholder="Tu correo electrónico" name="email" required>
                                 </div>
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-light">Suscribirme</button>
-                                </div>
+                                <button type="submit" class="subscribe-btn">
+                                    Suscribirme
+                                </button>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
     
-    <!-- Incluir el pie de página del sitio -->
-    <?php include 'includes/footer.php'; ?>
+    <!-- Footer -->
+    <?php include $base_path . 'footer.html'; ?>
     
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts -->
+    <script src="<?php echo $assets_path; ?>js/main.js"></script>
+    <script src="<?php echo $assets_path; ?>js/components/nav.js"></script>
+    <script src="<?php echo $assets_path; ?>js/components/footer.js"></script>
+    
+    <!-- AOS Inicialización -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        // Inicialización de AOS
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 50,
+            disable: window.innerWidth < 768 // Desactivar AOS en móvil para mejor rendimiento
+        });
+    </script>
 </body>
-
 </html>

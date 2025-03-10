@@ -13,25 +13,20 @@ define('DB_PASS', '');   // Contraseña de la base de datos
 define('DB_NAME', 'solfis_blog');     // Nombre de la base de datos
 
 // Rutas del sistema
-define('SITE_URL', 'https://solfis.com.do');  // URL del sitio (ajustar según corresponda)
-define('ADMIN_URL', SITE_URL . '/admin');     // URL del panel de administración
-define('UPLOADS_DIR', 'img/blog/uploads/');    // Directorio para subir archivos
+define('SITE_URL', 'http://localhost/solfis');  // URL del sitio (ajustar según corresponda)
+define('ADMIN_URL', SITE_URL . '/admin');       // URL del panel de administración
+define('UPLOADS_DIR', 'img/blog/uploads/');     // Directorio para subir archivos
 
 // Configuración del sitio
-define('SITE_NAME', 'SolFis');                // Nombre del sitio
+define('SITE_NAME', 'SolFis');                  // Nombre del sitio
 define('SITE_DESCRIPTION', 'Soluciones fiscales y contables'); // Descripción del sitio
-define('POSTS_PER_PAGE', 6);                  // Número de posts por página en el blog
-define('COMMENTS_PER_PAGE', 10);              // Número de comentarios por página
-define('ENABLE_COMMENTS', true);              // Habilitar/deshabilitar comentarios
-define('REQUIRE_COMMENT_APPROVAL', true);     // Requerir aprobación de comentarios
+define('POSTS_PER_PAGE', 6);                    // Número de posts por página en el blog
+define('COMMENTS_PER_PAGE', 10);                // Número de comentarios por página
+define('ENABLE_COMMENTS', true);                // Habilitar/deshabilitar comentarios
+define('REQUIRE_COMMENT_APPROVAL', true);       // Requerir aprobación de comentarios
 
 // Zona horaria
 date_default_timezone_set('America/Santo_Domingo');
-
-// Manejo de errores (desactivar en producción)
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 // Iniciar sesión si no está iniciada
 if (session_status() == PHP_SESSION_NONE) {
@@ -47,14 +42,3 @@ function redirect($url) {
 function sanitize_output($output) {
     return htmlspecialchars($output, ENT_QUOTES, 'UTF-8');
 }
-
-// Autoload de clases
-function autoloadClasses($className) {
-    $classFile = __DIR__ . '/includes/' . $className . '.php';
-    if (file_exists($classFile)) {
-        require_once $classFile;
-    }
-}
-
-// Configurar autoload
-spl_autoload_register('autoloadClasses');

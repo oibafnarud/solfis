@@ -23,16 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
     
-    echo "Intentando login con: $email / $password<br>"; // Movido aquí después de definir las variables
-    
     if (empty($email) || empty($password)) {
         $error = 'Por favor, complete todos los campos.';
     } else {
-        $userModel = new User();
-        $user = $userModel->login($email, $password);
-        var_dump($user); // Esto mostrará el resultado directo de la función login
-        exit;
-        
         if ($auth->login($email, $password)) {
             // Redireccionar al dashboard
             header('Location: index.php');
