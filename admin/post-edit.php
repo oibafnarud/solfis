@@ -347,7 +347,7 @@ if (isset($_GET['message']) && array_key_exists($_GET['message'], $messages)) {
     </div>
 </div>
 
-<script src="https://cdn.tiny.cloud/1/tu-api-key/tinymce/5/tinymce.min.js"></script>
+<script src="https://cdn.tiny.cloud/1/xe58s62knh4hnh0usw77zym9kjn2hfqh9ufueaiyof57ts4w/tinymce/5/tinymce.min.js"></script>
 <script>
 // Inicializar el editor TinyMCE
 tinymce.init({
@@ -355,12 +355,20 @@ tinymce.init({
     height: 500,
     menubar: true,
     plugins: [
-        'advlist autolink lists link image charmap print preview anchor',
-        'searchreplace visualblocks code fullscreen',
-        'insertdatetime media table paste code help wordcount'
-    ],
-    toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
-    content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 16px; }'
+	  // Core editing features
+	  'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
+	  // Your account includes a free trial of TinyMCE premium features
+	  // Try the most popular premium features until Mar 25, 2025:
+	  'checklist', 'mediaembed', 'casechange', 'export', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown','importword', 'exportword', 'exportpdf'
+	],
+	toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+	tinycomments_mode: 'embedded',
+	tinycomments_author: 'Author name',
+	mergetags_list: [
+	  { value: 'First.Name', title: 'First Name' },
+	  { value: 'Email', title: 'Email' },
+	],
+	ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
 });
 
 // Generar slug automáticamente desde el título
