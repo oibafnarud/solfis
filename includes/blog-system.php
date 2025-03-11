@@ -544,33 +544,31 @@ class BlogPost {
     /**
      * Actualizar un post existente
      */
-    public function updatePost($id, $data) {
-        $id = (int)$id;
-        $title = $this->db->escape($data['title']);
-        $slug = $this->db->escape($data['slug']);
-        $content = $this->db->escape($data['content']);
-        $excerpt = $this->db->escape($data['excerpt']);
-        $categoryId = (int)$data['category_id'];
-        $status = $this->db->escape($data['status']);
-        $image = $this->db->escape($data['image']);
-        
-        $sql = "UPDATE posts SET 
-                title = '$title', 
-                slug = '$slug', 
-                content = '$content', 
-                excerpt = '$excerpt', 
-                category_id = $categoryId, 
-                status = '$status',";
-                
-        if (!empty($image)) {
-            $sql .= " image = '$image',";
-        }
-        
-        $sql .= " updated_at = NOW() 
-                WHERE id = $id";
-                
-        return $this->db->query($sql);
-    }
+	public function updatePost($id, $data) {
+		$id = (int)$id;
+		$title = $this->db->escape($data['title']);
+		$slug = $this->db->escape($data['slug']);
+		$content = $this->db->escape($data['content']);
+		$excerpt = $this->db->escape($data['excerpt']);
+		$categoryId = (int)$data['category_id'];
+		$status = $this->db->escape($data['status']);
+		
+		// Asegúrate de que coincide con la clave en $postData
+		$image = isset($data['image']) ? $this->db->escape($data['image']) : '';
+		
+		$sql = "UPDATE posts SET 
+				title = '$title', 
+				slug = '$slug', 
+				content = '$content', 
+				excerpt = '$excerpt', 
+				category_id = $categoryId, 
+				status = '$status',
+				image = '$image',
+				updated_at = NOW() 
+				WHERE id = $id";
+				
+		return $this->db->query($sql);
+	}
     
     /**
      * Eliminar un post
@@ -650,9 +648,10 @@ class BlogPost {
 class Media {
     private $db;
     private $uploadDir = 'img/blog/uploads/';
-    
+	
     public function __construct() {
         $this->db = Database::getInstance();
+		$this->uploadDir = '../' . UPLOADS_DIR;
         
         // Crear directorio si no existe
         if (!file_exists($this->uploadDir)) {
@@ -663,62 +662,74 @@ class Media {
     /**
      * Subir una imagen
      */
-    public function uploadImage($file, $customFileName = null) {
-        $fileName = $customFileName ?? uniqid() . '_' . basename($file['name']);
-        $targetFile = $this->uploadDir . $fileName;
-        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-        
-        // Verificar si es una imagen real
-        $check = getimagesize($file['tmp_name']);
-        if ($check === false) {
-            return [
-                'success' => false,
-                'message' => 'El archivo no es una imagen válida.'
-            ];
-        }
-        
-        // Verificar extensión
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-        if (!in_array($imageFileType, $allowedExtensions)) {
-            return [
-                'success' => false,
-                'message' => 'Solo se permiten archivos JPG, JPEG, PNG y GIF.'
-            ];
-        }
-        
-        // Verificar tamaño (5MB máximo)
-        if ($file['size'] > 5 * 1024 * 1024) {
-            return [
-                'success' => false,
-                'message' => 'El archivo es demasiado grande. Máximo 5MB.'
-            ];
-        }
-        
-        // Subir archivo
-        if (move_uploaded_file($file['tmp_name'], $targetFile)) {
-            // Registrar en base de datos
-            $name = $this->db->escape(basename($file['name']));
-            $path = $this->db->escape($targetFile);
-            $type = $this->db->escape($file['type']);
-            $size = (int)$file['size'];
-            
-            $sql = "INSERT INTO media (name, file_name, path, type, size, created_at) 
-                    VALUES ('$name', '$fileName', '$path', '$type', $size, NOW())";
-                    
-            $this->db->query($sql);
-            
-            return [
-                'success' => true,
-                'file' => $targetFile,
-                'id' => $this->db->lastInsertId()
-            ];
-        } else {
-            return [
-                'success' => false,
-                'message' => 'Hubo un error al subir el archivo.'
-            ];
-        }
-    }
+		public function uploadImage($file, $customFileName = null) {
+			$fileName = $customFileName ?? uniqid() . '_' . basename($file['name']);
+			
+			// Ruta completa para guardar el archivo físicamente
+			$physicalPath = '../img/blog/uploads/' . $fileName;
+			
+			// Ruta relativa para guardar en la base de datos (sin ../)
+			$dbPath = 'img/blog/uploads/' . $fileName;
+			
+			$imageFileType = strtolower(pathinfo($physicalPath, PATHINFO_EXTENSION));
+			
+			// Verificar si es una imagen real
+			$check = getimagesize($file['tmp_name']);
+			if ($check === false) {
+				return [
+					'success' => false,
+					'message' => 'El archivo no es una imagen válida.'
+				];
+			}
+			
+			// Verificar extensión
+			$allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+			if (!in_array($imageFileType, $allowedExtensions)) {
+				return [
+					'success' => false,
+					'message' => 'Solo se permiten archivos JPG, JPEG, PNG y GIF.'
+				];
+			}
+			
+			// Verificar tamaño (5MB máximo)
+			if ($file['size'] > 5 * 1024 * 1024) {
+				return [
+					'success' => false,
+					'message' => 'El archivo es demasiado grande. Máximo 5MB.'
+				];
+			}
+			
+			// Crear directorio si no existe
+			$uploadDir = dirname($physicalPath);
+			if (!file_exists($uploadDir)) {
+				mkdir($uploadDir, 0755, true);
+			}
+			
+			// Subir archivo
+			if (move_uploaded_file($file['tmp_name'], $physicalPath)) {
+				// Registrar en base de datos - guardar ruta SIN ../
+				$name = $this->db->escape(basename($file['name']));
+				$path = $this->db->escape($dbPath); // Usamos dbPath sin ../
+				$type = $this->db->escape($file['type']);
+				$size = (int)$file['size'];
+				
+				$sql = "INSERT INTO media (name, file_name, path, type, size, created_at) 
+						VALUES ('$name', '$fileName', '$path', '$type', $size, NOW())";
+						
+				$this->db->query($sql);
+				
+				return [
+					'success' => true,
+					'file' => $dbPath, // Devuelve la ruta sin ../
+					'id' => $this->db->lastInsertId()
+				];
+			} else {
+				return [
+					'success' => false,
+					'message' => 'Hubo un error al subir el archivo.'
+				];
+			}
+		}
     
     /**
      * Obtener todas las imágenes
@@ -835,32 +846,77 @@ class Comment {
     /**
      * Aprobar un comentario
      */
-    public function approveComment($id) {
-        $id = (int)$id;
-        
-        $sql = "UPDATE comments SET status = 'approved' WHERE id = $id";
-        return $this->db->query($sql);
-    }
+		public function approveComment($id) {
+			$id = (int)$id;
+			
+			// Primero verificar estado actual para evitar duplicaciones
+			$sql = "SELECT status FROM comments WHERE id = $id";
+			$result = $this->db->query($sql);
+			
+			if ($result->num_rows > 0) {
+				$comment = $result->fetch_assoc();
+				if ($comment['status'] === 'approved') {
+					return true; // Ya está aprobado, no hacer nada
+				}
+			}
+			
+			$sql = "UPDATE comments SET status = 'approved' WHERE id = $id";
+			return $this->db->query($sql);
+		}
     
     /**
      * Rechazar un comentario
      */
-    public function rejectComment($id) {
-        $id = (int)$id;
-        
-        $sql = "UPDATE comments SET status = 'rejected' WHERE id = $id";
-        return $this->db->query($sql);
-    }
+		public function rejectComment($id) {
+			$id = (int)$id;
+			
+			$sql = "UPDATE comments SET status = 'rejected' WHERE id = $id";
+			return $this->db->query($sql);
+		}
     
     /**
      * Eliminar un comentario
      */
-    public function deleteComment($id) {
-        $id = (int)$id;
-        
-        $sql = "DELETE FROM comments WHERE id = $id";
-        return $this->db->query($sql);
-    }
+		public function deleteComment($id) {
+			$id = (int)$id;
+			
+			$sql = "DELETE FROM comments WHERE id = $id";
+			return $this->db->query($sql);
+		}
+		
+		/**
+		 * Verificar si un comentario parece ser spam
+		 */
+		public function isSpam($content, $email) {
+			// Palabras clave que suelen aparecer en spam
+			$spamWords = ['viagra', 'cialis', 'casino', 'poker', 'buy now', 'discount', 'free money'];
+			$contentLower = strtolower($content);
+			
+			// Verificar palabras de spam
+			foreach($spamWords as $word) {
+				if (strpos($contentLower, $word) !== false) {
+					return true;
+				}
+			}
+			
+			// Verificar si hay demasiados enlaces (los spammers suelen incluir muchos enlaces)
+			$linkCount = substr_count($contentLower, 'http');
+			if ($linkCount > 3) {
+				return true;
+			}
+			
+			// Verificar correos de dominios conocidos por spam
+			$spamDomains = ['temp-mail.org', 'guerrillamail.com', 'mailinator.com'];
+			$emailDomain = substr(strrchr($email, "@"), 1);
+			
+			foreach($spamDomains as $domain) {
+				if (stripos($emailDomain, $domain) !== false) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
     
     /**
      * Obtener comentarios para dashboard (admin)
@@ -907,6 +963,22 @@ class Comment {
             'current_page' => $page
         ];
     }
+	
+	/**
+		 * Obtener un comentario por su ID
+		 */
+		public function getCommentById($id) {
+			$id = (int)$id;
+			
+			$sql = "SELECT * FROM comments WHERE id = $id";
+			$result = $this->db->query($sql);
+			
+			if ($result->num_rows > 0) {
+				return $result->fetch_assoc();
+			}
+			
+			return null;
+		}
 }
 
 // Clase Subscriber - Maneja los suscriptores del newsletter

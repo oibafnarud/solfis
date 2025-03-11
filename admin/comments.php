@@ -66,11 +66,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 // Mensajes de notificación
 $messages = [
     'comment-approved' => ['type' => 'success', 'text' => 'Comentario aprobado correctamente.'],
+    'comment-already-approved' => ['type' => 'info', 'text' => 'Este comentario ya estaba aprobado.'],
     'comment-rejected' => ['type' => 'success', 'text' => 'Comentario rechazado correctamente.'],
     'comment-deleted' => ['type' => 'success', 'text' => 'Comentario eliminado correctamente.'],
     'comments-approved' => ['type' => 'success', 'text' => 'Comentarios aprobados correctamente.'],
     'comments-rejected' => ['type' => 'success', 'text' => 'Comentarios rechazados correctamente.'],
     'comments-deleted' => ['type' => 'success', 'text' => 'Comentarios eliminados correctamente.'],
+    'comment-error' => ['type' => 'danger', 'text' => 'Ha ocurrido un error al procesar el comentario.'],
 ];
 
 $notification = null;

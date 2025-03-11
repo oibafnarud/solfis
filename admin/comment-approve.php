@@ -19,16 +19,28 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
     exit;
 }
 
-// Aprobar comentario
+// Prevenir aprobación duplicada verificando el estado actual
 $comment = new Comment();
-$result = $comment->approveComment($_GET['id']);
+$commentId = (int)$_GET['id'];
 
-// Redireccionar según resultado
-if ($result) {
-    header('Location: comments.php?message=comment-approved');
-} else {
+// Verificar si el comentario ya está aprobado
+$commentData = $comment->getCommentById($commentId);
+if (!$commentData) {
     header('Location: comments.php?message=comment-error');
+    exit;
+}
+
+// Solo aprobar si el comentario no está ya aprobado
+if ($commentData['status'] !== 'approved') {
+    $result = $comment->approveComment($commentId);
+    
+    if ($result) {
+        header('Location: comments.php?message=comment-approved');
+    } else {
+        header('Location: comments.php?message=comment-error');
+    }
+} else {
+    // El comentario ya estaba aprobado
+    header('Location: comments.php?message=comment-already-approved');
 }
 exit;
-
-?>

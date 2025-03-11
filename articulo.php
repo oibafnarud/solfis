@@ -50,6 +50,7 @@ $relatedPosts = $blogPost->getRelatedPosts($post['id'], $post['category_id'], 3)
 $categories = $category->getCategories();
 
 // Procesar formulario de comentarios
+// Procesar formulario de comentarios
 $commentSuccess = false;
 $commentError = null;
 
@@ -57,25 +58,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment_submit'])) {
     $name = $_POST['name'] ?? '';
     $email = $_POST['email'] ?? '';
     $content = $_POST['content'] ?? '';
+    $website = $_POST['website'] ?? ''; // Honeypot
+    $captcha = isset($_POST['captcha']) ? (int)$_POST['captcha'] : 0;
+    $csrf_token = $_POST['csrf_token'] ?? '';
     
+    // Validación del formulario
     if (empty($name) || empty($email) || empty($content)) {
         $commentError = 'Por favor complete todos los campos.';
-    } elseif (!Helpers::validateEmail($email)) {
+    } 
+    elseif (!empty($website)) {
+        // El honeypot debería estar vacío - si tiene contenido es probablemente un bot
+        $commentError = 'Error de validación. Por favor intente nuevamente.';
+    }
+    elseif (!isset($_SESSION['captcha_result']) || $captcha !== $_SESSION['captcha_result']) {
+        $commentError = 'La respuesta al captcha es incorrecta.';
+    }
+    elseif (!isset($_SESSION['csrf_token']) || $csrf_token !== $_SESSION['csrf_token']) {
+        $commentError = 'Error de validación del formulario. Por favor intente nuevamente.';
+    }
+    elseif (!Helpers::validateEmail($email)) {
         $commentError = 'Por favor ingrese un correo electrónico válido.';
-    } else {
-        // Crear nuevo comentario
-        $commentData = [
-            'post_id' => $post['id'],
-            'name' => $name,
-            'email' => $email,
-            'content' => $content,
-            'status' => REQUIRE_COMMENT_APPROVAL ? 'pending' : 'approved'
-        ];
+    } 
+    else {
+        // Verificaciones adicionales anti-spam
         
-        if ($comment->createComment($commentData)) {
-            $commentSuccess = true;
-        } else {
-            $commentError = 'Hubo un error al enviar su comentario. Por favor intente de nuevo.';
+        // 1. Verificar si el mismo email ha comentado demasiadas veces en las últimas 24 horas
+        $db = Database::getInstance();
+        $email_escaped = $db->escape($email);
+        $sql = "SELECT COUNT(*) as count FROM comments 
+                WHERE email = '$email_escaped' 
+                AND created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+        $result = $db->query($sql);
+        $row = $result->fetch_assoc();
+        
+        if ($row['count'] > 10) {
+            $commentError = 'Ha excedido el límite de comentarios. Por favor, intente más tarde.';
+        }
+        else {
+            // 2. Verificar contenido de spam común
+            $spam_words = ['viagra', 'cialis', 'casino', 'poker', 'buy now', 'discount'];
+            $content_lower = strtolower($content);
+            $is_spam = false;
+            
+            foreach($spam_words as $word) {
+                if (strpos($content_lower, $word) !== false) {
+                    $is_spam = true;
+                    break;
+                }
+            }
+            
+            // Crear nuevo comentario
+            $commentData = [
+                'post_id' => $post['id'],
+                'name' => $name,
+                'email' => $email,
+                'content' => $content,
+                'status' => $is_spam ? 'rejected' : (REQUIRE_COMMENT_APPROVAL ? 'pending' : 'approved')
+            ];
+            
+            if ($comment->createComment($commentData)) {
+                $commentSuccess = true;
+                
+                // Limpiar datos de sesión
+                unset($_SESSION['captcha_result']);
+                unset($_SESSION['csrf_token']);
+            } else {
+                $commentError = 'Hubo un error al enviar su comentario. Por favor intente de nuevo.';
+            }
         }
     }
 }
@@ -294,25 +343,40 @@ $site_description = $post['excerpt'];
                                     </div>
                                     <?php endif; ?>
                                     
-                                    <form action="" method="post">
-                                        <div class="comment-form-grid">
-                                            <div class="form-group">
-                                                <label for="name">Nombre *</label>
-                                                <input type="text" class="form-control" id="name" name="name" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="email">Email *</label>
-                                                <input type="email" class="form-control" id="email" name="email" required>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="content">Comentario *</label>
-                                            <textarea class="form-control" id="content" name="content" rows="4" required></textarea>
-                                        </div>
-                                        <button type="submit" name="comment_submit" class="form-submit">
-                                            Enviar Comentario <i class="fas fa-paper-plane"></i>
-                                        </button>
-                                    </form>
+										<form action="" method="post">
+											<div class="row">
+												<div class="col-md-6 mb-3">
+													<label for="name" class="form-label">Nombre *</label>
+													<input type="text" class="form-control" id="name" name="name" required>
+												</div>
+												<div class="col-md-6 mb-3">
+													<label for="email" class="form-label">Email *</label>
+													<input type="email" class="form-control" id="email" name="email" required>
+												</div>
+											</div>
+											<div class="mb-3">
+												<label for="content" class="form-label">Comentario *</label>
+												<textarea class="form-control" id="content" name="content" rows="4" required></textarea>
+											</div>
+											
+											<!-- Campo anti-spam: honeypot (invisible para usuarios reales) -->
+											<div class="mb-3" style="display:none;">
+												<label for="website" class="form-label">Sitio web (dejar vacío)</label>
+												<input type="text" class="form-control" id="website" name="website">
+											</div>
+											
+											<!-- Campo captcha simple -->
+											<div class="mb-3">
+												<label for="captcha" class="form-label">¿Cuánto es <?php $num1 = rand(1, 10); $num2 = rand(1, 10); echo "$num1 + $num2"; $_SESSION['captcha_result'] = $num1 + $num2; ?> ? *</label>
+												<input type="number" class="form-control" id="captcha" name="captcha" required>
+											</div>
+											
+											<!-- Token para prevenir CSRF -->
+											<?php $csrf_token = md5(uniqid(rand(), true)); $_SESSION['csrf_token'] = $csrf_token; ?>
+											<input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+											
+											<button type="submit" name="comment_submit" class="btn btn-primary">Enviar Comentario</button>
+										</form>
                                 </div>
                             </div>
                             <?php endif; ?>

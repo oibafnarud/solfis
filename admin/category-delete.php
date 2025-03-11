@@ -30,5 +30,3 @@ if ($result) {
     header('Location: categories.php?message=category-error');
 }
 exit;
-
-?>

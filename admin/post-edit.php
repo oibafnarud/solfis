@@ -38,13 +38,13 @@ if ($isEditing && !$post) {
 // Procesar el formulario de envío
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Recoger datos del formulario
-    $title = $_POST['title'];
-    $slug = empty($_POST['slug']) ? Helpers::slugify($title) : $_POST['slug'];
-    $content = $_POST['content'];
-    $excerpt = $_POST['excerpt'];
-    $categoryId = (int)$_POST['category_id'];
-    $status = $_POST['status'];
-    $image = $_POST['featured_image'];
+	$title = $_POST['title'];
+	$slug = empty($_POST['slug']) ? Helpers::slugify($title) : $_POST['slug'];
+	$content = $_POST['content'];
+	$excerpt = $_POST['excerpt'];
+	$categoryId = (int)$_POST['category_id'];
+	$status = $_POST['status'];
+	$image = $_POST['featured_image']; // Asegúrate de que este nombre coincide con el campo en el formulario
     
     // Asegurar que el slug sea único si estamos creando o cambiando el slug
     if (!$isEditing || ($isEditing && $slug !== $post['slug'])) {
@@ -69,16 +69,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } while ($slugExists);
     }
     
-    // Preparar datos para guardar
-    $postData = [
-        'title' => $title,
-        'slug' => $slug,
-        'content' => $content,
-        'excerpt' => $excerpt,
-        'category_id' => $categoryId,
-        'status' => $status,
-        'image' => $image
-    ];
+		// Preparar datos para guardar
+		$postData = [
+			'title' => $title,
+			'slug' => $slug,
+			'content' => $content,
+			'excerpt' => $excerpt,
+			'category_id' => $categoryId,
+			'status' => $status,
+			'image' => $image // Este campo debe coincidir con el nombre de la columna en la tabla posts
+		];
     
     // Si es un nuevo post, agregar autor y fecha
     if (!$isEditing) {
@@ -258,36 +258,36 @@ if (isset($_GET['message']) && array_key_exists($_GET['message'], $messages)) {
                             </div>
                             
                             <!-- Panel de Imagen Destacada -->
-                            <div class="card mb-4">
-                                <div class="card-header bg-light">
-                                    <h5 class="card-title mb-0">Imagen Destacada</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <div id="featured-image-preview" class="text-center mb-3">
-                                            <?php if ($isEditing && !empty($post['image'])): ?>
-                                            <img src="<?php echo '../' . $post['image']; ?>" alt="Imagen destacada" class="img-fluid mb-2">
-                                            <?php else: ?>
-                                            <p class="text-muted">Sin imagen destacada</p>
-                                            <?php endif; ?>
-                                        </div>
-                                        
-                                        <input type="hidden" id="featured_image" name="featured_image" value="<?php echo $isEditing ? $post['image'] : ''; ?>">
-                                        
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#mediaModal">
-                                                <i class="fas fa-image"></i> Seleccionar Imagen
-                                            </button>
-                                            
-                                            <?php if ($isEditing && !empty($post['image'])): ?>
-                                            <button type="button" class="btn btn-outline-danger" id="remove-featured-image">
-                                                <i class="fas fa-trash"></i> Eliminar Imagen
-                                            </button>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+							<div class="card mb-4">
+								<div class="card-header bg-light">
+									<h5 class="card-title mb-0">Imagen Destacada</h5>
+								</div>
+								<div class="card-body">
+									<div class="mb-3">
+										<div id="featured-image-preview" class="text-center mb-3">
+											<?php if ($isEditing && !empty($post['image'])): ?>
+											<img src="<?php echo '../' . $post['image']; ?>" alt="Imagen destacada" class="img-fluid mb-2">
+											<?php else: ?>
+											<p class="text-muted">Sin imagen destacada</p>
+											<?php endif; ?>
+										</div>
+										
+										<input type="hidden" id="featured_image" name="featured_image" value="<?php echo $isEditing ? $post['image'] : ''; ?>">
+										
+										<div class="d-grid gap-2">
+											<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#mediaModal">
+												<i class="fas fa-image"></i> Seleccionar Imagen
+											</button>
+											
+											<?php if ($isEditing && !empty($post['image'])): ?>
+											<button type="button" class="btn btn-outline-danger" id="remove-featured-image">
+												<i class="fas fa-trash"></i> Eliminar Imagen
+											</button>
+											<?php endif; ?>
+										</div>
+									</div>
+								</div>
+							</div>
                         </div>
                     </div>
                 </form>
@@ -313,7 +313,7 @@ if (isset($_GET['message']) && array_key_exists($_GET['message'], $messages)) {
                             <div class="mb-3">
                                 <input class="form-control" type="file" id="image_upload" name="image" accept="image/*">
                             </div>
-                            <button type="submit" class="btn btn-primary">Subir Imagen</button>
+                            <button type="button" class="btn btn-primary" id="upload-button">Subir Imagen</button>
                         </form>
                         <div id="upload-status" class="mt-2"></div>
                     </div>
@@ -323,20 +323,21 @@ if (isset($_GET['message']) && array_key_exists($_GET['message'], $messages)) {
                 <div class="card">
                     <div class="card-body">
                         <h6 class="card-title">Imágenes Disponibles</h6>
-                        <div class="row" id="media-gallery">
-                            <?php foreach ($mediaItems as $item): ?>
-                            <div class="col-md-2 mb-3">
-                                <div class="card h-100">
-                                    <img src="<?php echo '../' . $item['path']; ?>" class="card-img-top" alt="<?php echo $item['name']; ?>">
-                                    <div class="card-body p-2 text-center">
-                                        <button type="button" class="btn btn-sm btn-primary select-media" data-path="<?php echo $item['path']; ?>">
-                                            Seleccionar
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
+						<div class="row" id="media-gallery">
+							<?php foreach ($mediaItems as $item): ?>
+							<div class="col-md-2 mb-3">
+								<div class="card h-100">
+									<img src="<?php echo '../' . $item['path']; ?>" class="card-img-top" alt="<?php echo $item['name']; ?>">
+									<div class="card-body p-2 text-center">
+										<button type="button" class="btn btn-sm btn-primary select-media" 
+												data-path="<?php echo $item['path']; ?>">
+											Seleccionar
+										</button>
+									</div>
+								</div>
+							</div>
+							<?php endforeach; ?>
+						</div>
                     </div>
                 </div>
             </div>
@@ -386,16 +387,21 @@ document.getElementById('title').addEventListener('blur', function() {
 // Seleccionar imagen de la galería
 document.querySelectorAll('.select-media').forEach(function(button) {
     button.addEventListener('click', function() {
+        // Obtener la ruta tal como está en la base de datos (sin ../)
         const path = this.getAttribute('data-path');
+        
+        // Actualizar el campo oculto con la ruta sin ../
         document.getElementById('featured_image').value = path;
         
-        // Actualizar vista previa
+        // Para mostrar la vista previa, necesitamos añadir ../ porque estamos en admin/
         const preview = document.getElementById('featured-image-preview');
         preview.innerHTML = `<img src="../${path}" alt="Imagen destacada" class="img-fluid mb-2">`;
         
         // Cerrar modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('mediaModal'));
         modal.hide();
+        
+        console.log('Imagen seleccionada:', path);
     });
 });
 
@@ -408,18 +414,48 @@ if (removeButton) {
     });
 }
 
+// Seleccionar imagen de la galería
+document.querySelectorAll('.select-media').forEach(function(button) {
+    button.addEventListener('click', function() {
+        const path = this.getAttribute('data-path');
+        document.getElementById('featured_image').value = path;
+        
+        // Actualizar vista previa
+        const preview = document.getElementById('featured-image-preview');
+        preview.innerHTML = `<img src="../${path}" alt="Imagen destacada" class="img-fluid mb-2">`;
+        
+        // Cerrar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('mediaModal'));
+        modal.hide();
+        
+        console.log('Imagen seleccionada:', path);
+    });
+});
+
 // Subida de imágenes mediante AJAX
-document.getElementById('upload-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
+document.getElementById('upload-button').addEventListener('click', function() {
+    const form = document.getElementById('upload-form');
+    const formData = new FormData(form);
     const statusDiv = document.getElementById('upload-status');
+    const uploadButton = this;
     
+    // Validar que se haya seleccionado un archivo
+    const fileInput = document.getElementById('image_upload');
+    if (!fileInput.files.length) {
+        statusDiv.innerHTML = '<div class="alert alert-warning">Por favor, seleccione una imagen.</div>';
+        return;
+    }
+    
+    uploadButton.disabled = true;
+    uploadButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
     statusDiv.innerHTML = '<div class="alert alert-info">Subiendo imagen...</div>';
     
     fetch('media-upload.php', {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
     })
     .then(response => response.json())
     .then(data => {
@@ -442,7 +478,7 @@ document.getElementById('upload-form').addEventListener('submit', function(e) {
             `;
             gallery.prepend(newItem);
             
-            // Actualizar evento para el nuevo botón
+            // Añadir evento al nuevo botón
             newItem.querySelector('.select-media').addEventListener('click', function() {
                 const path = this.getAttribute('data-path');
                 document.getElementById('featured_image').value = path;
@@ -457,14 +493,19 @@ document.getElementById('upload-form').addEventListener('submit', function(e) {
             });
             
             // Limpiar el campo de archivo
-            document.getElementById('image_upload').value = '';
+            form.reset();
         } else {
             statusDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
         }
+        
+        uploadButton.disabled = false;
+        uploadButton.innerHTML = 'Subir Imagen';
     })
     .catch(error => {
-        statusDiv.innerHTML = '<div class="alert alert-danger">Error al subir la imagen.</div>';
         console.error('Error:', error);
+        statusDiv.innerHTML = '<div class="alert alert-danger">Error al subir la imagen.</div>';
+        uploadButton.disabled = false;
+        uploadButton.innerHTML = 'Subir Imagen';
     });
 });
 </script>
