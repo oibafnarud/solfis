@@ -1,0 +1,29 @@
+[12-Mar-2025 11:31:33 America/Santo_Domingo] PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'root'@'localhost' (using password: NO) in /home/solfisco/public_html/solfis_web/includes/blog-system.php on line 21
+[12-Mar-2025 19:08:10 Europe/Madrid] PHP Notice:  Undefined variable: page_canonical in /home/solfisco/public_html/solfis_web/contacto.php on line 14
+[12-Mar-2025 19:08:10 Europe/Madrid] PHP Notice:  Undefined variable: page_canonical in /home/solfisco/public_html/solfis_web/contacto.php on line 19
+[12-Mar-2025 19:08:14 Europe/Madrid] PHP Notice:  Undefined variable: page_canonical in /home/solfisco/public_html/solfis_web/contacto.php on line 14
+[12-Mar-2025 19:08:14 Europe/Madrid] PHP Notice:  Undefined variable: page_canonical in /home/solfisco/public_html/solfis_web/contacto.php on line 19
+[12-Mar-2025 19:40:59 Europe/Madrid] PHP Notice:  Undefined variable: page_canonical in /home/solfisco/public_html/solfis_web/contacto.php on line 14
+[12-Mar-2025 19:40:59 Europe/Madrid] PHP Notice:  Undefined variable: page_canonical in /home/solfisco/public_html/solfis_web/contacto.php on line 19
+[12-Mar-2025 15:34:57 America/Santo_Domingo] PHP Warning:  include(includes/header.php): failed to open stream: No such file or directory in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 83
+[12-Mar-2025 15:34:57 America/Santo_Domingo] PHP Warning:  include(includes/header.php): failed to open stream: No such file or directory in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 83
+[12-Mar-2025 15:34:57 America/Santo_Domingo] PHP Warning:  include(): Failed opening 'includes/header.php' for inclusion (include_path='.:/opt/alt/php73/usr/share/pear') in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 83
+[12-Mar-2025 15:34:57 America/Santo_Domingo] PHP Warning:  include(includes/footer.php): failed to open stream: No such file or directory in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 231
+[12-Mar-2025 15:34:57 America/Santo_Domingo] PHP Warning:  include(includes/footer.php): failed to open stream: No such file or directory in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 231
+[12-Mar-2025 15:34:57 America/Santo_Domingo] PHP Warning:  include(): Failed opening 'includes/footer.php' for inclusion (include_path='.:/opt/alt/php73/usr/share/pear') in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 231
+[12-Mar-2025 15:36:27 America/Santo_Domingo] PHP Warning:  include(includes/header.php): failed to open stream: No such file or directory in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 83
+[12-Mar-2025 15:36:27 America/Santo_Domingo] PHP Warning:  include(includes/header.php): failed to open stream: No such file or directory in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 83
+[12-Mar-2025 15:36:27 America/Santo_Domingo] PHP Warning:  include(): Failed opening 'includes/header.php' for inclusion (include_path='.:/opt/alt/php73/usr/share/pear') in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 83
+[12-Mar-2025 15:36:27 America/Santo_Domingo] PHP Warning:  include(includes/footer.php): failed to open stream: No such file or directory in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 231
+[12-Mar-2025 15:36:27 America/Santo_Domingo] PHP Warning:  include(includes/footer.php): failed to open stream: No such file or directory in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 231
+[12-Mar-2025 15:36:27 America/Santo_Domingo] PHP Warning:  include(): Failed opening 'includes/footer.php' for inclusion (include_path='.:/opt/alt/php73/usr/share/pear') in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 231
+[12-Mar-2025 16:35:11 America/Santo_Domingo] PHP Warning:  include(includes/header.php): failed to open stream: No such file or directory in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 83
+[12-Mar-2025 16:35:11 America/Santo_Domingo] PHP Warning:  include(includes/header.php): failed to open stream: No such file or directory in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 83
+[12-Mar-2025 16:35:11 America/Santo_Domingo] PHP Warning:  include(): Failed opening 'includes/header.php' for inclusion (include_path='.:/opt/alt/php73/usr/share/pear') in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 83
+[12-Mar-2025 16:35:11 America/Santo_Domingo] PHP Warning:  include(includes/footer.php): failed to open stream: No such file or directory in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 231
+[12-Mar-2025 16:35:11 America/Santo_Domingo] PHP Warning:  include(includes/footer.php): failed to open stream: No such file or directory in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 231
+[12-Mar-2025 16:35:11 America/Santo_Domingo] PHP Warning:  include(): Failed opening 'includes/footer.php' for inclusion (include_path='.:/opt/alt/php73/usr/share/pear') in /home/solfisco/public_html/solfis_web/blog-buscar.php on line 231
+[13-Mar-2025 03:25:08 Europe/Madrid] PHP Notice:  Undefined variable: page_canonical in /home/solfisco/public_html/solfis_web/auditoria.php on line 14
+[13-Mar-2025 03:25:08 Europe/Madrid] PHP Notice:  Undefined variable: page_canonical in /home/solfisco/public_html/solfis_web/auditoria.php on line 19
+[13-Mar-2025 03:26:23 Europe/Madrid] PHP Notice:  Undefined variable: page_canonical in /home/solfisco/public_html/solfis_web/contabilidad.php on line 14
+[13-Mar-2025 03:26:23 Europe/Madrid] PHP Notice:  Undefined variable: page_canonical in /home/solfisco/public_html/solfis_web/contabilidad.php on line 19

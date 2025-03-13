@@ -8,9 +8,9 @@
 
 // Configuración de la base de datos
 define('DB_HOST', 'localhost');        // Host de la base de datos
-define('DB_USER', 'root');             // Usuario de la base de datos
-define('DB_PASS', '');                 // Contraseña de la base de datos
-define('DB_NAME', 'solfis_blog');      // Nombre de la base de datos
+define('DB_USER', 'solfisco_onarud');             // Usuario de la base de datos
+define('DB_PASS', 'jr010101@');                 // Contraseña de la base de datos
+define('DB_NAME', 'solfisco_website');      // Nombre de la base de datos
 
 // Rutas del sistema
 $base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/solfis';

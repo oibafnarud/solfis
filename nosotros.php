@@ -191,7 +191,7 @@ $assets_path = 'assets/';
                             </div>
                             <div class="member-info">
                                 <h3>Jennifer Guerra</h3>
-                                <span class="member-position">Directora de Contabilidad</span>
+                                <span class="member-position">Directora de Contabilidad - Socia</span>
                                 <p>Especialista en contabilidad corporativa y auditoría interna con amplia experiencia en implementación de sistemas contables eficientes.</p>
                             </div>
                         </div>

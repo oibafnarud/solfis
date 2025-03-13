@@ -25,16 +25,32 @@ if (!Helpers::validateEmail($_POST['email'])) {
     exit;
 }
 
+// Obtener datos del formulario
+$email = $_POST['email'];
+$name = $_POST['name'] ?? '';
+$status = $_POST['status'] ?? 'active';
+
 // Agregar suscriptor
 $subscriber = new Subscriber();
-$result = $subscriber->subscribe($_POST['email'], $_POST['name'] ?? null);
 
-// Redireccionar según resultado
-if ($result['success']) {
-    header('Location: subscribers.php?message=subscriber-added');
+// Si se proporcionó un ID, es una edición
+if (isset($_POST['id']) && !empty($_POST['id'])) {
+    $id = (int)$_POST['id'];
+    $result = $subscriber->updateSubscriber($id, $email, $name, $status);
+    
+    if ($result) {
+        header('Location: subscribers.php?message=subscriber-updated');
+    } else {
+        header('Location: subscribers.php?message=subscriber-error');
+    }
 } else {
-    header('Location: subscribers.php?message=subscriber-error');
+    // Es una nueva suscripción
+    $result = $subscriber->subscribe($email, $name);
+    
+    if ($result['success']) {
+        header('Location: subscribers.php?message=subscriber-added');
+    } else {
+        header('Location: subscribers.php?message=subscriber-error');
+    }
 }
 exit;
-
-?>

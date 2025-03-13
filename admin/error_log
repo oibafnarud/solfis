@@ -1,0 +1,2 @@
+[12-Mar-2025 11:48:55 America/Santo_Domingo] PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'root'@'localhost' (using password: NO) in /home/solfisco/public_html/solfis_web/includes/blog-system.php on line 21
+[12-Mar-2025 13:27:01 America/Santo_Domingo] PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'saedigro_onarud'@'localhost' (using password: YES) in /home/solfisco/public_html/solfis_web/includes/blog-system.php on line 21

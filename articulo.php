@@ -50,7 +50,6 @@ $relatedPosts = $blogPost->getRelatedPosts($post['id'], $post['category_id'], 3)
 $categories = $category->getCategories();
 
 // Procesar formulario de comentarios
-// Procesar formulario de comentarios
 $commentSuccess = false;
 $commentError = null;
 
@@ -78,53 +77,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment_submit'])) {
     }
     elseif (!Helpers::validateEmail($email)) {
         $commentError = 'Por favor ingrese un correo electrónico válido.';
-    } 
-    else {
-        // Verificaciones adicionales anti-spam
+    } else {
+        // Crear nuevo comentario
+        $commentData = [
+            'post_id' => $post['id'],
+            'name' => $name,
+            'email' => $email,
+            'content' => $content,
+            'status' => REQUIRE_COMMENT_APPROVAL ? 'pending' : 'approved'
+        ];
         
-        // 1. Verificar si el mismo email ha comentado demasiadas veces en las últimas 24 horas
-        $db = Database::getInstance();
-        $email_escaped = $db->escape($email);
-        $sql = "SELECT COUNT(*) as count FROM comments 
-                WHERE email = '$email_escaped' 
-                AND created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)";
-        $result = $db->query($sql);
-        $row = $result->fetch_assoc();
-        
-        if ($row['count'] > 10) {
-            $commentError = 'Ha excedido el límite de comentarios. Por favor, intente más tarde.';
-        }
-        else {
-            // 2. Verificar contenido de spam común
-            $spam_words = ['viagra', 'cialis', 'casino', 'poker', 'buy now', 'discount'];
-            $content_lower = strtolower($content);
-            $is_spam = false;
+        if ($comment->createComment($commentData)) {
+            $commentSuccess = true;
             
-            foreach($spam_words as $word) {
-                if (strpos($content_lower, $word) !== false) {
-                    $is_spam = true;
-                    break;
-                }
-            }
-            
-            // Crear nuevo comentario
-            $commentData = [
-                'post_id' => $post['id'],
-                'name' => $name,
-                'email' => $email,
-                'content' => $content,
-                'status' => $is_spam ? 'rejected' : (REQUIRE_COMMENT_APPROVAL ? 'pending' : 'approved')
-            ];
-            
-            if ($comment->createComment($commentData)) {
-                $commentSuccess = true;
-                
-                // Limpiar datos de sesión
-                unset($_SESSION['captcha_result']);
-                unset($_SESSION['csrf_token']);
-            } else {
-                $commentError = 'Hubo un error al enviar su comentario. Por favor intente de nuevo.';
-            }
+            // Limpiar datos de sesión
+            unset($_SESSION['captcha_result']);
+            unset($_SESSION['csrf_token']);
+        } else {
+            $commentError = 'Hubo un error al enviar su comentario. Por favor intente de nuevo.';
         }
     }
 }
@@ -169,28 +139,237 @@ $site_description = $post['excerpt'];
     
     <!-- AOS - Animate On Scroll -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    
+    <!-- Estilos adicionales para mejorar la estructura y experiencia móvil -->
+    <style>
+        /* Estilos para mejorar la estructura */
+        .breadcrumbs {
+            background-color: #f8f9fa;
+            padding: 15px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .article-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        /* Nuevo menú de filtro con toggle */
+        .filter-container {
+            background-color: #f1f1f1;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .filter-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-title i {
+            margin-right: 5px;
+        }
+        
+        .filter-toggle {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-toggle i {
+            margin-left: 5px;
+            transition: transform 0.3s;
+        }
+        
+        .filter-toggle.active i {
+            transform: rotate(180deg);
+        }
+        
+        .filter-content {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.3s ease;
+        }
+        
+        .filter-content.show {
+            max-height: 500px;
+        }
+        
+        /* Búsqueda en la parte superior para móvil */
+        .mobile-search-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: stretch;
+        }
+        
+        .mobile-search-filter .search-form-container {
+            flex-grow: 1;
+        }
+        
+        .mobile-search-filter .filter-toggle {
+            height: auto;
+            white-space: nowrap;
+        }
+        
+        .mobile-search-filter .search-form {
+            height: 100%;
+        }
+        
+        .mobile-search-filter .search-form input,
+        .mobile-search-filter .search-btn {
+            height: 100%;
+        }
+        
+        /* Reorganizar para móvil */
+        @media (max-width: 991px) {
+            .blog-content {
+                display: block;
+            }
+            
+            .blog-sidebar {
+                display: none; /* Ocultar sidebar completo en móvil */
+            }
+            
+            .mobile-newsletter {
+                margin-top: 40px;
+                margin-bottom: 20px;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .mobile-search-filter,
+            .mobile-newsletter {
+                display: none;
+            }
+            
+            .filter-toggle {
+                display: none;
+            }
+            
+            .filter-content {
+                max-height: none;
+            }
+        }
+        
+        /* Mejoras visuales para contenido del artículo */
+        .article-content {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .article-content h2 {
+            margin-top: 1.5em;
+        }
+        
+        .article-content ul, 
+        .article-content ol {
+            margin-bottom: 1.5em;
+            padding-left: 2em;
+        }
+        
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5em 0;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+/* Captcha y formulario mejorado */
+        .captcha-container {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        /* Mejorar aspecto de artículos relacionados */
+        .related-articles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .related-articles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
     <?php include $base_path . 'navbar.html'; ?>
     
     <main>
+        <!-- Migas de pan (ahora como barra completa) -->
+        <div class="breadcrumbs">
+            <div class="container">
+                <a href="index.php">Inicio</a>
+                <span class="separator">/</span>
+                <a href="blog.php">Blog</a>
+                <span class="separator">/</span>
+                <a href="blog.php?categoria=<?php echo $post['category_slug']; ?>"><?php echo $post['category_name']; ?></a>
+                <span class="separator">/</span>
+                <span class="current"><?php echo $post['title']; ?></span>
+            </div>
+        </div>
+        
+        <!-- Buscador y filtro para móvil -->
+        <div class="container">
+            <div class="mobile-search-filter">
+                <div class="search-form-container">
+                    <form action="blog-buscar.php" method="get" class="search-form">
+                        <input type="text" name="q" placeholder="Buscar artículos..." required>
+                        <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                <button type="button" class="filter-toggle" id="filterToggle">
+                    Filtro <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            
+            <!-- Menú desplegable de filtros para móvil -->
+            <div class="filter-content" id="filterContent">
+                <div class="filter-buttons">
+                    <a href="blog.php" class="filter-btn">Todos</a>
+                    <?php foreach ($categories as $cat): ?>
+                    <a href="blog.php?categoria=<?php echo $cat['slug']; ?>" class="filter-btn <?php echo $post['category_id'] == $cat['id'] ? 'active' : ''; ?>">
+                        <?php echo $cat['name']; ?> (<?php echo $cat['post_count']; ?>)
+                    </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+        
         <section class="blog-section">
             <div class="container">
                 <div class="blog-content">
                     <!-- Contenido del artículo -->
                     <div class="article-container">
-                        <!-- Migas de pan -->
-                        <div class="breadcrumbs">
-                            <a href="index.php">Inicio</a>
-                            <span class="separator">/</span>
-                            <a href="blog.php">Blog</a>
-                            <span class="separator">/</span>
-                            <a href="blog.php?categoria=<?php echo $post['category_slug']; ?>"><?php echo $post['category_name']; ?></a>
-                            <span class="separator">/</span>
-                            <span class="current"><?php echo $post['title']; ?></span>
-                        </div>
-                        
                         <!-- Artículo -->
                         <article class="article">
                             <!-- Encabezado del artículo -->
@@ -343,40 +522,46 @@ $site_description = $post['excerpt'];
                                     </div>
                                     <?php endif; ?>
                                     
-										<form action="" method="post">
-											<div class="row">
-												<div class="col-md-6 mb-3">
-													<label for="name" class="form-label">Nombre *</label>
-													<input type="text" class="form-control" id="name" name="name" required>
-												</div>
-												<div class="col-md-6 mb-3">
-													<label for="email" class="form-label">Email *</label>
-													<input type="email" class="form-control" id="email" name="email" required>
-												</div>
-											</div>
-											<div class="mb-3">
-												<label for="content" class="form-label">Comentario *</label>
-												<textarea class="form-control" id="content" name="content" rows="4" required></textarea>
-											</div>
-											
-											<!-- Campo anti-spam: honeypot (invisible para usuarios reales) -->
-											<div class="mb-3" style="display:none;">
-												<label for="website" class="form-label">Sitio web (dejar vacío)</label>
-												<input type="text" class="form-control" id="website" name="website">
-											</div>
-											
-											<!-- Campo captcha simple -->
-											<div class="mb-3">
-												<label for="captcha" class="form-label">¿Cuánto es <?php $num1 = rand(1, 10); $num2 = rand(1, 10); echo "$num1 + $num2"; $_SESSION['captcha_result'] = $num1 + $num2; ?> ? *</label>
-												<input type="number" class="form-control" id="captcha" name="captcha" required>
-											</div>
-											
-											<!-- Token para prevenir CSRF -->
-											<?php $csrf_token = md5(uniqid(rand(), true)); $_SESSION['csrf_token'] = $csrf_token; ?>
-											<input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-											
-											<button type="submit" name="comment_submit" class="btn btn-primary">Enviar Comentario</button>
-										</form>
+                                    <form action="" method="post">
+                                        <div class="comment-form-grid">
+                                            <div class="form-group">
+                                                <label for="name">Nombre *</label>
+                                                <input type="text" class="form-control" id="name" name="name" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="email">Email *</label>
+                                                <input type="email" class="form-control" id="email" name="email" required>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Campo honeypot anti-spam (invisible) -->
+                                        <div class="form-group" style="display:none;">
+                                            <label for="website">Sitio web (dejar vacío)</label>
+                                            <input type="text" class="form-control" id="website" name="website">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="content">Comentario *</label>
+                                            <textarea class="form-control" id="content" name="content" rows="4" required></textarea>
+                                        </div>
+                                        
+                                        <!-- Captcha simple -->
+                                        <div class="form-group">
+                                            <label for="captcha">Verificación anti-spam *</label>
+                                            <div class="captcha-container">
+                                                <?php $num1 = rand(1, 10); $num2 = rand(1, 10); echo "$num1 + $num2 = ?"; $_SESSION['captcha_result'] = $num1 + $num2; ?>
+                                            </div>
+                                            <input type="number" class="form-control" id="captcha" name="captcha" required>
+                                        </div>
+                                        
+                                        <!-- Token CSRF -->
+                                        <?php $csrf_token = md5(uniqid(rand(), true)); $_SESSION['csrf_token'] = $csrf_token; ?>
+                                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                        
+                                        <button type="submit" name="comment_submit" class="form-submit">
+                                            Enviar Comentario <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                             <?php endif; ?>
@@ -417,6 +602,9 @@ $site_description = $post['excerpt'];
                             <p>Recibe las últimas actualizaciones y consejos directamente en tu correo.</p>
                             <form action="suscribir.php" method="post" class="newsletter-form-sidebar">
                                 <div class="form-group">
+                                    <input type="text" class="newsletter-input" placeholder="Tu nombre (opcional)" name="name">
+                                </div>
+                                <div class="form-group">
                                     <input type="email" class="newsletter-input" placeholder="Tu correo electrónico" name="email" required>
                                 </div>
                                 <button type="submit" class="subscribe-btn">
@@ -424,6 +612,25 @@ $site_description = $post['excerpt'];
                                 </button>
                             </form>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Sección de Newsletter para móvil (al final) -->
+                <div class="mobile-newsletter">
+                    <div class="sidebar-section newsletter-section">
+                        <h3 class="sidebar-title">Suscríbete al Newsletter</h3>
+                        <p>Recibe las últimas actualizaciones y consejos directamente en tu correo.</p>
+                        <form action="suscribir.php" method="post" class="newsletter-form-sidebar">
+                            <div class="form-group">
+                                <input type="text" class="newsletter-input" placeholder="Tu nombre (opcional)" name="name">
+                            </div>
+                            <div class="form-group">
+                                <input type="email" class="newsletter-input" placeholder="Tu correo electrónico" name="email" required>
+                            </div>
+                            <button type="submit" class="subscribe-btn">
+                                Suscribirme
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -447,6 +654,19 @@ $site_description = $post['excerpt'];
             once: true,
             offset: 50,
             disable: window.innerWidth < 768 // Desactivar AOS en móvil para mejor rendimiento
+        });
+        
+        // Script para controlar el desplegable de filtros
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterToggle = document.getElementById('filterToggle');
+            const filterContent = document.getElementById('filterContent');
+            
+            if (filterToggle && filterContent) {
+                filterToggle.addEventListener('click', function() {
+                    filterContent.classList.toggle('show');
+                    filterToggle.classList.toggle('active');
+                });
+            }
         });
     </script>
 </body>

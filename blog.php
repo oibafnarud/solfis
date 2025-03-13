@@ -71,6 +71,147 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
     
     <!-- AOS - Animate On Scroll -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    
+    <!-- Estilos adicionales para mejorar la estructura y experiencia móvil -->
+    <style>
+        /* Estilos para mejorar la estructura */
+        .blog-hero {
+            background-color: #f8f9fa;
+            padding: 50px 0 30px;
+            margin-bottom: 0;
+        }
+        
+        /* Nuevo menú de filtro con toggle */
+        .filter-container {
+            background-color: #f1f1f1;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .filter-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-title i {
+            margin-right: 5px;
+        }
+        
+        .filter-toggle {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-toggle i {
+            margin-left: 5px;
+            transition: transform 0.3s;
+        }
+        
+        .filter-toggle.active i {
+            transform: rotate(180deg);
+        }
+        
+        .filter-content {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.3s ease;
+        }
+        
+        .filter-content.show {
+            max-height: 500px;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .filter-btn {
+            margin-bottom: 0;
+        }
+        
+        /* Búsqueda en la parte superior para móvil */
+        .mobile-search-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: stretch;
+        }
+        
+        .mobile-search-filter .search-form-container {
+            flex-grow: 1;
+        }
+        
+        .mobile-search-filter .filter-toggle {
+            height: auto;
+            white-space: nowrap;
+        }
+        
+        .mobile-search-filter .search-form {
+            height: 100%;
+        }
+        
+        .mobile-search-filter .search-form input,
+        .mobile-search-filter .search-btn {
+            height: 100%;
+        }
+        
+        /* Reorganizar para móvil */
+        @media (max-width: 991px) {
+            .blog-content {
+                display: block;
+            }
+            
+            .desktop-filters {
+                display: none;
+            }
+            
+            .blog-sidebar {
+                display: none; /* Ocultar sidebar completo en móvil */
+            }
+            
+            .mobile-newsletter {
+                margin-top: 40px;
+                margin-bottom: 20px;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .mobile-search-filter,
+            .mobile-newsletter {
+                display: none;
+            }
+            
+            .filter-toggle {
+                display: none;
+            }
+            
+            .filter-content {
+                max-height: none;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
@@ -84,6 +225,52 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                 <p>Información actualizada sobre contabilidad, finanzas, impuestos y gestión empresarial para profesionales y empresarios</p>
             </div>
         </section>
+        
+        <!-- Filtros de Categorías (ahora pegadizos con toggle) -->
+        <div class="filter-container desktop-filters">
+            <div class="container">
+                <div class="filter-header">
+                    <h2 class="filter-title"><i class="fas fa-filter"></i> Categorías</h2>
+                </div>
+                <div class="filter-content show">
+                    <div class="filter-buttons">
+                        <a href="blog.php" class="filter-btn <?php echo !$categorySlug ? 'active' : ''; ?>">Todos</a>
+                        <?php foreach ($categories as $cat): ?>
+                        <a href="?categoria=<?php echo $cat['slug']; ?>" class="filter-btn <?php echo $categorySlug === $cat['slug'] ? 'active' : ''; ?>">
+                            <?php echo $cat['name']; ?> (<?php echo $cat['post_count']; ?>)
+                        </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Buscador y filtro para móvil -->
+        <div class="container">
+            <div class="mobile-search-filter">
+                <div class="search-form-container">
+                    <form action="blog-buscar.php" method="get" class="search-form">
+                        <input type="text" name="q" placeholder="Buscar artículos..." required>
+                        <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                <button type="button" class="filter-toggle" id="filterToggle">
+                    Filtro <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            
+            <!-- Menú desplegable de filtros para móvil -->
+            <div class="filter-content" id="filterContent">
+                <div class="filter-buttons">
+                    <a href="blog.php" class="filter-btn <?php echo !$categorySlug ? 'active' : ''; ?>">Todos</a>
+                    <?php foreach ($categories as $cat): ?>
+                    <a href="?categoria=<?php echo $cat['slug']; ?>" class="filter-btn <?php echo $categorySlug === $cat['slug'] ? 'active' : ''; ?>">
+                        <?php echo $cat['name']; ?> (<?php echo $cat['post_count']; ?>)
+                    </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
         
         <!-- Contenido Principal -->
         <section class="blog-section">
@@ -106,18 +293,6 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                         </div>
                     <?php endif; ?>
                 <?php endif; ?>
-                
-                <!-- Filtro de Categorías -->
-                <div class="blog-filters">
-                    <div class="filter-buttons">
-                        <a href="blog.php" class="filter-btn <?php echo !$categorySlug ? 'active' : ''; ?>">Todos</a>
-                        <?php foreach ($categories as $cat): ?>
-                        <a href="?categoria=<?php echo $cat['slug']; ?>" class="filter-btn <?php echo $categorySlug === $cat['slug'] ? 'active' : ''; ?>">
-                            <?php echo $cat['name']; ?> (<?php echo $cat['post_count']; ?>)
-                        </a>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
                 
                 <!-- Contenido principal y sidebar -->
                 <div class="blog-content">
@@ -193,7 +368,7 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                         <?php endif; ?>
                     </div>
                     
-                    <!-- Sidebar -->
+                    <!-- Sidebar (Desktop) -->
                     <div class="blog-sidebar">
                         <!-- Búsqueda -->
                         <div class="sidebar-section">
@@ -227,6 +402,9 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                             <p>Recibe las últimas actualizaciones y consejos directamente en tu correo.</p>
                             <form action="suscribir.php" method="post" class="newsletter-form-sidebar">
                                 <div class="form-group">
+                                    <input type="text" class="newsletter-input" placeholder="Tu nombre (opcional)" name="name">
+                                </div>
+                                <div class="form-group">
                                     <input type="email" class="newsletter-input" placeholder="Tu correo electrónico" name="email" required>
                                 </div>
                                 <button type="submit" class="subscribe-btn">
@@ -234,6 +412,25 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                                 </button>
                             </form>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Sección de Newsletter para móvil (al final) -->
+                <div class="mobile-newsletter">
+                    <div class="sidebar-section newsletter-section">
+                        <h3 class="sidebar-title">Suscríbete al Newsletter</h3>
+                        <p>Recibe las últimas actualizaciones y consejos directamente en tu correo.</p>
+                        <form action="suscribir.php" method="post" class="newsletter-form-sidebar">
+                            <div class="form-group">
+                                <input type="text" class="newsletter-input" placeholder="Tu nombre (opcional)" name="name">
+                            </div>
+                            <div class="form-group">
+                                <input type="email" class="newsletter-input" placeholder="Tu correo electrónico" name="email" required>
+                            </div>
+                            <button type="submit" class="subscribe-btn">
+                                Suscribirme
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -257,6 +454,19 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
             once: true,
             offset: 50,
             disable: window.innerWidth < 768 // Desactivar AOS en móvil para mejor rendimiento
+        });
+        
+        // Script para controlar el desplegable de filtros
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterToggle = document.getElementById('filterToggle');
+            const filterContent = document.getElementById('filterContent');
+            
+            if (filterToggle && filterContent) {
+                filterToggle.addEventListener('click', function() {
+                    filterContent.classList.toggle('show');
+                    filterToggle.classList.toggle('active');
+                });
+            }
         });
     </script>
 </body>

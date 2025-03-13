@@ -295,6 +295,23 @@ class User {
         
         return null;
     }
+    
+            /**
+         * Verificar si una contraseña coincide con la del usuario
+         */
+        public function verifyPassword($id, $password) {
+            $id = (int)$id;
+            
+            $sql = "SELECT password FROM users WHERE id = $id";
+            $result = $this->db->query($sql);
+            
+            if ($result->num_rows > 0) {
+                $user = $result->fetch_assoc();
+                return password_verify($password, $user['password']);
+            }
+            
+            return false;
+        }
 }
 
 // Clase Category - Maneja las categorías del blog
@@ -1000,7 +1017,7 @@ class Subscriber {
         $checkSql = "SELECT id FROM subscribers WHERE email = '$email'";
         $result = $this->db->query($checkSql);
         
-        if ($result && $result->num_rows > 0) {
+        if ($result->num_rows > 0) {
             return [
                 'success' => false,
                 'message' => 'Este email ya está suscrito.'
@@ -1085,6 +1102,32 @@ class Subscriber {
         $id = (int)$id;
         
         $sql = "DELETE FROM subscribers WHERE id = $id";
+        return $this->db->query($sql);
+    }
+    
+        /**
+     * Actualizar un suscriptor
+     */
+    public function updateSubscriber($id, $email, $name = null, $status = 'active') {
+        $id = (int)$id;
+        $email = $this->db->escape($email);
+        $name = $name ? $this->db->escape($name) : '';
+        $status = $this->db->escape($status);
+        
+        // Verificar si el email ya existe en otro suscriptor
+        $checkSql = "SELECT id FROM subscribers WHERE email = '$email' AND id != $id";
+        $result = $this->db->query($checkSql);
+        
+        if ($result->num_rows > 0) {
+            return false; // Email ya existe
+        }
+        
+        $sql = "UPDATE subscribers SET 
+                email = '$email', 
+                name = '$name', 
+                status = '$status' 
+                WHERE id = $id";
+                
         return $this->db->query($sql);
     }
 }
