@@ -222,44 +222,43 @@ class User {
     /**
      * Actualizar un usuario
      */
-    public function updateUser($id, $data) {
-        $id = (int)$id;
-        $name = $this->db->escape($data['name']);
-        $email = $this->db->escape($data['email']);
-        $role = $this->db->escape($data['role']);
-        $image = $this->db->escape($data['image'] ?? '');
-        $bio = $this->db->escape($data['bio'] ?? '');
-        
-        $sql = "UPDATE users SET 
-                name = '$name', 
-                email = '$email', 
-                role = '$role',";
-                
-        if (!empty($image)) {
-            $sql .= " image = '$image',";
-        }
-        
-        $sql .= " bio = '$bio', 
-                updated_at = NOW() 
-                WHERE id = $id";
-                
-        return $this->db->query($sql);
-    }
+	public function updateUser($id, $data) {
+		$id = (int)$id;
+		$name = $this->db->escape($data['name']);
+		$email = $this->db->escape($data['email']);
+		
+		// Verifica si role existe antes de intentar acceder a él
+		$role = isset($data['role']) ? $this->db->escape($data['role']) : '';
+		
+		$sql = "UPDATE users SET 
+				name = '$name', 
+				email = '$email'";
+		
+		// Solo añade role al query si existe
+		if (!empty($role)) {
+			$sql .= ", role = '$role'";
+		}
+		
+		$sql .= ", updated_at = NOW() WHERE id = $id";
+		
+		return $this->db->query($sql);
+	}
     
-    /**
-     * Cambiar contraseña de usuario
-     */
-    public function changePassword($id, $password) {
-        $id = (int)$id;
-        $password = password_hash($password, PASSWORD_DEFAULT);
-        
-        $sql = "UPDATE users SET 
-                password = '$password', 
-                updated_at = NOW() 
-                WHERE id = $id";
-                
-        return $this->db->query($sql);
-    }
+	/**
+	 * Cambiar contraseña de usuario
+	 */
+	public function changePassword($id, $password) {
+		$id = (int)$id;
+		$password = password_hash($password, PASSWORD_DEFAULT);
+		
+		// Únicamente actualiza la contraseña, no modifica otros campos
+		$sql = "UPDATE users SET 
+				password = '$password', 
+				updated_at = NOW() 
+				WHERE id = $id";
+				
+		return $this->db->query($sql);
+	}
     
     /**
      * Eliminar un usuario
@@ -659,6 +658,46 @@ class BlogPost {
         
         return null;
     }
+	
+		/**
+	 * Buscar posts por término de búsqueda
+	 */
+	public function searchPosts($query, $page = 1, $per_page = 6) {
+		$offset = ($page - 1) * $per_page;
+		$query = $this->db->escape($query);
+		
+		$sql = "SELECT p.*, c.name as category_name, u.name as author_name, u.image as author_image 
+				FROM posts p 
+				LEFT JOIN categories c ON p.category_id = c.id 
+				LEFT JOIN users u ON p.author_id = u.id 
+				WHERE p.status = 'published'
+				AND (p.title LIKE '%$query%' OR p.content LIKE '%$query%' OR p.excerpt LIKE '%$query%' OR c.name LIKE '%$query%')
+				ORDER BY p.published_at DESC LIMIT $offset, $per_page";
+		
+		$result = $this->db->query($sql);
+		$posts = [];
+		
+		while ($row = $result->fetch_assoc()) {
+			$posts[] = $row;
+		}
+		
+		// Contar total de posts para paginación
+		$countSql = "SELECT COUNT(*) as total FROM posts p 
+					 LEFT JOIN categories c ON p.category_id = c.id 
+					 WHERE p.status = 'published'
+					 AND (p.title LIKE '%$query%' OR p.content LIKE '%$query%' OR p.excerpt LIKE '%$query%' OR c.name LIKE '%$query%')";
+		
+		$countResult = $this->db->query($countSql);
+		$totalPosts = $countResult->fetch_assoc()['total'];
+		
+		return [
+			'posts' => $posts,
+			'total' => $totalPosts,
+			'pages' => ceil($totalPosts / $per_page),
+			'current_page' => $page
+		];
+	}
+
 }
 
 // Clase Media - Maneja los archivos multimedia (imágenes)

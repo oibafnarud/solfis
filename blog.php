@@ -71,147 +71,6 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
     
     <!-- AOS - Animate On Scroll -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
-    
-    <!-- Estilos adicionales para mejorar la estructura y experiencia móvil -->
-    <style>
-        /* Estilos para mejorar la estructura */
-        .blog-hero {
-            background-color: #f8f9fa;
-            padding: 50px 0 30px;
-            margin-bottom: 0;
-        }
-        
-        /* Nuevo menú de filtro con toggle */
-        .filter-container {
-            background-color: #f1f1f1;
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .filter-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .filter-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin: 0;
-            display: flex;
-            align-items: center;
-        }
-        
-        .filter-title i {
-            margin-right: 5px;
-        }
-        
-        .filter-toggle {
-            background: #0d6efd;
-            color: white;
-            border: none;
-            padding: 5px 12px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-        
-        .filter-toggle i {
-            margin-left: 5px;
-            transition: transform 0.3s;
-        }
-        
-        .filter-toggle.active i {
-            transform: rotate(180deg);
-        }
-        
-        .filter-content {
-            overflow: hidden;
-            max-height: 0;
-            transition: max-height 0.3s ease;
-        }
-        
-        .filter-content.show {
-            max-height: 500px;
-        }
-        
-        .filter-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        
-        .filter-btn {
-            margin-bottom: 0;
-        }
-        
-        /* Búsqueda en la parte superior para móvil */
-        .mobile-search-filter {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            align-items: stretch;
-        }
-        
-        .mobile-search-filter .search-form-container {
-            flex-grow: 1;
-        }
-        
-        .mobile-search-filter .filter-toggle {
-            height: auto;
-            white-space: nowrap;
-        }
-        
-        .mobile-search-filter .search-form {
-            height: 100%;
-        }
-        
-        .mobile-search-filter .search-form input,
-        .mobile-search-filter .search-btn {
-            height: 100%;
-        }
-        
-        /* Reorganizar para móvil */
-        @media (max-width: 991px) {
-            .blog-content {
-                display: block;
-            }
-            
-            .desktop-filters {
-                display: none;
-            }
-            
-            .blog-sidebar {
-                display: none; /* Ocultar sidebar completo en móvil */
-            }
-            
-            .mobile-newsletter {
-                margin-top: 40px;
-                margin-bottom: 20px;
-            }
-        }
-        
-        @media (min-width: 992px) {
-            .mobile-search-filter,
-            .mobile-newsletter {
-                display: none;
-            }
-            
-            .filter-toggle {
-                display: none;
-            }
-            
-            .filter-content {
-                max-height: none;
-            }
-        }
-    </style>
 </head>
 <body>
     <!-- Navbar -->
@@ -219,58 +78,41 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
     
     <main>
         <!-- Hero del Blog -->
-        <section class="blog-hero">
-            <div class="container">
-                <h1>Blog de SolFis</h1>
-                <p>Información actualizada sobre contabilidad, finanzas, impuestos y gestión empresarial para profesionales y empresarios</p>
-            </div>
-        </section>
+		<section class="blog-hero">
+			<div class="container">
+				<h1>Blog de SolFis</h1>
+				<p>Información actualizada sobre contabilidad, finanzas, impuestos y gestión empresarial para profesionales y empresarios</p>
+			</div>
+		</section>
         
-        <!-- Filtros de Categorías (ahora pegadizos con toggle) -->
-        <div class="filter-container desktop-filters">
-            <div class="container">
-                <div class="filter-header">
-                    <h2 class="filter-title"><i class="fas fa-filter"></i> Categorías</h2>
-                </div>
-                <div class="filter-content show">
-                    <div class="filter-buttons">
-                        <a href="blog.php" class="filter-btn <?php echo !$categorySlug ? 'active' : ''; ?>">Todos</a>
-                        <?php foreach ($categories as $cat): ?>
-                        <a href="?categoria=<?php echo $cat['slug']; ?>" class="filter-btn <?php echo $categorySlug === $cat['slug'] ? 'active' : ''; ?>">
-                            <?php echo $cat['name']; ?> (<?php echo $cat['post_count']; ?>)
-                        </a>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Filtros de Categorías para desktop -->
+		<div class="filter-container">
+			<div class="container">
+				<div class="filter-buttons">
+					<a href="blog.php" class="filter-btn <?php echo !$categorySlug ? 'active' : ''; ?>">Todos</a>
+					<?php foreach ($categories as $cat): ?>
+					<a href="?categoria=<?php echo urlencode($cat['slug']); ?>" class="filter-btn <?php echo $categorySlug === $cat['slug'] ? 'active' : ''; ?>">
+						<?php echo htmlspecialchars($cat['name']); ?> (<?php echo $cat['post_count']; ?>)
+					</a>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</div>
         
         <!-- Buscador y filtro para móvil -->
-        <div class="container">
-            <div class="mobile-search-filter">
-                <div class="search-form-container">
-                    <form action="blog-buscar.php" method="get" class="search-form">
-                        <input type="text" name="q" placeholder="Buscar artículos..." required>
-                        <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
-                    </form>
-                </div>
-                <button type="button" class="filter-toggle" id="filterToggle">
-                    Filtro <i class="fas fa-chevron-down"></i>
-                </button>
-            </div>
-            
-            <!-- Menú desplegable de filtros para móvil -->
-            <div class="filter-content" id="filterContent">
-                <div class="filter-buttons">
-                    <a href="blog.php" class="filter-btn <?php echo !$categorySlug ? 'active' : ''; ?>">Todos</a>
-                    <?php foreach ($categories as $cat): ?>
-                    <a href="?categoria=<?php echo $cat['slug']; ?>" class="filter-btn <?php echo $categorySlug === $cat['slug'] ? 'active' : ''; ?>">
-                        <?php echo $cat['name']; ?> (<?php echo $cat['post_count']; ?>)
-                    </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
+		<div class="container">
+			<div class="mobile-search-filter">
+				<div class="search-form-container">
+					<form action="blog-buscar.php" method="get" class="search-form">
+						<input type="text" name="q" placeholder="Buscar artículos..." required>
+						<button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+					</form>
+				</div>
+				<button type="button" class="filter-toggle" id="filterToggle">
+					Filtro <i class="fas fa-chevron-down"></i>
+				</button>
+			</div>
+		</div>
         
         <!-- Contenido Principal -->
         <section class="blog-section">
@@ -288,7 +130,7 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                     <?php elseif ($_GET['subscription'] === 'error'): ?>
                         <div class="notification notification-error">
                             <p>
-                                <?php echo isset($_GET['message']) ? $_GET['message'] : 'Ocurrió un error al procesar tu suscripción. Por favor, intenta nuevamente.'; ?>
+                                <?php echo isset($_GET['message']) ? htmlspecialchars($_GET['message']) : 'Ocurrió un error al procesar tu suscripción. Por favor, intenta nuevamente.'; ?>
                             </p>
                         </div>
                     <?php endif; ?>
@@ -309,29 +151,29 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                                 <div class="article-card">
                                     <div class="article-image">
                                         <?php if (!empty($post['image'])): ?>
-                                        <img src="<?php echo $post['image']; ?>" alt="<?php echo $post['title']; ?>">
+                                        <img src="<?php echo $post['image']; ?>" alt="<?php echo htmlspecialchars($post['title']); ?>">
                                         <?php else: ?>
-                                        <img src="img/blog/default.jpg" alt="<?php echo $post['title']; ?>">
+                                        <img src="img/blog/default.jpg" alt="<?php echo htmlspecialchars($post['title']); ?>">
                                         <?php endif; ?>
-                                        <span class="article-category"><?php echo $post['category_name']; ?></span>
+                                        <span class="article-category"><?php echo htmlspecialchars($post['category_name']); ?></span>
                                     </div>
                                     <div class="article-content">
                                         <h3 class="article-title">
-                                            <a href="articulo.php?slug=<?php echo $post['slug']; ?>"><?php echo $post['title']; ?></a>
+                                            <a href="articulo.php?slug=<?php echo urlencode($post['slug']); ?>"><?php echo htmlspecialchars($post['title']); ?></a>
                                         </h3>
-                                        <p class="article-excerpt"><?php echo Helpers::truncate($post['excerpt'], 120); ?></p>
+                                        <p class="article-excerpt"><?php echo htmlspecialchars(Helpers::truncate($post['excerpt'], 120)); ?></p>
                                         <div class="article-meta">
                                             <div class="article-author">
                                                 <?php if (!empty($post['author_image'])): ?>
-                                                <img src="<?php echo $post['author_image']; ?>" alt="<?php echo $post['author_name']; ?>" class="author-avatar">
+                                                <img src="<?php echo $post['author_image']; ?>" alt="<?php echo htmlspecialchars($post['author_name']); ?>" class="author-avatar">
                                                 <?php endif; ?>
-                                                <span class="author-name"><?php echo $post['author_name']; ?></span>
+                                                <span class="author-name"><?php echo htmlspecialchars($post['author_name']); ?></span>
                                             </div>
                                             <div class="article-date">
                                                 <i class="far fa-calendar-alt"></i> <?php echo date('d M, Y', strtotime($post['published_at'])); ?>
                                             </div>
                                         </div>
-                                        <a href="articulo.php?slug=<?php echo $post['slug']; ?>" class="read-more">Leer más →</a>
+                                        <a href="articulo.php?slug=<?php echo urlencode($post['slug']); ?>" class="read-more">Leer más →</a>
                                     </div>
                                 </div>
                                 <?php endforeach; ?>
@@ -340,8 +182,8 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                             <!-- Paginación -->
                             <?php if ($totalPages > 1): ?>
                             <div class="pagination">
-                                <?php if ($page > 1): ?>
-                                <a href="?page=<?php echo $page - 1; ?><?php echo $categorySlug ? '&categoria=' . $categorySlug : ''; ?>" class="page-link">
+<?php if ($page > 1): ?>
+                                <a href="?page=<?php echo $page - 1; ?><?php echo $categorySlug ? '&categoria=' . urlencode($categorySlug) : ''; ?>" class="page-link">
                                     <i class="fas fa-chevron-left"></i> Anterior
                                 </a>
                                 <?php endif; ?>
@@ -351,7 +193,7 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                                     <?php if ($i === $page): ?>
                                     <span class="current-page"><?php echo $i; ?></span>
                                     <?php else: ?>
-                                    <a href="?page=<?php echo $i; ?><?php echo $categorySlug ? '&categoria=' . $categorySlug : ''; ?>" class="page-number">
+                                    <a href="?page=<?php echo $i; ?><?php echo $categorySlug ? '&categoria=' . urlencode($categorySlug) : ''; ?>" class="page-number">
                                         <?php echo $i; ?>
                                     </a>
                                     <?php endif; ?>
@@ -359,7 +201,7 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                                 </div>
                                 
                                 <?php if ($page < $totalPages): ?>
-                                <a href="?page=<?php echo $page + 1; ?><?php echo $categorySlug ? '&categoria=' . $categorySlug : ''; ?>" class="page-link">
+                                <a href="?page=<?php echo $page + 1; ?><?php echo $categorySlug ? '&categoria=' . urlencode($categorySlug) : ''; ?>" class="page-link">
                                     Siguiente <i class="fas fa-chevron-right"></i>
                                 </a>
                                 <?php endif; ?>
@@ -387,8 +229,8 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
                             <ul class="categories-list">
                                 <?php foreach ($categories as $cat): ?>
                                 <li class="category-item">
-                                    <a href="?categoria=<?php echo $cat['slug']; ?>" class="category-link">
-                                        <?php echo $cat['name']; ?>
+                                    <a href="?categoria=<?php echo urlencode($cat['slug']); ?>" class="category-link">
+                                        <?php echo htmlspecialchars($cat['name']); ?>
                                         <span class="count">(<?php echo $cat['post_count']; ?>)</span>
                                     </a>
                                 </li>

@@ -458,29 +458,27 @@ class User {
     /**
      * Actualizar un usuario
      */
-    public function updateUser($id, $data) {
-        $id = (int)$id;
-        $name = $this->db->escape($data['name']);
-        $email = $this->db->escape($data['email']);
-        $role = $this->db->escape($data['role']);
-        $image = $this->db->escape($data['image'] ?? '');
-        $bio = $this->db->escape($data['bio'] ?? '');
-        
-        $sql = "UPDATE users SET 
-                name = '$name', 
-                email = '$email', 
-                role = '$role',";
-                
-        if (!empty($image)) {
-            $sql .= " image = '$image',";
-        }
-        
-        $sql .= " bio = '$bio', 
-                updated_at = NOW() 
-                WHERE id = $id";
-                
-        return $this->db->query($sql);
-    }
+		public function updateUser($id, $data) {
+			$id = (int)$id;
+			$name = $this->db->escape($data['name']);
+			$email = $this->db->escape($data['email']);
+			
+			// Asegurarse de incluir el rol
+			$role = isset($data['role']) ? $this->db->escape($data['role']) : '';
+			
+			$sql = "UPDATE users SET 
+					name = '$name', 
+					email = '$email'";
+			
+			// Añadir el campo role solo si se proporciona
+			if (!empty($role)) {
+				$sql .= ", role = '$role'";
+			}
+			
+			$sql .= ", updated_at = NOW() WHERE id = $id";
+			
+			return $this->db->query($sql);
+		}
     
     /**
      * Cambiar contraseña de usuario

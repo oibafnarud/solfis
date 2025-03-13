@@ -326,17 +326,17 @@ $site_description = $post['excerpt'];
     
     <main>
         <!-- Migas de pan (ahora como barra completa) -->
-        <div class="breadcrumbs">
-            <div class="container">
-                <a href="index.php">Inicio</a>
-                <span class="separator">/</span>
-                <a href="blog.php">Blog</a>
-                <span class="separator">/</span>
-                <a href="blog.php?categoria=<?php echo $post['category_slug']; ?>"><?php echo $post['category_name']; ?></a>
-                <span class="separator">/</span>
-                <span class="current"><?php echo $post['title']; ?></span>
-            </div>
-        </div>
+		<div class="breadcrumbs">
+			<div class="container">
+				<a href="index.php">Inicio</a>
+				<span class="separator">/</span>
+				<a href="blog.php">Blog</a>
+				<span class="separator">/</span>
+				<a href="blog.php?categoria=<?php echo $post['category_slug']; ?>"><?php echo $post['category_name']; ?></a>
+				<span class="separator">/</span>
+				<span class="current"><?php echo $post['title']; ?></span>
+			</div>
+		</div>
         
         <!-- Buscador y filtro para móvil -->
         <div class="container">
@@ -365,7 +365,64 @@ $site_description = $post['excerpt'];
             </div>
         </div>
         
-        <section class="blog-section">
+        <!-- Migas de pan mejoradas -->
+<div class="breadcrumbs">
+    <div class="container">
+        <a href="index.php">Inicio</a>
+        <span class="separator">/</span>
+        <a href="blog.php">Blog</a>
+        <span class="separator">/</span>
+        <a href="blog.php?categoria=<?php echo $post['category_slug']; ?>"><?php echo $post['category_name']; ?></a>
+        <span class="separator">/</span>
+        <span class="current"><?php echo $post['title']; ?></span>
+    </div>
+</div>
+
+<!-- Artículo con estilo mejorado -->
+<section class="blog-section">
+    <div class="container">
+        <div class="blog-content">
+            <!-- Contenido del artículo -->
+            <div class="article-container">
+                <!-- Artículo -->
+                <article class="article">
+                    <!-- Encabezado del artículo -->
+                    <header class="article-header">
+                        <div class="article-meta">
+                            <span class="article-category"><?php echo $post['category_name']; ?></span>
+                            <time class="article-date">
+                                <i class="far fa-calendar-alt"></i> <?php echo date('d M, Y', strtotime($post['published_at'])); ?>
+                            </time>
+                        </div>
+                        
+                        <h1 class="article-title"><?php echo $post['title']; ?></h1>
+                        
+                        <div class="article-author">
+                            <?php if (!empty($post['author_image'])): ?>
+                            <img src="<?php echo $post['author_image']; ?>" alt="<?php echo $post['author_name']; ?>" class="author-avatar">
+                            <?php else: ?>
+                            <img src="img/default-avatar.jpg" alt="<?php echo $post['author_name']; ?>" class="author-avatar">
+                            <?php endif; ?>
+                            <span class="author-name">Por <strong><?php echo $post['author_name']; ?></strong></span>
+                        </div>
+                    </header>
+                    
+                    <!-- Imagen destacada -->
+                    <?php if (!empty($post['image'])): ?>
+                    <div class="article-featured-image">
+                        <img src="<?php echo $post['image']; ?>" alt="<?php echo $post['title']; ?>">
+                    </div>
+                    <?php endif; ?>
+                    
+                    <!-- Contenido del artículo -->
+                    <div class="article-content">
+                        <?php echo $post['content']; ?>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
             <div class="container">
                 <div class="blog-content">
                     <!-- Contenido del artículo -->

@@ -19,12 +19,21 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['id'])) {
     exit;
 }
 
-// Validar datos
-$id = (int)$_POST['id'];
+// Obtener datos actuales del usuario
+$user = new User();
+$userId = (int)$_POST['id'];
+$currentUser = $user->getUserById($userId);
+
+if (!$currentUser) {
+    header('Location: users.php?message=user-not-found');
+    exit;
+}
+
+// Recoger datos del formulario
 $name = $_POST['name'] ?? '';
 $email = $_POST['email'] ?? '';
 $password = $_POST['password'] ?? '';
-$role = $_POST['role'] ?? 'author';
+$role = $_POST['role'] ?? $currentUser['role']; // Usar el rol actual si no se proporciona
 
 if (empty($name) || empty($email)) {
     header('Location: users.php?message=invalid-data');
@@ -36,24 +45,28 @@ if (!Helpers::validateEmail($email)) {
     exit;
 }
 
-// Actualizar usuario
-$user = new User();
-$data = [
+// Datos para actualización
+$updateData = [
     'name' => $name,
     'email' => $email,
-    'role' => $role
+    'role' => $role // Incluir el rol explícitamente
 ];
 
-$result = $user->updateUser($id, $data);
+// Actualizar usuario (solo info básica)
+$result = $user->updateUser($userId, $updateData);
 
-// Actualizar contraseña si se proporcionó una nueva
+// Actualizar contraseña SOLO si se proporcionó una nueva
 if (!empty($password)) {
     if (strlen($password) < 6) {
         header('Location: users.php?message=password-too-short');
         exit;
     }
     
-    $user->changePassword($id, $password);
+    // Llamar al método específico que solo actualiza la contraseña
+    $passwordResult = $user->changePassword($userId, $password);
+    
+    // El resultado final depende de ambas operaciones
+    $result = $result && $passwordResult;
 }
 
 // Redireccionar según resultado
