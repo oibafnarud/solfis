@@ -84,6 +84,17 @@ $pageTitle = $currentCategory ? 'Blog - ' . $currentCategory['name'] : 'Blog';
 				<p>Información actualizada sobre contabilidad, finanzas, impuestos y gestión empresarial para profesionales y empresarios</p>
 			</div>
 		</section>
+		
+		<div class="search-bar-top">
+			<div class="container">
+				<div class="search-form-container">
+					<form action="blog-buscar.php" method="get" class="search-form">
+						<input type="text" name="q" placeholder="Buscar artículos..." required>
+						<button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+					</form>
+				</div>
+			</div>
+		</div>
         
         <!-- Filtros de Categorías para desktop -->
 		<div class="filter-container">

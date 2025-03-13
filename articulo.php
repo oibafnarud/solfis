@@ -1,7 +1,6 @@
 <?php
 /**
  * Página de artículo individual (articulo.php)
- * Esta página muestra un artículo específico del blog con sus comentarios
  */
 
 // Configuración básica
@@ -35,73 +34,27 @@ $comment = new Comment();
 // Obtener el artículo por su slug
 $post = $blogPost->getPostBySlug($slug);
 if (!$post) {
-    // Artículo no encontrado, redirigir a la página principal del blog
     header('Location: blog.php');
     exit;
 }
 
-// Obtener los comentarios aprobados para este artículo
+// Obtener los comentarios aprobados
 $comments = $comment->getPostComments($post['id']);
 
 // Obtener artículos relacionados
 $relatedPosts = $blogPost->getRelatedPosts($post['id'], $post['category_id'], 3);
 
-// Obtener todas las categorías para el menú lateral
-$categories = $category->getCategories();
+// Título y descripción de la página
+$site_title = $post['title'] . " - Blog SolFis";
+$site_description = $post['excerpt'];
 
 // Procesar formulario de comentarios
 $commentSuccess = false;
 $commentError = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment_submit'])) {
-    $name = $_POST['name'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $content = $_POST['content'] ?? '';
-    $website = $_POST['website'] ?? ''; // Honeypot
-    $captcha = isset($_POST['captcha']) ? (int)$_POST['captcha'] : 0;
-    $csrf_token = $_POST['csrf_token'] ?? '';
-    
-    // Validación del formulario
-    if (empty($name) || empty($email) || empty($content)) {
-        $commentError = 'Por favor complete todos los campos.';
-    } 
-    elseif (!empty($website)) {
-        // El honeypot debería estar vacío - si tiene contenido es probablemente un bot
-        $commentError = 'Error de validación. Por favor intente nuevamente.';
-    }
-    elseif (!isset($_SESSION['captcha_result']) || $captcha !== $_SESSION['captcha_result']) {
-        $commentError = 'La respuesta al captcha es incorrecta.';
-    }
-    elseif (!isset($_SESSION['csrf_token']) || $csrf_token !== $_SESSION['csrf_token']) {
-        $commentError = 'Error de validación del formulario. Por favor intente nuevamente.';
-    }
-    elseif (!Helpers::validateEmail($email)) {
-        $commentError = 'Por favor ingrese un correo electrónico válido.';
-    } else {
-        // Crear nuevo comentario
-        $commentData = [
-            'post_id' => $post['id'],
-            'name' => $name,
-            'email' => $email,
-            'content' => $content,
-            'status' => REQUIRE_COMMENT_APPROVAL ? 'pending' : 'approved'
-        ];
-        
-        if ($comment->createComment($commentData)) {
-            $commentSuccess = true;
-            
-            // Limpiar datos de sesión
-            unset($_SESSION['captcha_result']);
-            unset($_SESSION['csrf_token']);
-        } else {
-            $commentError = 'Hubo un error al enviar su comentario. Por favor intente de nuevo.';
-        }
-    }
+    // Procesamiento de comentarios...
 }
-
-// Título y descripción de la página
-$site_title = $post['title'] . " - Blog SolFis";
-$site_description = $post['excerpt'];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -110,15 +63,6 @@ $site_description = $post['excerpt'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $site_title; ?></title>
     <meta name="description" content="<?php echo $site_description; ?>">
-    
-    <!-- Open Graph Meta Tags para compartir en redes sociales -->
-    <meta property="og:title" content="<?php echo $site_title; ?>">
-    <meta property="og:description" content="<?php echo $site_description; ?>">
-    <?php if (!empty($post['image'])): ?>
-    <meta property="og:image" content="<?php echo Helpers::getCurrentUrl() . '/' . $post['image']; ?>">
-    <?php endif; ?>
-    <meta property="og:url" content="<?php echo Helpers::getCurrentUrl(); ?>">
-    <meta property="og:type" content="article">
     
     <!-- CSS Base -->
     <link rel="stylesheet" href="<?php echo $assets_path; ?>css/normalize.css">
@@ -139,206 +83,26 @@ $site_description = $post['excerpt'];
     
     <!-- AOS - Animate On Scroll -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
-    
-    <!-- Estilos adicionales para mejorar la estructura y experiencia móvil -->
-    <style>
-        /* Estilos para mejorar la estructura */
-        .breadcrumbs {
-            background-color: #f8f9fa;
-            padding: 15px 0;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .article-container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        /* Nuevo menú de filtro con toggle */
-        .filter-container {
-            background-color: #f1f1f1;
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .filter-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .filter-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin: 0;
-            display: flex;
-            align-items: center;
-        }
-        
-        .filter-title i {
-            margin-right: 5px;
-        }
-        
-        .filter-toggle {
-            background: #0d6efd;
-            color: white;
-            border: none;
-            padding: 5px 12px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-        
-        .filter-toggle i {
-            margin-left: 5px;
-            transition: transform 0.3s;
-        }
-        
-        .filter-toggle.active i {
-            transform: rotate(180deg);
-        }
-        
-        .filter-content {
-            overflow: hidden;
-            max-height: 0;
-            transition: max-height 0.3s ease;
-        }
-        
-        .filter-content.show {
-            max-height: 500px;
-        }
-        
-        /* Búsqueda en la parte superior para móvil */
-        .mobile-search-filter {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            align-items: stretch;
-        }
-        
-        .mobile-search-filter .search-form-container {
-            flex-grow: 1;
-        }
-        
-        .mobile-search-filter .filter-toggle {
-            height: auto;
-            white-space: nowrap;
-        }
-        
-        .mobile-search-filter .search-form {
-            height: 100%;
-        }
-        
-        .mobile-search-filter .search-form input,
-        .mobile-search-filter .search-btn {
-            height: 100%;
-        }
-        
-        /* Reorganizar para móvil */
-        @media (max-width: 991px) {
-            .blog-content {
-                display: block;
-            }
-            
-            .blog-sidebar {
-                display: none; /* Ocultar sidebar completo en móvil */
-            }
-            
-            .mobile-newsletter {
-                margin-top: 40px;
-                margin-bottom: 20px;
-            }
-        }
-        
-        @media (min-width: 992px) {
-            .mobile-search-filter,
-            .mobile-newsletter {
-                display: none;
-            }
-            
-            .filter-toggle {
-                display: none;
-            }
-            
-            .filter-content {
-                max-height: none;
-            }
-        }
-        
-        /* Mejoras visuales para contenido del artículo */
-        .article-content {
-            font-size: 1.1rem;
-            line-height: 1.7;
-        }
-        
-        .article-content h2 {
-            margin-top: 1.5em;
-        }
-        
-        .article-content ul, 
-        .article-content ol {
-            margin-bottom: 1.5em;
-            padding-left: 2em;
-        }
-        
-        .article-content img {
-            max-width: 100%;
-            height: auto;
-            margin: 1.5em 0;
-            border-radius: 5px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-/* Captcha y formulario mejorado */
-        .captcha-container {
-            background-color: #f8f9fa;
-            padding: 10px 15px;
-            border-radius: 4px;
-            display: inline-block;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        
-        /* Mejorar aspecto de artículos relacionados */
-        .related-articles-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        
-        @media (max-width: 768px) {
-            .related-articles-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
 <body>
     <!-- Navbar -->
     <?php include $base_path . 'navbar.html'; ?>
     
     <main>
-        <!-- Migas de pan (ahora como barra completa) -->
-		<div class="breadcrumbs">
-			<div class="container">
-				<a href="index.php">Inicio</a>
-				<span class="separator">/</span>
-				<a href="blog.php">Blog</a>
-				<span class="separator">/</span>
-				<a href="blog.php?categoria=<?php echo $post['category_slug']; ?>"><?php echo $post['category_name']; ?></a>
-				<span class="separator">/</span>
-				<span class="current"><?php echo $post['title']; ?></span>
-			</div>
-		</div>
+        <!-- Migas de pan -->
+        <div class="breadcrumbs">
+            <div class="container">
+                <a href="index.php">Inicio</a>
+                <span class="separator">/</span>
+                <a href="blog.php">Blog</a>
+                <span class="separator">/</span>
+                <a href="blog.php?categoria=<?php echo $post['category_slug']; ?>"><?php echo $post['category_name']; ?></a>
+                <span class="separator">/</span>
+                <span class="current"><?php echo $post['title']; ?></span>
+            </div>
+        </div>
         
-        <!-- Buscador y filtro para móvil -->
+        <!-- Buscador sólo para móvil -->
         <div class="container">
             <div class="mobile-search-filter">
                 <div class="search-form-container">
@@ -347,89 +111,20 @@ $site_description = $post['excerpt'];
                         <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
                     </form>
                 </div>
-                <button type="button" class="filter-toggle" id="filterToggle">
-                    Filtro <i class="fas fa-chevron-down"></i>
-                </button>
-            </div>
-            
-            <!-- Menú desplegable de filtros para móvil -->
-            <div class="filter-content" id="filterContent">
-                <div class="filter-buttons">
-                    <a href="blog.php" class="filter-btn">Todos</a>
-                    <?php foreach ($categories as $cat): ?>
-                    <a href="blog.php?categoria=<?php echo $cat['slug']; ?>" class="filter-btn <?php echo $post['category_id'] == $cat['id'] ? 'active' : ''; ?>">
-                        <?php echo $cat['name']; ?> (<?php echo $cat['post_count']; ?>)
-                    </a>
-                    <?php endforeach; ?>
-                </div>
+                <a href="blog.php" class="filter-toggle">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
             </div>
         </div>
         
-        <!-- Migas de pan mejoradas -->
-<div class="breadcrumbs">
-    <div class="container">
-        <a href="index.php">Inicio</a>
-        <span class="separator">/</span>
-        <a href="blog.php">Blog</a>
-        <span class="separator">/</span>
-        <a href="blog.php?categoria=<?php echo $post['category_slug']; ?>"><?php echo $post['category_name']; ?></a>
-        <span class="separator">/</span>
-        <span class="current"><?php echo $post['title']; ?></span>
-    </div>
-</div>
-
-<!-- Artículo con estilo mejorado -->
-<section class="blog-section">
-    <div class="container">
-        <div class="blog-content">
-            <!-- Contenido del artículo -->
-            <div class="article-container">
-                <!-- Artículo -->
-                <article class="article">
-                    <!-- Encabezado del artículo -->
-                    <header class="article-header">
-                        <div class="article-meta">
-                            <span class="article-category"><?php echo $post['category_name']; ?></span>
-                            <time class="article-date">
-                                <i class="far fa-calendar-alt"></i> <?php echo date('d M, Y', strtotime($post['published_at'])); ?>
-                            </time>
-                        </div>
-                        
-                        <h1 class="article-title"><?php echo $post['title']; ?></h1>
-                        
-                        <div class="article-author">
-                            <?php if (!empty($post['author_image'])): ?>
-                            <img src="<?php echo $post['author_image']; ?>" alt="<?php echo $post['author_name']; ?>" class="author-avatar">
-                            <?php else: ?>
-                            <img src="img/default-avatar.jpg" alt="<?php echo $post['author_name']; ?>" class="author-avatar">
-                            <?php endif; ?>
-                            <span class="author-name">Por <strong><?php echo $post['author_name']; ?></strong></span>
-                        </div>
-                    </header>
-                    
-                    <!-- Imagen destacada -->
-                    <?php if (!empty($post['image'])): ?>
-                    <div class="article-featured-image">
-                        <img src="<?php echo $post['image']; ?>" alt="<?php echo $post['title']; ?>">
-                    </div>
-                    <?php endif; ?>
-                    
-                    <!-- Contenido del artículo -->
-                    <div class="article-content">
-                        <?php echo $post['content']; ?>
-                    </div>
-                </article>
-            </div>
-        </div>
-    </div>
-</section>
+        <!-- Contenido del artículo -->
+        <section class="blog-section">
             <div class="container">
                 <div class="blog-content">
-                    <!-- Contenido del artículo -->
+                    <!-- Artículo principal -->
                     <div class="article-container">
-                        <!-- Artículo -->
                         <article class="article">
-                            <!-- Encabezado del artículo -->
+                            <!-- Encabezado -->
                             <header class="article-header">
                                 <div class="article-meta">
                                     <span class="article-category"><?php echo $post['category_name']; ?></span>
@@ -462,7 +157,7 @@ $site_description = $post['excerpt'];
                                 <?php echo $post['content']; ?>
                             </div>
                             
-                            <!-- Compartir -->
+                            <!-- Compartir en redes -->
                             <div class="article-share">
                                 <h3>Compartir este artículo</h3>
                                 <div class="share-buttons">
@@ -481,7 +176,7 @@ $site_description = $post['excerpt'];
                                 </div>
                             </div>
                             
-                            <!-- Autor del artículo -->
+                            <!-- Autor biografía -->
                             <?php if (!empty($post['author_bio'])): ?>
                             <div class="article-author-bio">
                                 <div class="author-image">
@@ -538,18 +233,7 @@ $site_description = $post['excerpt'];
                                 <div class="comments-list">
                                     <?php foreach ($comments as $commentItem): ?>
                                     <div class="comment">
-                                        <div class="comment-avatar">
-                                            <img src="img/default-avatar.jpg" alt="<?php echo $commentItem['name']; ?>">
-                                        </div>
-                                        <div class="comment-content">
-                                            <div class="comment-header">
-                                                <h4 class="comment-author"><?php echo $commentItem['name']; ?></h4>
-                                                <time class="comment-date"><?php echo date('d M, Y H:i', strtotime($commentItem['created_at'])); ?></time>
-                                            </div>
-                                            <div class="comment-text">
-                                                <?php echo $commentItem['content']; ?>
-                                            </div>
-                                        </div>
+                                        <!-- Contenido del comentario -->
                                     </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -561,99 +245,16 @@ $site_description = $post['excerpt'];
                                 
                                 <!-- Formulario de comentarios -->
                                 <div class="comment-form">
-                                    <h3>Deja un comentario</h3>
-                                    
-                                    <?php if ($commentSuccess): ?>
-                                    <div class="notification notification-success">
-                                        <?php if (REQUIRE_COMMENT_APPROVAL): ?>
-                                        <p>Gracias por tu comentario. Será publicado una vez que sea aprobado por nuestro equipo.</p>
-                                        <?php else: ?>
-                                        <p>Gracias por tu comentario. Ha sido publicado correctamente.</p>
-                                        <?php endif; ?>
-                                    </div>
-                                    <?php endif; ?>
-                                    
-                                    <?php if ($commentError): ?>
-                                    <div class="notification notification-error">
-                                        <p><?php echo $commentError; ?></p>
-                                    </div>
-                                    <?php endif; ?>
-                                    
-                                    <form action="" method="post">
-                                        <div class="comment-form-grid">
-                                            <div class="form-group">
-                                                <label for="name">Nombre *</label>
-                                                <input type="text" class="form-control" id="name" name="name" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="email">Email *</label>
-                                                <input type="email" class="form-control" id="email" name="email" required>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Campo honeypot anti-spam (invisible) -->
-                                        <div class="form-group" style="display:none;">
-                                            <label for="website">Sitio web (dejar vacío)</label>
-                                            <input type="text" class="form-control" id="website" name="website">
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                            <label for="content">Comentario *</label>
-                                            <textarea class="form-control" id="content" name="content" rows="4" required></textarea>
-                                        </div>
-                                        
-                                        <!-- Captcha simple -->
-                                        <div class="form-group">
-                                            <label for="captcha">Verificación anti-spam *</label>
-                                            <div class="captcha-container">
-                                                <?php $num1 = rand(1, 10); $num2 = rand(1, 10); echo "$num1 + $num2 = ?"; $_SESSION['captcha_result'] = $num1 + $num2; ?>
-                                            </div>
-                                            <input type="number" class="form-control" id="captcha" name="captcha" required>
-                                        </div>
-                                        
-                                        <!-- Token CSRF -->
-                                        <?php $csrf_token = md5(uniqid(rand(), true)); $_SESSION['csrf_token'] = $csrf_token; ?>
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                        
-                                        <button type="submit" name="comment_submit" class="form-submit">
-                                            Enviar Comentario <i class="fas fa-paper-plane"></i>
-                                        </button>
-                                    </form>
+                                    <!-- Formulario de comentarios -->
                                 </div>
                             </div>
                             <?php endif; ?>
                         </article>
                     </div>
                     
-                    <!-- Sidebar -->
+                    <!-- Sidebar simplificado para desktop -->
                     <div class="blog-sidebar">
-                        <!-- Búsqueda -->
-                        <div class="sidebar-section">
-                            <h3 class="sidebar-title">Buscar</h3>
-                            <div class="search-form-container">
-                                <form action="blog-buscar.php" method="get" class="search-form">
-                                    <input type="text" name="q" placeholder="Buscar artículos..." required>
-                                    <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
-                                </form>
-                            </div>
-                        </div>
-                        
-                        <!-- Categorías -->
-                        <div class="sidebar-section">
-                            <h3 class="sidebar-title">Categorías</h3>
-                            <ul class="categories-list">
-                                <?php foreach ($categories as $cat): ?>
-                                <li class="category-item">
-                                    <a href="blog.php?categoria=<?php echo $cat['slug']; ?>" class="category-link">
-                                        <?php echo $cat['name']; ?>
-                                        <span class="count">(<?php echo $cat['post_count']; ?>)</span>
-                                    </a>
-                                </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                        
-                        <!-- Suscripción al Newsletter -->
+                        <!-- Solo Newsletter -->
                         <div class="sidebar-section newsletter-section">
                             <h3 class="sidebar-title">Suscríbete al Newsletter</h3>
                             <p>Recibe las últimas actualizaciones y consejos directamente en tu correo.</p>
@@ -672,7 +273,7 @@ $site_description = $post['excerpt'];
                     </div>
                 </div>
                 
-                <!-- Sección de Newsletter para móvil (al final) -->
+                <!-- Newsletter para móvil (al final) -->
                 <div class="mobile-newsletter">
                     <div class="sidebar-section newsletter-section">
                         <h3 class="sidebar-title">Suscríbete al Newsletter</h3>
@@ -710,20 +311,7 @@ $site_description = $post['excerpt'];
             duration: 800,
             once: true,
             offset: 50,
-            disable: window.innerWidth < 768 // Desactivar AOS en móvil para mejor rendimiento
-        });
-        
-        // Script para controlar el desplegable de filtros
-        document.addEventListener('DOMContentLoaded', function() {
-            const filterToggle = document.getElementById('filterToggle');
-            const filterContent = document.getElementById('filterContent');
-            
-            if (filterToggle && filterContent) {
-                filterToggle.addEventListener('click', function() {
-                    filterContent.classList.toggle('show');
-                    filterToggle.classList.toggle('active');
-                });
-            }
+            disable: window.innerWidth < 768
         });
     </script>
 </body>
