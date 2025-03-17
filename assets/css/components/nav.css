@@ -158,3 +158,44 @@
         margin-top: var(--spacing-sm);
     }
 }
+
+/* Mejora para menú desplegable en móvil */
+@media (max-width: 991px) {
+    .nav-dropdown .dropdown-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .nav-dropdown .fa-chevron-down {
+        transition: transform 0.3s ease;
+    }
+    
+    .nav-dropdown.active .fa-chevron-down {
+        transform: rotate(180deg);
+    }
+    
+    .dropdown-menu {
+        position: static;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0 0 0 15px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+    
+    .nav-dropdown.active .dropdown-menu {
+        max-height: 500px;
+    }
+    
+    .dropdown-item {
+        padding: 10px 15px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .dropdown-item:last-child {
+        border-bottom: none;
+    }
+}

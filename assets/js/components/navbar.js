@@ -111,4 +111,60 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+	
+	// Mejorar manejo del menú desplegable en móvil
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const navbarMenu = document.getElementById('navbarMenu');
+    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+    
+    // Toggle menú móvil
+    if (mobileMenuToggle && navbarMenu) {
+        mobileMenuToggle.addEventListener('click', function() {
+            navbarMenu.classList.toggle('active');
+            this.classList.toggle('active');
+        });
+    }
+    
+    // Toggle submenús
+    dropdownToggles.forEach(function(toggle) {
+        toggle.addEventListener('click', function(e) {
+            // Solo prevenir en móvil
+            if (window.innerWidth <= 991) {
+                e.preventDefault();
+                const parent = this.closest('.nav-dropdown');
+                
+                // Cerrar otros submenús
+                document.querySelectorAll('.nav-dropdown.active').forEach(function(dropdown) {
+                    if (dropdown !== parent) {
+                        dropdown.classList.remove('active');
+                    }
+                });
+                
+                // Alternar estado actual
+                parent.classList.toggle('active');
+            }
+        });
+    });
+    
+    // Cerrar menú al hacer clic fuera
+    document.addEventListener('click', function(e) {
+        if (!navbarMenu.contains(e.target) && !mobileMenuToggle.contains(e.target) && navbarMenu.classList.contains('active')) {
+            navbarMenu.classList.remove('active');
+            mobileMenuToggle.classList.remove('active');
+        }
+    });
+    
+    // Cerrar menú al cambiar de tamaño la ventana
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 991) {
+            navbarMenu.classList.remove('active');
+            mobileMenuToggle.classList.remove('active');
+            document.querySelectorAll('.nav-dropdown.active').forEach(function(dropdown) {
+                dropdown.classList.remove('active');
+            });
+        }
+    });
+});
+
 });
