@@ -39,6 +39,29 @@
                 </a>
             </li>
         </ul>
+		
+		<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+				<span>MENSAJES</span>
+			</h6>
+			<ul class="nav flex-column">
+				<li class="nav-item">
+					<a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'contact.php' ? 'active' : ''; ?>" href="contact.php">
+						<i class="fas fa-envelope"></i> Mensajes de Contacto
+						<?php 
+						$contact = new Contact();
+						$newCount = $contact->getMessages(1, 1, 'new')['total'];
+						if ($newCount > 0): 
+						?>
+						<span class="badge bg-danger rounded-pill ms-2"><?php echo $newCount; ?></span>
+						<?php endif; ?>
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'email-settings.php' ? 'active' : ''; ?>" href="email-settings.php">
+						<i class="fas fa-paper-plane"></i> Configuración de Correo
+					</a>
+				</li>
+			</ul>
         
         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
             <span>ADMINISTRACIÓN</span>

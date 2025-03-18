@@ -1,0 +1,196 @@
+2025-03-18 15:45:31 [2] SERVER -> CLIENT: 220-cp7128.webempresa.eu ESMTP Mail Server  
+220-  We do not authorize the use of this system to transport unsolicited,  
+220    and/or bulk e-mail.
+
+2025-03-18 15:45:31 [1] CLIENT -> SERVER: EHLO localhost
+
+2025-03-18 15:45:32 [2] SERVER -> CLIENT: 250-cp7128.webempresa.eu Hello localhost [190.166.47.182]
+250-SIZE 52428800
+250-8BITMIME
+250-PIPELINING
+250-PIPE_CONNECT
+250-AUTH PLAIN LOGIN
+250 HELP
+
+2025-03-18 15:45:32 [1] CLIENT -> SERVER: AUTH LOGIN
+
+2025-03-18 15:45:32 [2] SERVER -> CLIENT: 334 VXNlcm5hbWU6
+
+2025-03-18 15:45:32 [1] CLIENT -> SERVER: [credentials hidden]
+2025-03-18 15:45:32 [2] SERVER -> CLIENT: 334 UGFzc3dvcmQ6
+
+2025-03-18 15:45:32 [1] CLIENT -> SERVER: [credentials hidden]
+2025-03-18 15:45:32 [2] SERVER -> CLIENT: 235 Authentication succeeded
+
+2025-03-18 15:45:32 [1] CLIENT -> SERVER: MAIL FROM:<info@solfis.com.do>
+
+2025-03-18 15:45:32 [2] SERVER -> CLIENT: 250 OK
+
+2025-03-18 15:45:32 [1] CLIENT -> SERVER: RCPT TO:<fduran@solfis.com.do>
+
+2025-03-18 15:45:32 [2] SERVER -> CLIENT: 250 Accepted
+
+2025-03-18 15:45:32 [1] CLIENT -> SERVER: DATA
+
+2025-03-18 15:45:33 [2] SERVER -> CLIENT: 354 Enter message, ending with "." on a line by itself
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: Date: Tue, 18 Mar 2025 15:45:31 -0400
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: To: fduran@solfis.com.do
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: From: SolFis Contacto <info@solfis.com.do>
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: Reply-To: fduran@solfis.com.do
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: Subject: =?UTF-8?Q?Prueba_de_configuraci=C3=B3n_de_correo?=
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: Message-ID: <EVW6zoNfxOnzbjZWOq47gspoRdfTSkVnA8BsqSNxUac@localhost>
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: X-Mailer: PHPMailer 6.9.3 (https://github.com/PHPMailer/PHPMailer)
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: MIME-Version: 1.0
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: Content-Type: multipart/alternative;
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER:  boundary="b1=_EVW6zoNfxOnzbjZWOq47gspoRdfTSkVnA8BsqSNxUac"
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: --b1=_EVW6zoNfxOnzbjZWOq47gspoRdfTSkVnA8BsqSNxUac
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: Prueba de configuración de correoEste es un correo de prueba para verificar la configuración SMTP.Fecha y hora: 18/03/2025 15:45:31Si has recibido este correo, significa que la configuración de correo en tu sitio web está funcionando correctamente.Configuración utilizada:Servidor SMTP: cp7128.webempresa.euPuerto: 465Seguridad: sslAutenticación: HabilitadaDe (email): info@solfis.com.doDe (nombre): SolFis Contacto
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: --b1=_EVW6zoNfxOnzbjZWOq47gspoRdfTSkVnA8BsqSNxUac
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: Content-Type: text/html; charset=UTF-8
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: <h2>Prueba de configuración de correo</h2><p>Este es un correo de prueba para verificar la configuración SMTP.</p><p><strong>Fecha y hora:</strong> 18/03/2025 15:45:31</p><hr><p>Si has recibido este correo, significa que la configuración de correo en tu sitio web está funcionando correctamente.</p><p><strong>Configuración utilizada:</strong></p><ul><li><strong>Servidor SMTP:</strong> cp7128.webempresa.eu</li><li><strong>Puerto:</strong> 465</li><li><strong>Seguridad:</strong> ssl</li><li><strong>Autenticación:</strong> Habilitada</li><li><strong>De (email):</strong> info@solfis.com.do</li><li><strong>De (nombre):</strong> SolFis Contacto</li></ul>
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: --b1=_EVW6zoNfxOnzbjZWOq47gspoRdfTSkVnA8BsqSNxUac--
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: .
+
+2025-03-18 15:45:33 [2] SERVER -> CLIENT: 250 OK id=1tucsX-00DtW4-20
+
+2025-03-18 15:45:33 [1] CLIENT -> SERVER: QUIT
+
+2025-03-18 15:45:33 [2] SERVER -> CLIENT: 221 cp7128.webempresa.eu closing connection
+
+2025-03-18 15:46:39 [2] SERVER -> CLIENT: 220-cp7128.webempresa.eu ESMTP Mail Server  
+220-  We do not authorize the use of this system to transport unsolicited,  
+220    and/or bulk e-mail.
+
+2025-03-18 15:46:39 [1] CLIENT -> SERVER: EHLO localhost
+
+2025-03-18 15:46:39 [2] SERVER -> CLIENT: 250-cp7128.webempresa.eu Hello localhost [190.166.47.182]
+250-SIZE 52428800
+250-8BITMIME
+250-PIPELINING
+250-PIPE_CONNECT
+250-AUTH PLAIN LOGIN
+250 HELP
+
+2025-03-18 15:46:39 [1] CLIENT -> SERVER: AUTH LOGIN
+
+2025-03-18 15:46:39 [2] SERVER -> CLIENT: 334 VXNlcm5hbWU6
+
+2025-03-18 15:46:39 [1] CLIENT -> SERVER: [credentials hidden]
+2025-03-18 15:46:39 [2] SERVER -> CLIENT: 334 UGFzc3dvcmQ6
+
+2025-03-18 15:46:39 [1] CLIENT -> SERVER: [credentials hidden]
+2025-03-18 15:46:39 [2] SERVER -> CLIENT: 235 Authentication succeeded
+
+2025-03-18 15:46:39 [1] CLIENT -> SERVER: MAIL FROM:<info@solfis.com.do>
+
+2025-03-18 15:46:40 [2] SERVER -> CLIENT: 250 OK
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: RCPT TO:<fduran@solfis.com.do>
+
+2025-03-18 15:46:40 [2] SERVER -> CLIENT: 250 Accepted
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: DATA
+
+2025-03-18 15:46:40 [2] SERVER -> CLIENT: 354 Enter message, ending with "." on a line by itself
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: Date: Tue, 18 Mar 2025 15:46:38 -0400
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: To: fduran@solfis.com.do
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: From: SolFis Contacto <info@solfis.com.do>
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: Reply-To: fduran@solfis.com.do
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: Subject: =?UTF-8?Q?Prueba_de_configuraci=C3=B3n_de_correo?=
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: Message-ID: <zERGbuVL6GSU5TnmjleBW07J9ZghkjRqGNueZNkfzM@localhost>
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: X-Mailer: PHPMailer 6.9.3 (https://github.com/PHPMailer/PHPMailer)
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: MIME-Version: 1.0
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: Content-Type: multipart/alternative;
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER:  boundary="b1=_zERGbuVL6GSU5TnmjleBW07J9ZghkjRqGNueZNkfzM"
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: --b1=_zERGbuVL6GSU5TnmjleBW07J9ZghkjRqGNueZNkfzM
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: Prueba de configuración de correoEste es un correo de prueba para verificar la configuración SMTP.Fecha y hora: 18/03/2025 15:46:38Si has recibido este correo, significa que la configuración de correo en tu sitio web está funcionando correctamente.Configuración utilizada:Servidor SMTP: cp7128.webempresa.euPuerto: 465Seguridad: sslAutenticación: HabilitadaDe (email): info@solfis.com.doDe (nombre): SolFis Contacto
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: --b1=_zERGbuVL6GSU5TnmjleBW07J9ZghkjRqGNueZNkfzM
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: Content-Type: text/html; charset=UTF-8
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: <h2>Prueba de configuración de correo</h2><p>Este es un correo de prueba para verificar la configuración SMTP.</p><p><strong>Fecha y hora:</strong> 18/03/2025 15:46:38</p><hr><p>Si has recibido este correo, significa que la configuración de correo en tu sitio web está funcionando correctamente.</p><p><strong>Configuración utilizada:</strong></p><ul><li><strong>Servidor SMTP:</strong> cp7128.webempresa.eu</li><li><strong>Puerto:</strong> 465</li><li><strong>Seguridad:</strong> ssl</li><li><strong>Autenticación:</strong> Habilitada</li><li><strong>De (email):</strong> info@solfis.com.do</li><li><strong>De (nombre):</strong> SolFis Contacto</li></ul>
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: --b1=_zERGbuVL6GSU5TnmjleBW07J9ZghkjRqGNueZNkfzM--
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: 
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: .
+
+2025-03-18 15:46:40 [2] SERVER -> CLIENT: 250 OK id=1tuctc-00DvMN-FG
+
+2025-03-18 15:46:40 [1] CLIENT -> SERVER: QUIT
+
+2025-03-18 15:46:41 [2] SERVER -> CLIENT: 221 cp7128.webempresa.eu closing connection
+

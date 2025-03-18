@@ -1242,3 +1242,213 @@ class Auth {
         return $this->isLoggedIn() ? $this->user['id'] : null;
     }
 }
+
+/**
+ * Clase Contact - Maneja los mensajes de contacto
+ */
+class Contact {
+    private $db;
+    
+    public function __construct() {
+        $this->db = Database::getInstance();
+    }
+    
+    /**
+     * Guardar un nuevo mensaje de contacto
+     */
+    public function saveMessage($data) {
+        $name = $this->db->escape($data['name']);
+        $email = $this->db->escape($data['email']);
+        $phone = isset($data['phone']) ? $this->db->escape($data['phone']) : '';
+        $subject = $this->db->escape($data['subject']);
+        $message = $this->db->escape($data['message']);
+        $ipAddress = $this->db->escape($_SERVER['REMOTE_ADDR']);
+        
+        $sql = "INSERT INTO contact_messages (name, email, phone, subject, message, status, ip_address, created_at, updated_at) 
+                VALUES ('$name', '$email', '$phone', '$subject', '$message', 'new', '$ipAddress', NOW(), NOW())";
+                
+        if ($this->db->query($sql)) {
+            return $this->db->lastInsertId();
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Obtener mensajes para el dashboard
+     */
+    public function getMessages($page = 1, $per_page = 10, $status = null) {
+        $offset = ($page - 1) * $per_page;
+        
+        $sql = "SELECT * FROM contact_messages";
+                
+        if ($status) {
+            $status = $this->db->escape($status);
+            $sql .= " WHERE status = '$status'";
+        }
+        
+        $sql .= " ORDER BY created_at DESC LIMIT $offset, $per_page";
+        
+        $result = $this->db->query($sql);
+        $messages = [];
+        
+        while ($result && $row = $result->fetch_assoc()) {
+            $messages[] = $row;
+        }
+        
+        // Contar total para paginación
+        $countSql = "SELECT COUNT(*) as total FROM contact_messages";
+        
+        if ($status) {
+            $countSql .= " WHERE status = '$status'";
+        }
+        
+        $countResult = $this->db->query($countSql);
+        $totalMessages = 0;
+        
+        if ($countResult && $countResult->num_rows > 0) {
+            $totalMessages = $countResult->fetch_assoc()['total'];
+        }
+        
+        return [
+            'messages' => $messages,
+            'total' => $totalMessages,
+            'pages' => ceil($totalMessages / $per_page),
+            'current_page' => $page
+        ];
+    }
+    
+    /**
+     * Obtener un mensaje por su ID
+     */
+    public function getMessageById($id) {
+        $id = (int)$id;
+        
+        $sql = "SELECT * FROM contact_messages WHERE id = $id";
+        $result = $this->db->query($sql);
+        
+        if ($result && $result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Actualizar el estado de un mensaje
+     */
+    public function updateStatus($id, $status) {
+        $id = (int)$id;
+        $status = $this->db->escape($status);
+        
+        $sql = "UPDATE contact_messages SET 
+                status = '$status', 
+                updated_at = NOW() 
+                WHERE id = $id";
+                
+        return $this->db->query($sql);
+    }
+    
+    /**
+     * Eliminar un mensaje
+     */
+    public function deleteMessage($id) {
+        $id = (int)$id;
+        
+        $sql = "DELETE FROM contact_messages WHERE id = $id";
+        return $this->db->query($sql);
+    }
+}
+
+/**
+ * Clase EmailSettings - Maneja la configuración de correo
+ */
+class EmailSettings {
+    private $db;
+    
+    public function __construct() {
+        $this->db = Database::getInstance();
+    }
+    
+    /**
+     * Obtener configuración de correo
+     */
+    public function getSettings() {
+        $sql = "SELECT * FROM email_settings LIMIT 1";
+        $result = $this->db->query($sql);
+        
+        if ($result && $result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+        
+        // Si no hay configuración, devolver valores por defecto
+        return [
+            'smtp_host' => 'smtp.example.com',
+            'smtp_port' => 587,
+            'smtp_secure' => 'tls',
+            'smtp_auth' => 1,
+            'smtp_username' => '',
+            'smtp_password' => '',
+            'from_email' => 'info@solfis.com',
+            'from_name' => 'SolFis Contacto',
+            'reply_to' => 'info@solfis.com',
+            'recipient_email' => 'contacto@solfis.com'
+        ];
+    }
+    
+    /**
+     * Actualizar configuración de correo
+     */
+    public function updateSettings($data) {
+        $smtpHost = $this->db->escape($data['smtp_host']);
+        $smtpPort = (int)$data['smtp_port'];
+        $smtpSecure = $this->db->escape($data['smtp_secure']);
+        $smtpAuth = isset($data['smtp_auth']) ? 1 : 0;
+        $smtpUsername = $this->db->escape($data['smtp_username']);
+        $smtpPassword = $this->db->escape($data['smtp_password']);
+        $fromEmail = $this->db->escape($data['from_email']);
+        $fromName = $this->db->escape($data['from_name']);
+        $replyTo = $this->db->escape($data['reply_to']);
+        $recipientEmail = $this->db->escape($data['recipient_email']);
+        
+        // Verificar si ya hay un registro
+        $checkSql = "SELECT id FROM email_settings LIMIT 1";
+        $result = $this->db->query($checkSql);
+        
+        if ($result && $result->num_rows > 0) {
+            $id = $result->fetch_assoc()['id'];
+            
+            // Si la contraseña está vacía, no actualizarla (mantener la existente)
+            $passwordSql = "";
+            if (!empty($smtpPassword)) {
+                $passwordSql = "smtp_password = '$smtpPassword',";
+            }
+            
+            $sql = "UPDATE email_settings SET 
+                    smtp_host = '$smtpHost', 
+                    smtp_port = $smtpPort, 
+                    smtp_secure = '$smtpSecure', 
+                    smtp_auth = $smtpAuth, 
+                    smtp_username = '$smtpUsername', 
+                    $passwordSql
+                    from_email = '$fromEmail', 
+                    from_name = '$fromName', 
+                    reply_to = '$replyTo', 
+                    recipient_email = '$recipientEmail', 
+                    updated_at = NOW() 
+                    WHERE id = $id";
+        } else {
+            $sql = "INSERT INTO email_settings (
+                    smtp_host, smtp_port, smtp_secure, smtp_auth, 
+                    smtp_username, smtp_password, from_email, 
+                    from_name, reply_to, recipient_email, updated_at
+                ) VALUES (
+                    '$smtpHost', $smtpPort, '$smtpSecure', $smtpAuth, 
+                    '$smtpUsername', '$smtpPassword', '$fromEmail', 
+                    '$fromName', '$replyTo', '$recipientEmail', NOW()
+                )";
+        }
+        
+        return $this->db->query($sql);
+    }
+}

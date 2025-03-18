@@ -1,0 +1,24 @@
+2025-03-18 14:03:54 - Se recibió un mensaje de contacto de: Fabio Duran <fduran@jazindustrial.com.do>
+2025-03-18 14:04:39 - Se envió una respuesta a: Fabio Duran <fduran@jazindustrial.com.do>
+2025-03-18 14:05:59 - Se envió una respuesta a: Fabio Duran <fduran@jazindustrial.com.do>
+2025-03-18 15:09:19 - Se recibió un mensaje de contacto de: Fabio Duran <fduran@jazindustrial.com.do>
+2025-03-18 15:16:33 - Se envió una respuesta a: Fabio Duran <fduran@jazindustrial.com.do>
+2025-03-18 15:22:09 - Se recibió un mensaje de contacto de: Usuario de Prueba <fduran@solfis.com.do>
+2025-03-18 15:22:40 - Se recibió un mensaje de contacto de: Usuario de Prueba <duranr.fabio@gmail.com>
+2025-03-18 15:23:26 - Se recibió un mensaje de contacto de: Usuario de Prueba <f.duran@saedigroup.com>
+2025-03-18 15:45:33 - [PRUEBA] ÉXITO - Correo a: fduran@solfis.com.do
+Asunto: Prueba de configuración
+De: Usuario de Prueba <fduran@solfis.com.do>
+IP: ::1
+
+2025-03-18 15:46:33 - ERROR - Correo a: fduran@solfis.com.do
+Error: PHPMailer no está instalado
+Asunto: Solicitud de información sobre fiscal
+De: Julio Ramirez <fduran@jazindustrial.com.do>
+IP: ::1
+
+2025-03-18 15:46:41 - [PRUEBA] ÉXITO - Correo a: fduran@solfis.com.do
+Asunto: Prueba de configuración
+De: Usuario de Prueba <fduran@solfis.com.do>
+IP: ::1
+
