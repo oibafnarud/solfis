@@ -23,11 +23,13 @@ if (isset($_SERVER['HTTP_USER_AGENT'])) {
     <link rel="icon" type="image/x-icon" href="<?php echo $assets_path; ?>img/favicon.ico">
     
     <!-- CSS Base -->
-    <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/normalize.css">
-    <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/main.css">
-    <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/fixes.css">
+    <link rel="stylesheet" href="assets/css/normalize.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+	<link rel="stylesheet" href="<?php echo $assets_path; ?>/css/components/nav.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/components/footer.css">
     <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/components/dropdown-menu.css">
-    <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/mobile-layout.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/text-contrast-fixes.css">
+	<link rel="stylesheet" href="<?php echo $assets_path; ?>css/mobile-optimizations.css">
     
 
     <!-- CSS Componentes -->

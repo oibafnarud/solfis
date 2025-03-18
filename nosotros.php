@@ -20,6 +20,7 @@ $assets_path = 'assets/';
     <link rel="stylesheet" href="<?php echo $assets_path; ?>css/components/footer.css">
     <link rel="stylesheet" href="<?php echo $assets_path; ?>css/components/about-us.css">
     <link rel="stylesheet" href="<?php echo $assets_path; ?>css/mobile-optimizations.css">
+	<link rel="stylesheet" href="<?php echo $assets_path; ?>/css/text-contrast-fixes.css">
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
