@@ -546,62 +546,62 @@ if (!class_exists('EmailSettings')) {
             );
         }
         
-        /**
-         * Actualizar configuración de correo
-         */
-        public function updateSettings($data) {
-            if (!$this->db) return false;
-            
-            $smtpHost = $this->db->escape($data['smtp_host']);
-            $smtpPort = (int)$data['smtp_port'];
-            $smtpSecure = $this->db->escape($data['smtp_secure']);
-            $smtpAuth = isset($data['smtp_auth']) ? 1 : 0;
-            $smtpUsername = $this->db->escape($data['smtp_username']);
-            $smtpPassword = $this->db->escape($data['smtp_password']);
-            $fromEmail = $this->db->escape($data['from_email']);
-            $fromName = $this->db->escape($data['from_name']);
-            $replyTo = $this->db->escape($data['reply_to']);
-            $recipientEmail = $this->db->escape($data['recipient_email']);
-            
-            // Verificar si ya hay un registro
-            $checkSql = "SELECT id FROM email_settings LIMIT 1";
-            $result = $this->db->query($checkSql);
-            
-            if ($result && $result->num_rows > 0) {
-                $id = $result->fetch_assoc()['id'];
-                
-                // Si la contraseña está vacía, no actualizarla (mantener la existente)
-                $passwordSql = "";
-                if (!empty($smtpPassword)) {
-                    $passwordSql = "smtp_password = '$smtpPassword',";
-                }
-                
-                $sql = "UPDATE email_settings SET 
-                        smtp_host = '$smtpHost', 
-                        smtp_port = $smtpPort, 
-                        smtp_secure = '$smtpSecure', 
-                        smtp_auth = $smtpAuth, 
-                        smtp_username = '$smtpUsername', 
-                        $passwordSql
-                        from_email = '$fromEmail', 
-                        from_name = '$fromName', 
-                        reply_to = '$replyTo', 
-                        recipient_email = '$recipientEmail', 
-                        updated_at = NOW() 
-                        WHERE id = $id";
-            } else {
-                $sql = "INSERT INTO email_settings (
-                        smtp_host, smtp_port, smtp_secure, smtp_auth, 
-                        smtp_username, smtp_password, from_email, 
-                        from_name, reply_to, recipient_email, updated_at
-                    ) VALUES (
-                        '$smtpHost', $smtpPort, '$smtpSecure', $smtpAuth, 
-                        '$smtpUsername', '$smtpPassword', '$fromEmail', 
-                        '$fromName', '$replyTo', '$recipientEmail', NOW()
-                    )";
-            }
-            
-            return $this->db->query($sql);
-        }
+		/**
+		 * Actualizar configuración de correo
+		 */
+		public function updateSettings($data) {
+			if (!$this->db) return false;
+			
+			$smtpHost = $this->db->escape($data['smtp_host']);
+			$smtpPort = (int)$data['smtp_port'];
+			$smtpSecure = $this->db->escape($data['smtp_secure']);
+			$smtpAuth = isset($data['smtp_auth']) ? 1 : 0;
+			$smtpUsername = $this->db->escape($data['smtp_username']);
+			$smtpPassword = $this->db->escape($data['smtp_password']);
+			$fromEmail = $this->db->escape($data['from_email']);
+			$fromName = $this->db->escape($data['from_name']);
+			$replyTo = $this->db->escape($data['reply_to']);
+			$recipientEmail = $this->db->escape($data['recipient_email']);
+			
+			// Verificar si ya hay un registro
+			$checkSql = "SELECT id FROM email_settings LIMIT 1";
+			$result = $this->db->query($checkSql);
+			
+			if ($result && $result->num_rows > 0) {
+				$id = $result->fetch_assoc()['id'];
+				
+				// Si la contraseña está vacía, no actualizarla (mantener la existente)
+				$sql = "UPDATE email_settings SET 
+						smtp_host = '$smtpHost', 
+						smtp_port = $smtpPort, 
+						smtp_secure = '$smtpSecure', 
+						smtp_auth = $smtpAuth, 
+						smtp_username = '$smtpUsername', ";
+				
+				// Solo incluir la contraseña si no está vacía
+				if (!empty($smtpPassword)) {
+					$sql .= "smtp_password = '$smtpPassword', ";
+				}
+				
+				$sql .= "from_email = '$fromEmail', 
+						from_name = '$fromName', 
+						reply_to = '$replyTo', 
+						recipient_email = '$recipientEmail', 
+						updated_at = NOW() 
+						WHERE id = $id";
+			} else {
+				$sql = "INSERT INTO email_settings (
+						smtp_host, smtp_port, smtp_secure, smtp_auth, 
+						smtp_username, smtp_password, from_email, 
+						from_name, reply_to, recipient_email, updated_at
+					) VALUES (
+						'$smtpHost', $smtpPort, '$smtpSecure', $smtpAuth, 
+						'$smtpUsername', '$smtpPassword', '$fromEmail', 
+						'$fromName', '$replyTo', '$recipientEmail', NOW()
+					)";
+			}
+			
+			return $this->db->query($sql);
+		}
     }
 }
