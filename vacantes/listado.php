@@ -52,7 +52,8 @@ $categorias = $categoryManager->getCategories();
     <link rel="stylesheet" href="<?php echo $assets_path; ?>css/components/nav.css">
     <link rel="stylesheet" href="<?php echo $assets_path; ?>css/components/dropdown-menu.css">
     <link rel="stylesheet" href="<?php echo $assets_path; ?>css/components/footer.css">
-    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/vacantes.css">
+	<link rel="stylesheet" href="<?php echo $assets_path; ?>css/vacantes-base.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/vacantes-listado.css">
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
