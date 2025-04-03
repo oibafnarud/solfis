@@ -75,6 +75,31 @@
 				</a>
 			</li>
 		</ul>
+		
+		<!-- 
+		VACANTES Y RECLUTAMIENTO
+		-->
+
+		<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+			<span>VACANTES Y RECLUTAMIENTO</span>
+		</h6>
+		<ul class="nav flex-column">
+			<li class="nav-item">
+				<a class="nav-link <?php echo in_array(basename($_SERVER['PHP_SELF']), ['index.php', 'vacante-nueva.php', 'vacante-editar.php']) && strpos($_SERVER['PHP_SELF'], '/vacantes/') !== false ? 'active' : ''; ?>" href="<?php echo isset($adminUrl) ? $adminUrl : ''; ?>vacantes/index.php">
+					<i class="fas fa-briefcase"></i> Vacantes
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' && strpos($_SERVER['PHP_SELF'], '/aplicaciones/') !== false ? 'active' : ''; ?>" href="<?php echo isset($adminUrl) ? $adminUrl : ''; ?>aplicaciones/index.php">
+					<i class="fas fa-clipboard-list"></i> Aplicaciones
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' && strpos($_SERVER['PHP_SELF'], '/candidatos/') !== false ? 'active' : ''; ?>" href="<?php echo isset($adminUrl) ? $adminUrl : ''; ?>candidatos/index.php">
+					<i class="fas fa-user-tie"></i> Candidatos
+				</a>
+			</li>
+		</ul>
         
         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
             <span>ADMINISTRACIÓN</span>

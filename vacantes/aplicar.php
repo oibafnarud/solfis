@@ -1,388 +1,527 @@
 <?php
-/**
- * Portal de Vacantes SolFis
- * Página para aplicar a una vacante específica
- */
+$site_title = "Aplicar a Vacante - SolFis";
+$site_description = "Formulario de aplicación para vacantes en SolFis";
+$base_path = '../sections/';
+$assets_path = '../assets/';
 
-// Incluir archivos necesarios
-require_once '../config.php';
-require_once '../includes/blog-system.php';
+// Incluir el sistema de vacantes
 require_once '../includes/jobs-system.php';
 
-// Verificar autenticación
-$auth = Auth::getInstance();
-if (!$auth->isLoggedIn()) {
-    header('Location: ../login.php?redirect=aplicar&vacancy_id=' . (isset($_GET['id']) ? $_GET['id'] : ''));
-    exit;
-}
-
-// Inicializar las clases necesarias
-$jobVacancy = new JobVacancy();
-$jobQuestion = new JobVacancyQuestion();
-$candidate = new Candidate();
-$application = new JobApplication();
-
-// Verificar que se haya proporcionado un ID
+// Verificar si se proporcionó un ID
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header('Location: index.php');
     exit;
 }
 
+// Obtener ID de la vacante
 $id = (int)$_GET['id'];
 
-// Obtener datos de la vacante
-$vacancy = $jobVacancy->getVacancyById($id);
+// Instanciar gestores
+$vacancyManager = new VacancyManager();
+$applicationManager = new ApplicationManager();
+$candidateManager = new CandidateManager();
+
+// Obtener vacante por ID
+$vacante = $vacancyManager->getVacancyById($id);
 
 // Si la vacante no existe o no está publicada, redirigir
-if (!$vacancy || $vacancy['status'] !== 'published') {
-    header('Location: index.php?error=vacancy-not-found');
+if (!$vacante || $vacante['estado'] !== 'publicada') {
+    header('Location: index.php');
     exit;
 }
 
-// Verificar si el usuario es un candidato
-$candidateProfile = $candidate->getCandidateByUserId($auth->getUserId());
-
-if (!$candidateProfile) {
-    header('Location: ../perfil/cv.php?redirect=aplicar&vacancy_id=' . $id);
-    exit;
-}
-
-// Verificar si ya ha aplicado a esta vacante
-if ($application->hasApplied($candidateProfile['id'], $id)) {
-    header('Location: detalle.php?id=' . $id . '&message=already-applied');
-    exit;
-}
-
-// Obtener preguntas personalizadas para esta vacante
-$questions = $jobQuestion->getQuestionsByVacancy($id);
-
-// Procesar formulario de aplicación
-$errors = [];
+// Procesar formulario
 $success = false;
+$error = '';
+$formData = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validar la carta de presentación
-    $coverLetter = isset($_POST['cover_letter']) ? trim($_POST['cover_letter']) : '';
+    // Validar datos requeridos
+    $required_fields = ['nombre', 'apellido', 'email', 'telefono'];
+    $formData = $_POST;
+    $is_valid = true;
     
-    if (empty($coverLetter)) {
-        $errors[] = 'La carta de presentación es obligatoria.';
-    } elseif (strlen($coverLetter) < 100) {
-        $errors[] = 'La carta de presentación debe tener al menos 100 caracteres.';
+    foreach ($required_fields as $field) {
+        if (empty($_POST[$field])) {
+            $is_valid = false;
+            $error = 'Por favor complete todos los campos obligatorios.';
+            break;
+        }
     }
     
-    // Validar respuestas a preguntas personalizadas
-    $answers = [];
+    // Validar email
+    if ($is_valid && !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+        $is_valid = false;
+        $error = 'Por favor ingrese un email válido.';
+    }
     
-    foreach ($questions as $question) {
-        $questionId = $question['id'];
-        $answer = isset($_POST['question_' . $questionId]) ? trim($_POST['question_' . $questionId]) : '';
+    // Validar CV
+    if ($is_valid && (!isset($_FILES['cv']) || $_FILES['cv']['error'] !== UPLOAD_ERR_OK)) {
+        $is_valid = false;
+        $error = 'Por favor adjunte su CV.';
+    } elseif ($is_valid) {
+        // Verificar tipo de archivo
+        $allowed_types = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        $file_type = $_FILES['cv']['type'];
         
-        if ($question['required'] && empty($answer)) {
-            $errors[] = 'La pregunta "' . $question['question'] . '" es obligatoria.';
+        if (!in_array($file_type, $allowed_types)) {
+            $is_valid = false;
+            $error = 'Solo se permiten archivos PDF, DOC o DOCX.';
         }
         
-        $answers[$questionId] = $answer;
+        // Verificar tamaño (max 5MB)
+        $max_size = 5 * 1024 * 1024; // 5MB
+        if ($_FILES['cv']['size'] > $max_size) {
+            $is_valid = false;
+            $error = 'El archivo excede el tamaño máximo permitido (5MB).';
+        }
     }
     
-    // Procesar CV (opcional, usar el del perfil si no se proporciona uno nuevo)
-    $resumePath = $candidateProfile['cv_path'];
+    // Validar términos y condiciones
+    if ($is_valid && empty($_POST['terminos'])) {
+        $is_valid = false;
+        $error = 'Debe aceptar los términos y condiciones.';
+    }
     
-    if (isset($_FILES['resume']) && $_FILES['resume']['error'] !== UPLOAD_ERR_NO_FILE) {
-        $upload = $candidate->uploadResume($_FILES['resume'], $candidateProfile['id']);
+    // Si todo está correcto, procesar la aplicación
+    if ($is_valid) {
+        // 1. Verificar si el candidato ya existe
+        $candidateResult = $candidateManager->findCandidateByEmail($_POST['email']);
         
-        if ($upload['success']) {
-            $resumePath = $upload['path'];
-            
-            // Actualizar CV en el perfil del candidato
-            $candidate->updateCvPath($candidateProfile['id'], $resumePath);
+        if ($candidateResult['success'] && $candidateResult['exists']) {
+            $candidato_id = $candidateResult['candidate']['id'];
         } else {
-            $errors[] = 'Error al subir el CV: ' . $upload['message'];
-        }
-    }
-    
-    // Si no hay errores, procesar la aplicación
-    if (empty($errors)) {
-        $applicationData = [
-            'vacancy_id' => $id,
-            'candidate_id' => $candidateProfile['id'],
-            'cover_letter' => $coverLetter,
-            'resume_path' => $resumePath
-        ];
-        
-        $applicationId = $application->createApplication($applicationData);
-        
-        if ($applicationId) {
-            // Guardar respuestas a preguntas
-            foreach ($answers as $questionId => $answer) {
-                $application->saveAnswer($applicationId, $questionId, $answer);
+            // 2. Crear nuevo candidato
+            
+            // Procesar CV
+            $cv_filename = '';
+            if ($_FILES['cv']['error'] === UPLOAD_ERR_OK) {
+                $tmp_name = $_FILES['cv']['tmp_name'];
+                $name = basename($_FILES['cv']['name']);
+                $extension = pathinfo($name, PATHINFO_EXTENSION);
+                
+                // Generar nombre único
+                $cv_filename = uniqid() . '_' . time() . '.' . $extension;
+                
+                // Asegurarse de que el directorio existe
+                $upload_dir = '../uploads/resumes/';
+                if (!file_exists($upload_dir)) {
+                    mkdir($upload_dir, 0755, true);
+                }
+                
+                // Mover archivo
+                move_uploaded_file($tmp_name, $upload_dir . $cv_filename);
             }
             
-            // Incrementar contador de aplicaciones
-            $jobVacancy->incrementApplications($id);
+            // Datos del candidato
+            $candidatoData = [
+                'nombre' => $_POST['nombre'],
+                'apellido' => $_POST['apellido'],
+                'email' => $_POST['email'],
+                'telefono' => $_POST['telefono'],
+                'ubicacion' => $_POST['ubicacion'] ?? '',
+                'linkedin' => $_POST['linkedin'] ?? '',
+                'cv_path' => $cv_filename
+            ];
             
-            // Marcar como éxito
-            $success = true;
-        } else {
-            $errors[] = 'Ha ocurrido un error al procesar su aplicación. Por favor, intente de nuevo.';
+            // Crear candidato
+            $createResult = $candidateManager->createCandidate($candidatoData);
+            
+            if (!$createResult['success']) {
+                $is_valid = false;
+                $error = 'Error al procesar su aplicación. Por favor intente nuevamente.';
+            } else {
+                $candidato_id = $createResult['id'];
+            }
+        }
+        
+        // 3. Crear aplicación
+        if ($is_valid) {
+            $aplicacionData = [
+                'vacante_id' => $id,
+                'candidato_id' => $candidato_id,
+                'carta_presentacion' => $_POST['carta_presentacion'] ?? '',
+                'experiencia' => $_POST['experiencia'] ?? '',
+                'empresa_actual' => $_POST['empresa_actual'] ?? '',
+                'cargo_actual' => $_POST['cargo_actual'] ?? '',
+                'salario_esperado' => $_POST['salario_esperado'] ?? '',
+                'disponibilidad' => $_POST['disponibilidad'] ?? '',
+                'fuente' => $_POST['fuente'] ?? ''
+            ];
+            
+            $applicationResult = $applicationManager->createApplication($aplicacionData);
+            
+            if ($applicationResult['success']) {
+                $success = true;
+            } else {
+                $error = 'Error al enviar su aplicación. Por favor intente nuevamente.';
+            }
         }
     }
 }
-
-// Definir título de la página
-$pageTitle = 'Aplicar a: ' . $vacancy['title'] . ' - Vacantes SolFis';
 ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $site_title; ?></title>
+    <meta name="description" content="<?php echo $site_description; ?>">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/normalize.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/main.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/components/nav.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/components/dropdown-menu.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/components/footer.css">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>css/vacantes.css">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- AOS - Animate On Scroll -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <?php include $base_path . 'navbar.html'; ?>
 
-<?php include '../includes/header.php'; ?>
-
-<!-- Cabecera -->
-<section class="bg-primary text-white py-4">
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-2">
-                <li class="breadcrumb-item"><a href="../index.php" class="text-white">Inicio</a></li>
-                <li class="breadcrumb-item"><a href="index.php" class="text-white">Vacantes</a></li>
-                <li class="breadcrumb-item"><a href="detalle.php?id=<?php echo $id; ?>" class="text-white"><?php echo htmlspecialchars($vacancy['title']); ?></a></li>
-                <li class="breadcrumb-item active text-white" aria-current="page">Aplicar</li>
-            </ol>
-        </nav>
-        <h1 class="display-5 fw-bold">Aplicar a: <?php echo htmlspecialchars($vacancy['title']); ?></h1>
-        <p class="lead">Complete el formulario a continuación para enviar su candidatura.</p>
-    </div>
-</section>
-
-<!-- Contenido principal -->
-<section class="py-5">
-    <div class="container">
-        <?php if ($success): ?>
-            <div class="card mb-4 border-success">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-check-circle text-success fa-5x mb-3"></i>
-                    <h2 class="card-title">¡Aplicación enviada con éxito!</h2>
-                    <p class="card-text">Su aplicación para la vacante <strong><?php echo htmlspecialchars($vacancy['title']); ?></strong> ha sido recibida correctamente.</p>
-                    <p class="card-text">Revisaremos su candidatura y nos pondremos en contacto con usted en caso de avanzar en el proceso.</p>
-                    <div class="mt-4">
-                        <a href="index.php" class="btn btn-primary me-2">Ver más vacantes</a>
-                        <a href="../perfil/mis-aplicaciones.php" class="btn btn-outline-primary">Ver mis aplicaciones</a>
-                    </div>
-                </div>
-            </div>
-        <?php else: ?>
-            <?php if (!empty($errors)): ?>
-                <div class="alert alert-danger mb-4">
-                    <h5 class="alert-heading">Se encontraron errores en el formulario:</h5>
-                    <ul class="mb-0">
-                        <?php foreach ($errors as $error): ?>
-                            <li><?php echo $error; ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
-            
-            <!-- Información de la vacante -->
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <div class="card mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">Información de la vacante</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <h4><?php echo htmlspecialchars($vacancy['title']); ?></h4>
-                                    <p><?php echo htmlspecialchars($vacancy['department']); ?></p>
-                                    
-                                    <div class="vacancy-meta d-flex flex-wrap mb-3">
-                                        <span class="badge bg-light text-dark me-2 mb-1">
-                                            <i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($vacancy['location']); ?>
-                                        </span>
-                                        <span class="badge bg-light text-dark me-2 mb-1">
-                                            <i class="fas fa-laptop-house"></i> <?php echo ucfirst(htmlspecialchars($vacancy['work_mode'])); ?>
-                                        </span>
-                                        <span class="badge bg-light text-dark mb-1">
-                                            <i class="fas fa-folder"></i> <?php echo htmlspecialchars($vacancy['category_name']); ?>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end">
-                                    <a href="detalle.php?id=<?php echo $id; ?>" class="btn btn-outline-primary">
-                                        <i class="fas fa-eye"></i> Ver detalle completo
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <main>
+        <section class="job-application">
+            <div class="container">
+                <div class="breadcrumbs" data-aos="fade-up">
+                    <a href="../index.php">Inicio</a> <span class="separator">/</span>
+                    <a href="index.php">Vacantes</a> <span class="separator">/</span>
+                    <a href="detalle.php?id=<?php echo $vacante['id']; ?>"><?php echo htmlspecialchars($vacante['titulo']); ?></a> <span class="separator">/</span>
+                    <span class="current">Aplicar</span>
                 </div>
                 
-                <div class="col-md-4">
-                    <div class="card mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">Perfil del candidato</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="flex-shrink-0">
-                                    <?php if (!empty($candidateProfile['image'])): ?>
-                                        <img src="<?php echo $candidateProfile['image']; ?>" alt="<?php echo htmlspecialchars($_SESSION['user']['name']); ?>" class="rounded-circle" width="60" height="60">
-                                    <?php else: ?>
-                                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                            <i class="fas fa-user fa-lg"></i>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h5 class="mb-1"><?php echo htmlspecialchars($_SESSION['user']['name']); ?></h5>
-                                    <p class="mb-0 text-muted"><?php echo !empty($candidateProfile['headline']) ? htmlspecialchars($candidateProfile['headline']) : 'Candidato'; ?></p>
-                                </div>
-                            </div>
-                            
-                            <div class="profile-info">
-                                <p class="mb-1"><i class="fas fa-envelope text-muted me-2"></i> <?php echo htmlspecialchars($_SESSION['user']['email']); ?></p>
-                                <?php if (!empty($candidateProfile['phone'])): ?>
-                                    <p class="mb-1"><i class="fas fa-phone text-muted me-2"></i> <?php echo htmlspecialchars($candidateProfile['phone']); ?></p>
-                                <?php endif; ?>
-                                <?php if (!empty($candidateProfile['location'])): ?>
-                                    <p class="mb-0"><i class="fas fa-map-marker-alt text-muted me-2"></i> <?php echo htmlspecialchars($candidateProfile['city'] . ', ' . $candidateProfile['country']); ?></p>
-                                <?php endif; ?>
-                            </div>
-                            
-                            <hr>
-                            
-                            <div class="text-center">
-                                <a href="../perfil/index.php" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-edit"></i> Editar perfil
-                                </a>
-                            </div>
+                <div class="application-header" data-aos="fade-up">
+                    <h1>Aplicar para: <?php echo htmlspecialchars($vacante['titulo']); ?></h1>
+                    <p>Complete el siguiente formulario para enviar su solicitud. Todos los campos marcados con <span class="required-mark">*</span> son obligatorios.</p>
+                </div>
+                
+                <?php if ($success): ?>
+                <div class="alert alert-success" data-aos="fade-up">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <h3>¡Aplicación enviada con éxito!</h3>
+                        <p>Gracias por tu interés en trabajar con nosotros. Hemos recibido tu aplicación para la posición de <?php echo htmlspecialchars($vacante['titulo']); ?>.</p>
+                        <p>Revisaremos tu información y nos pondremos en contacto contigo pronto.</p>
+                        <div class="alert-actions">
+                            <a href="index.php" class="btn-primary">Volver a Vacantes</a>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Formulario de aplicación -->
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">Formulario de aplicación</h5>
+                <?php elseif ($error): ?>
+                <div class="alert alert-danger" data-aos="fade-up">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <h3>Ha ocurrido un error</h3>
+                        <p><?php echo $error; ?></p>
+                        <p>Por favor revisa la información e intenta nuevamente.</p>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form action="aplicar.php?id=<?php echo $id; ?>" method="post" enctype="multipart/form-data">
-                        <!-- Carta de presentación -->
-                        <div class="mb-4">
-                            <label for="cover_letter" class="form-label">Carta de presentación <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="cover_letter" name="cover_letter" rows="6" required><?php echo isset($_POST['cover_letter']) ? htmlspecialchars($_POST['cover_letter']) : ''; ?></textarea>
-                            <div class="form-text">
-                                Explique brevemente por qué está interesado en esta posición y por qué considera que es un buen candidato. 
-                                Incluya información relevante sobre su experiencia y habilidades que se relacionen con esta vacante.
-                            </div>
-                        </div>
-                        
-                        <!-- CV -->
-                        <div class="mb-4">
-                            <label for="resume" class="form-label">Currículum Vitae</label>
-                            
-                            <?php if (!empty($candidateProfile['cv_path'])): ?>
-                                <div class="alert alert-info mb-2">
-                                    <div class="d-flex align-items-center">
-                                        <div>
-                                            <i class="fas fa-file-pdf text-danger me-2"></i>
-                                            <strong>CV actual:</strong> 
-                                            <?php echo basename($candidateProfile['cv_path']); ?>
-                                            (Última actualización: <?php echo date('d/m/Y H:i', strtotime($candidateProfile['cv_updated_at'])); ?>)
-                                        </div>
-                                        <a href="../<?php echo $candidateProfile['cv_path']; ?>" target="_blank" class="btn btn-sm btn-outline-primary ms-auto">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </a>
+                <?php endif; ?>
+                
+                <?php if (!$success): ?>
+                <div class="application-layout" data-aos="fade-up">
+                    <div class="application-main">
+                        <form action="aplicar.php?id=<?php echo $id; ?>" method="POST" enctype="multipart/form-data" class="application-form" id="application-form">
+                            <!-- Información Personal -->
+                            <div class="form-section">
+                                <h3>Información Personal</h3>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="nombre" class="form-label">Nombre <span class="required-mark">*</span></label>
+                                        <input type="text" id="nombre" name="nombre" class="form-control" value="<?php echo htmlspecialchars($formData['nombre'] ?? ''); ?>" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="apellido" class="form-label">Apellido <span class="required-mark">*</span></label>
+                                        <input type="text" id="apellido" name="apellido" class="form-control" value="<?php echo htmlspecialchars($formData['apellido'] ?? ''); ?>" required>
                                     </div>
                                 </div>
-                            <?php endif; ?>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="email" class="form-label">Email <span class="required-mark">*</span></label>
+                                        <input type="email" id="email" name="email" class="form-control" value="<?php echo htmlspecialchars($formData['email'] ?? ''); ?>" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="telefono" class="form-label">Teléfono <span class="required-mark">*</span></label>
+                                        <input type="tel" id="telefono" name="telefono" class="form-control" value="<?php echo htmlspecialchars($formData['telefono'] ?? ''); ?>" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="ubicacion" class="form-label">Ubicación</label>
+     <input type="text" id="ubicacion" name="ubicacion" class="form-control" value="<?php echo htmlspecialchars($formData['ubicacion'] ?? ''); ?>" placeholder="Ej: Santo Domingo, República Dominicana">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="linkedin" class="form-label">Perfil de LinkedIn</label>
+                                    <input type="url" id="linkedin" name="linkedin" class="form-control" value="<?php echo htmlspecialchars($formData['linkedin'] ?? ''); ?>" placeholder="https://www.linkedin.com/in/tu-perfil">
+                                </div>
+                            </div>
                             
-                            <input type="file" class="form-control" id="resume" name="resume" accept=".pdf,.doc,.docx">
-                            <div class="form-text">
-                                <?php if (!empty($candidateProfile['cv_path'])): ?>
-                                    Opcional. Suba un nuevo CV sólo si desea actualizar el existente.
-                                <?php else: ?>
-                                    Suba su CV en formato PDF, DOC o DOCX (máximo 5MB).
+                            <!-- CV y Carta de Presentación -->
+                            <div class="form-section">
+                                <h3>Documentos</h3>
+                                
+                                <div class="form-group">
+                                    <label for="cv" class="form-label">Curriculum Vitae (CV) <span class="required-mark">*</span></label>
+                                    <div class="file-upload-container">
+                                        <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required>
+                                        <div class="file-upload-icon">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                        </div>
+                                        <div class="file-upload-text">
+                                            <span id="file-name">Arrastra y suelta tu CV o haz clic para seleccionar</span>
+                                        </div>
+                                        <div class="file-format-text">
+                                            Formatos aceptados: PDF, DOC, DOCX (Máx: 5MB)
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="carta_presentacion" class="form-label">Carta de Presentación</label>
+                                    <textarea id="carta_presentacion" name="carta_presentacion" class="form-control" rows="5" placeholder="Cuéntanos por qué estás interesado en esta posición y por qué serías un buen candidato"><?php echo htmlspecialchars($formData['carta_presentacion'] ?? ''); ?></textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- Experiencia Laboral -->
+                            <div class="form-section">
+                                <h3>Experiencia Laboral</h3>
+                                
+                                <div class="form-group">
+                                    <label for="experiencia" class="form-label">Años de experiencia relacionada</label>
+                                    <select id="experiencia" name="experiencia" class="form-control">
+                                        <option value="" <?php echo !isset($formData['experiencia']) || $formData['experiencia'] === '' ? 'selected' : ''; ?>>Selecciona una opción</option>
+                                        <option value="menos-1" <?php echo isset($formData['experiencia']) && $formData['experiencia'] === 'menos-1' ? 'selected' : ''; ?>>Menos de 1 año</option>
+                                        <option value="1-3" <?php echo isset($formData['experiencia']) && $formData['experiencia'] === '1-3' ? 'selected' : ''; ?>>1-3 años</option>
+                                        <option value="3-5" <?php echo isset($formData['experiencia']) && $formData['experiencia'] === '3-5' ? 'selected' : ''; ?>>3-5 años</option>
+                                        <option value="5-10" <?php echo isset($formData['experiencia']) && $formData['experiencia'] === '5-10' ? 'selected' : ''; ?>>5-10 años</option>
+                                        <option value="mas-10" <?php echo isset($formData['experiencia']) && $formData['experiencia'] === 'mas-10' ? 'selected' : ''; ?>>Más de 10 años</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="empresa_actual" class="form-label">Empresa actual o más reciente</label>
+                                    <input type="text" id="empresa_actual" name="empresa_actual" class="form-control" value="<?php echo htmlspecialchars($formData['empresa_actual'] ?? ''); ?>">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="cargo_actual" class="form-label">Cargo actual o más reciente</label>
+                                    <input type="text" id="cargo_actual" name="cargo_actual" class="form-control" value="<?php echo htmlspecialchars($formData['cargo_actual'] ?? ''); ?>">
+                                </div>
+                            </div>
+                            
+                            <!-- Información Adicional -->
+                            <div class="form-section">
+                                <h3>Información Adicional</h3>
+                                
+                                <div class="form-group">
+                                    <label for="salario_esperado" class="form-label">Expectativa salarial (RD$)</label>
+                                    <input type="text" id="salario_esperado" name="salario_esperado" class="form-control" value="<?php echo htmlspecialchars($formData['salario_esperado'] ?? ''); ?>" placeholder="Ej: RD$ 60,000 mensuales">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="disponibilidad" class="form-label">Disponibilidad para comenzar</label>
+                                    <select id="disponibilidad" name="disponibilidad" class="form-control">
+                                        <option value="" <?php echo !isset($formData['disponibilidad']) || $formData['disponibilidad'] === '' ? 'selected' : ''; ?>>Selecciona una opción</option>
+                                        <option value="inmediata" <?php echo isset($formData['disponibilidad']) && $formData['disponibilidad'] === 'inmediata' ? 'selected' : ''; ?>>Inmediata</option>
+                                        <option value="2-semanas" <?php echo isset($formData['disponibilidad']) && $formData['disponibilidad'] === '2-semanas' ? 'selected' : ''; ?>>2 semanas</option>
+                                        <option value="1-mes" <?php echo isset($formData['disponibilidad']) && $formData['disponibilidad'] === '1-mes' ? 'selected' : ''; ?>>1 mes</option>
+                                        <option value="mas-1-mes" <?php echo isset($formData['disponibilidad']) && $formData['disponibilidad'] === 'mas-1-mes' ? 'selected' : ''; ?>>Más de 1 mes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">¿Cómo te enteraste de esta vacante?</label>
+                                    <div class="checkbox-group">
+                                        <input type="radio" id="fuente_web" name="fuente" value="web" <?php echo isset($formData['fuente']) && $formData['fuente'] === 'web' ? 'checked' : ''; ?>>
+                                        <label for="fuente_web">Sitio web de SolFis</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="radio" id="fuente_linkedin" name="fuente" value="linkedin" <?php echo isset($formData['fuente']) && $formData['fuente'] === 'linkedin' ? 'checked' : ''; ?>>
+                                        <label for="fuente_linkedin">LinkedIn</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="radio" id="fuente_referencia" name="fuente" value="referencia" <?php echo isset($formData['fuente']) && $formData['fuente'] === 'referencia' ? 'checked' : ''; ?>>
+                                        <label for="fuente_referencia">Referencia de un empleado</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="radio" id="fuente_otro" name="fuente" value="otro" <?php echo isset($formData['fuente']) && $formData['fuente'] === 'otro' ? 'checked' : ''; ?>>
+                                        <label for="fuente_otro">Otro</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Términos y Condiciones -->
+                            <div class="form-section">
+                                <div class="form-group">
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="terminos" name="terminos" value="1" <?php echo isset($formData['terminos']) ? 'checked' : ''; ?> required>
+                                        <label for="terminos">Acepto los <a href="../terminos.php" target="_blank">términos y condiciones</a> y la <a href="../privacidad.php" target="_blank">política de privacidad</a> <span class="required-mark">*</span></label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="subscribe" name="subscribe" value="1" <?php echo isset($formData['subscribe']) ? 'checked' : ''; ?>>
+                                        <label for="subscribe">Me gustaría recibir notificaciones de nuevas vacantes y oportunidades profesionales en SolFis</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-buttons">
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Enviar Aplicación
+                                </button>
+                                <a href="detalle.php?id=<?php echo $id; ?>" class="btn-secondary">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="application-sidebar">
+                        <div class="job-sidebar-card">
+                            <h3>Resumen de la Vacante</h3>
+                            <div class="job-summary">
+                                <div class="job-summary-item">
+                                    <span class="job-summary-label">Posición</span>
+                                    <span class="job-summary-value"><?php echo htmlspecialchars($vacante['titulo']); ?></span>
+                                </div>
+                                <div class="job-summary-item">
+                                    <span class="job-summary-label">Categoría</span>
+                                    <span class="job-summary-value"><?php echo htmlspecialchars($vacante['categoria_nombre']); ?></span>
+                                </div>
+                                <div class="job-summary-item">
+                                    <span class="job-summary-label">Ubicación</span>
+                                    <span class="job-summary-value"><?php echo htmlspecialchars($vacante['ubicacion']); ?></span>
+                                </div>
+                                <div class="job-summary-item">
+                                    <span class="job-summary-label">Modalidad</span>
+                                    <span class="job-summary-value"><?php echo ucfirst(htmlspecialchars($vacante['modalidad'])); ?></span>
+                                </div>
+                                <div class="job-summary-item">
+                                    <span class="job-summary-label">Tipo de Contrato</span>
+                                    <span class="job-summary-value"><?php echo ucfirst(str_replace('_', ' ', htmlspecialchars($vacante['tipo_contrato']))); ?></span>
+                                </div>
+                                <?php if (!empty($vacante['experiencia'])): ?>
+                                <div class="job-summary-item">
+                                    <span class="job-summary-label">Experiencia</span>
+                                    <span class="job-summary-value"><?php echo htmlspecialchars($vacante['experiencia']); ?></span>
+                                </div>
                                 <?php endif; ?>
                             </div>
                         </div>
                         
-                        <!-- Preguntas específicas de la vacante -->
-                        <?php if (!empty($questions)): ?>
-                            <h5 class="mb-3">Preguntas específicas</h5>
-                            
-                            <?php foreach ($questions as $question): ?>
-                                <div class="mb-3">
-                                    <label for="question_<?php echo $question['id']; ?>" class="form-label">
-                                        <?php echo htmlspecialchars($question['question']); ?>
-                                        <?php if ($question['required']): ?>
-                                            <span class="text-danger">*</span>
-                                        <?php endif; ?>
-                                    </label>
-                                    
-                                    <?php if ($question['type'] === 'text'): ?>
-                                        <input type="text" class="form-control" id="question_<?php echo $question['id']; ?>" name="question_<?php echo $question['id']; ?>" value="<?php echo isset($_POST['question_' . $question['id']]) ? htmlspecialchars($_POST['question_' . $question['id']]) : ''; ?>" <?php echo $question['required'] ? 'required' : ''; ?>>
-                                    
-                                    <?php elseif ($question['type'] === 'textarea'): ?>
-                                        <textarea class="form-control" id="question_<?php echo $question['id']; ?>" name="question_<?php echo $question['id']; ?>" rows="3" <?php echo $question['required'] ? 'required' : ''; ?>><?php echo isset($_POST['question_' . $question['id']]) ? htmlspecialchars($_POST['question_' . $question['id']]) : ''; ?></textarea>
-                                    
-                                    <?php elseif ($question['type'] === 'select'): ?>
-                                        <?php $options = json_decode($question['options'], true); ?>
-                                        <select class="form-select" id="question_<?php echo $question['id']; ?>" name="question_<?php echo $question['id']; ?>" <?php echo $question['required'] ? 'required' : ''; ?>>
-                                            <option value="">Seleccione una opción</option>
-                                            <?php foreach ($options as $option): ?>
-                                                <option value="<?php echo htmlspecialchars($option); ?>" <?php echo isset($_POST['question_' . $question['id']]) && $_POST['question_' . $question['id']] === $option ? 'selected' : ''; ?>>
-                                                    <?php echo htmlspecialchars($option); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    
-                                    <?php elseif ($question['type'] === 'radio'): ?>
-                                        <?php $options = json_decode($question['options'], true); ?>
-                                        <?php foreach ($options as $index => $option): ?>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="question_<?php echo $question['id']; ?>" id="question_<?php echo $question['id']; ?>_<?php echo $index; ?>" value="<?php echo htmlspecialchars($option); ?>" <?php echo isset($_POST['question_' . $question['id']]) && $_POST['question_' . $question['id']] === $option ? 'checked' : ''; ?> <?php echo $question['required'] ? 'required' : ''; ?>>
-                                                <label class="form-check-label" for="question_<?php echo $question['id']; ?>_<?php echo $index; ?>">
-                                                    <?php echo htmlspecialchars($option); ?>
-                                                </label>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    
-                                    <?php elseif ($question['type'] === 'checkbox'): ?>
-                                        <?php $options = json_decode($question['options'], true); ?>
-                                        <?php 
-                                        $selectedOptions = [];
-                                        if (isset($_POST['question_' . $question['id']])) {
-                                            $selectedOptions = is_array($_POST['question_' . $question['id']]) ? $_POST['question_' . $question['id']] : [$_POST['question_' . $question['id']]];
-                                        }
-                                        ?>
-                                        <?php foreach ($options as $index => $option): ?>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="question_<?php echo $question['id']; ?>[]" id="question_<?php echo $question['id']; ?>_<?php echo $index; ?>" value="<?php echo htmlspecialchars($option); ?>" <?php echo in_array($option, $selectedOptions) ? 'checked' : ''; ?>>
-                                                <label class="form-check-label" for="question_<?php echo $question['id']; ?>_<?php echo $index; ?>">
-                                                    <?php echo htmlspecialchars($option); ?>
-                                                </label>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                        
-                        <!-- Términos y consentimiento -->
-                        <div class="mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="consent" name="consent" required checked>
-                                <label class="form-check-label" for="consent">
-                                    Autorizo a SolFis a procesar mis datos personales para gestionar mi candidatura para esta vacante y posibles futuras oportunidades. <span class="text-danger">*</span>
-                                </label>
-                            </div>
-                            <div class="form-text">
-                                Puede consultar nuestra <a href="../politica-privacidad.php" target="_blank">Política de Privacidad</a> para más información sobre cómo tratamos sus datos personales.
-                            </div>
+                        <div class="job-sidebar-card">
+                            <h3>Tips para tu Aplicación</h3>
+                            <ul class="tips-list">
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Asegúrate de que tu CV esté actualizado y adaptado a la posición.</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>En tu carta de presentación, destaca experiencias relevantes para esta vacante.</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Sé honesto con tu experiencia y habilidades.</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Revisa tu CV en busca de errores antes de enviarlo.</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Si tienes preguntas, no dudes en contactarnos a <a href="mailto:rrhh@solfis.com.do">rrhh@solfis.com.do</a></span>
+                                </li>
+                            </ul>
                         </div>
-                        
-                        <!-- Botones de acción -->
-                        <div class="text-end">
-                            <a href="detalle.php?id=<?php echo $id; ?>" class="btn btn-outline-secondary me-2">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Enviar aplicación</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
+                <?php endif; ?>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <?php include $base_path . 'footer.html'; ?>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="<?php echo $assets_path; ?>js/components/nav.js"></script>
+    <script src="<?php echo $assets_path; ?>js/components/footer.js"></script>
+    <script src="assets/js/vacantes.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+
+        // Manejo del campo de subida de archivo
+        document.getElementById('cv')?.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || 'Arrastra y suelta tu CV o haz clic para seleccionar';
+            document.getElementById('file-name').textContent = fileName;
+        });
+        
+        // Validación del formulario
+        document.getElementById('application-form')?.addEventListener('submit', function(e) {
+            let valid = true;
+            
+            // Validar campos requeridos
+            const requiredFields = this.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    valid = false;
+                    field.classList.add('is-invalid');
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            // Validar email
+            const emailField = this.querySelector('#email');
+            if (emailField && emailField.value.trim()) {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(emailField.value.trim())) {
+                    valid = false;
+                    emailField.classList.add('is-invalid');
+                }
+            }
+            
+            // Validar CV (tamaño y formato)
+            const cvField = this.querySelector('#cv');
+            if (cvField && cvField.files.length > 0) {
+                const file = cvField.files[0];
+                const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                
+                if (!allowedTypes.includes(file.type)) {
+                    valid = false;
+                    cvField.classList.add('is-invalid');
+                    alert('El formato del CV no es válido. Por favor, sube un archivo PDF, DOC o DOCX.');
+                } else if (file.size > maxSize) {
+                    valid = false;
+                    cvField.classList.add('is-invalid');
+                    alert('El tamaño del CV excede el límite de 5MB.');
+                }
+            }
+            
+            if (!valid) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
