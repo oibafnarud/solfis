@@ -312,27 +312,39 @@ public function updateVacancy($id, $data) {
     }
 }
 
+
 	/**
-	 * Buscar candidato por email
+	 * Busca un candidato por su dirección de email
+	 * 
+	 * @param string $email Email del candidato a buscar
+	 * @return array Información sobre el resultado de la búsqueda
 	 */
 	public function findCandidateByEmail($email) {
-		$email = $this->db->escape($email);
-		
-		$sql = "SELECT * FROM candidatos WHERE email = '$email'";
-		$result = $this->db->query($sql);
-		
-		if ($result && $result->num_rows > 0) {
+		try {
+			$stmt = $this->db->prepare('SELECT * FROM candidatos WHERE email = :email LIMIT 1');
+			$stmt->bindParam(':email', $email);
+			$stmt->execute();
+			
+			$candidate = $stmt->fetch(PDO::FETCH_ASSOC);
+			
+			if ($candidate) {
+				return [
+					'success' => true, 
+					'exists' => true, 
+					'candidate' => $candidate
+				];
+			} else {
+				return [
+					'success' => true, 
+					'exists' => false
+				];
+			}
+		} catch (PDOException $e) {
 			return [
-				'success' => true,
-				'exists' => true,
-				'candidate' => $result->fetch_assoc()
+				'success' => false, 
+				'message' => 'Error al buscar candidato: ' . $e->getMessage()
 			];
 		}
-		
-		return [
-			'success' => true,
-			'exists' => false
-		];
 	}
 
 	/**

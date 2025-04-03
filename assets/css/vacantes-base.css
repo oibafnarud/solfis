@@ -198,3 +198,27 @@
         gap: var(--spacing-sm);
     }
 }
+
+/* Ajustes a CSS base para vacantes */
+main {
+    padding-top: 80px; /* Espacio para el menú fijo */
+}
+
+/* Mejoras de espaciado en contenedores */
+.container {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Mejoras en las breadcrumbs */
+.breadcrumbs {
+    margin-bottom: 30px;
+    padding: 15px 0;
+}
+
+/* Ajustes para móviles */
+@media (max-width: 768px) {
+    main {
+        padding-top: 60px;
+    }
+}
