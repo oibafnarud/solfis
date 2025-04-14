@@ -41,6 +41,38 @@ if (!$testManager) {
     $error = "El sistema de evaluaciones no está disponible en este momento. Por favor, intente más tarde.";
 }
 
+if (isset($candidato_id) && $candidato_id > 0) {
+    $db = Database::getInstance();
+    
+    // Consulta directa a la base de datos
+    $sql = "SELECT s.id as sesion_id, s.prueba_id, s.estado, s.fecha_inicio, s.fecha_fin, s.resultado_global,
+                   p.titulo as prueba_titulo, p.descripcion as prueba_descripcion,
+                   c.nombre as categoria_nombre
+            FROM sesiones_prueba s
+            JOIN pruebas p ON s.prueba_id = p.id
+            LEFT JOIN pruebas_categorias c ON p.categoria_id = c.id
+            WHERE s.candidato_id = $candidato_id
+            AND s.estado = 'completada'
+            ORDER BY s.fecha_fin DESC";
+            
+    $result = $db->query($sql);
+    
+    // Si la consulta directa encuentra resultados pero $pruebasCompletadas está vacío,
+    // reemplazamos la variable con estos resultados
+    if ($result && $result->num_rows > 0) {
+        $directCompletadas = [];
+        while ($row = $result->fetch_assoc()) {
+            $directCompletadas[] = $row;
+        }
+        
+        // Si hay resultados directos pero el array de pruebas completadas está vacío
+        if (!empty($directCompletadas) && empty($pruebasCompletadas)) {
+            $pruebasCompletadas = $directCompletadas;
+            $pruebasCompletadasCount = count($pruebasCompletadas);
+        }
+    }
+}
+
 // Calcular progreso general de pruebas
 $pruebasPendientesCount = is_array($pruebasPendientes) ? count($pruebasPendientes) : 0;
 $pruebasEnProgresoCount = is_array($pruebasEnProgreso) ? count($pruebasEnProgreso) : 0;
@@ -53,9 +85,9 @@ $progresoGeneral = $totalPruebas > 0 ? round(($pruebasCompletadasCount / $totalP
 $pageTitle = "Mis Evaluaciones - SolFis Talentos";
 
 // Determinar la pestaña activa
-$tab = isset($_GET['tab']) ? $_GET['tab'] : 'pendientes';
+$tab = isset($_GET['tab']) ? $_GET['tab'] : 'completadas'; // Por defecto mostrar completadas
 if ($tab !== 'pendientes' && $tab !== 'progreso' && $tab !== 'completadas') {
-    $tab = 'pendientes';
+    $tab = 'completadas';
 }
 ?>
 <!DOCTYPE html>
@@ -152,17 +184,17 @@ if ($tab !== 'pendientes' && $tab !== 'progreso' && $tab !== 'completadas') {
                 </div>
                 <?php else: ?>
                 
-                <div class="tests-tabs">
-                    <div class="tab-item <?php echo $tab === 'pendientes' ? 'active' : ''; ?>" data-tab="pendientes">
-                        <i class="fas fa-hourglass-half"></i> Pendientes (<?php echo $pruebasPendientesCount; ?>)
-                    </div>
-                    <div class="tab-item <?php echo $tab === 'progreso' ? 'active' : ''; ?>" data-tab="progreso">
-                        <i class="fas fa-spinner"></i> En Progreso (<?php echo $pruebasEnProgresoCount; ?>)
-                    </div>
-                    <div class="tab-item <?php echo $tab === 'completadas' ? 'active' : ''; ?>" data-tab="completadas">
-                        <i class="fas fa-check-circle"></i> Completadas (<?php echo $pruebasCompletadasCount; ?>)
-                    </div>
-                </div>
+			<div class="tests-tabs">
+				<div class="tab-item <?php echo $tab === 'pendientes' ? 'active' : ''; ?>" data-tab="pendientes">
+					<i class="fas fa-hourglass-half"></i> Pendientes (<?php echo $pruebasPendientesCount; ?>)
+				</div>
+				<div class="tab-item <?php echo $tab === 'progreso' ? 'active' : ''; ?>" data-tab="progreso">
+					<i class="fas fa-spinner"></i> En Progreso (<?php echo $pruebasEnProgresoCount; ?>)
+				</div>
+				<div class="tab-item <?php echo $tab === 'completadas' ? 'active' : ''; ?>" data-tab="completadas">
+					<i class="fas fa-check-circle"></i> Completadas (<?php echo $pruebasCompletadasCount; ?>)
+				</div>
+			</div>
                 
                 <!-- Tab de Pruebas Pendientes -->
                 <div class="tab-content <?php echo $tab === 'pendientes' ? 'active' : ''; ?>" id="tab-pendientes">
@@ -244,86 +276,93 @@ if ($tab !== 'pendientes' && $tab !== 'progreso' && $tab !== 'completadas') {
                     <?php endif; ?>
                 </div>
                 
-                <!-- Tab de Pruebas Completadas -->
-                <div class="tab-content <?php echo $tab === 'completadas' ? 'active' : ''; ?>" id="tab-completadas">
-                    <?php if (empty($pruebasCompletadas)): ?>
-                    <div class="empty-state">
-                        <i class="fas fa-clipboard-check"></i>
-                        <h3>Aún no has completado ninguna evaluación</h3>
-                        <p>Cuando completes una evaluación, podrás ver sus resultados aquí.</p>
-                    </div>
-                    <?php else: ?>
-                    <?php foreach ($pruebasCompletadas as $prueba): ?>
-                    <div class="test-card animate-fade-in">
-                        <div class="test-card-header">
-                            <h2><?php echo isset($prueba['prueba_titulo']) ? htmlspecialchars($prueba['prueba_titulo']) : 'Evaluación completada'; ?></h2>
-                            <span class="test-status completed">Completada</span>
-                        </div>
-                        <div class="test-card-body">
-                            <?php if (isset($prueba['resultado_global'])): ?>
-                            <div class="test-result">
-                                <div class="result-score"><?php echo $prueba['resultado_global']; ?>%</div>
-                                <div class="result-label">Resultado global</div>
-                            </div>
-                            <?php endif; ?>
-                            
-                            <div class="test-meta">
-                                <div class="test-meta-item">
-                                    <i class="fas fa-calendar-check"></i>
-                                    <span>Completada: <?php echo isset($prueba['fecha_fin']) ? date('d/m/Y', strtotime($prueba['fecha_fin'])) : 'Fecha desconocida'; ?></span>
-                                </div>
-                                <?php if (isset($prueba['fecha_inicio']) && isset($prueba['fecha_fin'])): ?>
-                                <div class="test-meta-item">
-                                    <i class="fas fa-clock"></i>
-                                    <span>Duración: <?php 
-                                        $inicio = new DateTime($prueba['fecha_inicio']);
-                                        $fin = new DateTime($prueba['fecha_fin']);
-                                        $interval = $inicio->diff($fin);
-                                        echo $interval->format('%h horas %i minutos');
-                                    ?></span>
-                                </div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="test-card-actions">
-                                <a href="resultado-prueba.php?sesion_id=<?php echo isset($prueba['sesion_id']) ? $prueba['sesion_id'] : $prueba['id']; ?>" class="btn btn-primary">
-                                    <i class="fas fa-chart-pie"></i> Ver Resultados
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-                
+			<!-- Tab de Pruebas Completadas - versión corregida -->
+			<div class="tab-content <?php echo $tab === 'completadas' ? 'active' : ''; ?>" id="tab-completadas">
+				<?php if (empty($pruebasCompletadas)): ?>
+				<div class="empty-state">
+					<i class="fas fa-clipboard-check"></i>
+					<h3>Aún no has completado ninguna evaluación</h3>
+					<p>Cuando completes una evaluación, podrás ver sus resultados aquí.</p>
+				</div>
+				<?php else: ?>
+				<?php foreach ($pruebasCompletadas as $prueba): ?>
+				<div class="test-card animate-fade-in">
+					<div class="test-card-header">
+						<h2><?php echo isset($prueba['prueba_titulo']) ? htmlspecialchars($prueba['prueba_titulo']) : 'Evaluación completada'; ?></h2>
+						<span class="test-status completed">Completada</span>
+					</div>
+					<div class="test-card-body">
+						<div class="test-result">
+							<div class="result-score"><?php echo isset($prueba['resultado_global']) ? $prueba['resultado_global'] : 0; ?>%</div>
+							<div class="result-label">Resultado global</div>
+						</div>
+						
+						<div class="test-meta">
+							<div class="test-meta-item">
+								<i class="fas fa-calendar-check"></i>
+								<span>Completada: <?php echo isset($prueba['fecha_fin']) ? date('d/m/Y', strtotime($prueba['fecha_fin'])) : date('d/m/Y'); ?></span>
+							</div>
+							<?php if (isset($prueba['fecha_inicio']) && isset($prueba['fecha_fin'])): ?>
+							<div class="test-meta-item">
+								<i class="fas fa-clock"></i>
+								<span>Duración: <?php 
+									try {
+										$inicio = new DateTime($prueba['fecha_inicio']);
+										$fin = new DateTime($prueba['fecha_fin']);
+										$interval = $inicio->diff($fin);
+										echo $interval->format('%h horas %i minutos');
+									} catch (Exception $e) {
+										echo "No disponible";
+									}
+								?></span>
+							</div>
+							<?php endif; ?>
+						</div>
+						<div class="test-card-actions">
+							<a href="resultado-prueba.php?sesion_id=<?php echo isset($prueba['sesion_id']) ? $prueba['sesion_id'] : $prueba['id']; ?>" class="btn btn-primary">
+								<i class="fas fa-chart-pie"></i> Ver Resultados
+							</a>
+						</div>
+					</div>
+				</div>
+				<?php endforeach; ?>
+				<?php endif; ?>
+			</div>
+						
                 <?php endif; ?>
             </div>
         </main>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Funcionalidad de las pestañas
-            const tabItems = document.querySelectorAll('.tab-item');
-            const tabContents = document.querySelectorAll('.tab-content');
-            
-            tabItems.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-                    
-                    // Actualizar URL
-                    const url = new URL(window.location);
-                    url.searchParams.set('tab', tabId);
-                    window.history.pushState({}, '', url);
-                    
-                    // Activar pestaña y contenido
-                    tabItems.forEach(item => item.classList.remove('active'));
-                    tabContents.forEach(content => content.classList.remove('active'));
-                    
-                    this.classList.add('active');
-                    document.getElementById('tab-' + tabId).classList.add('active');
-                });
-            });
-        });
-    </script>
+	<!-- Código JavaScript para manejar las pestañas correctamente -->
+	<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		// Funcionalidad de las pestañas
+		const tabItems = document.querySelectorAll('.tab-item');
+		const tabContents = document.querySelectorAll('.tab-content');
+		
+		tabItems.forEach(tab => {
+			tab.addEventListener('click', function() {
+				const tabId = this.getAttribute('data-tab');
+				
+				// Actualizar URL
+				const url = new URL(window.location);
+				url.searchParams.set('tab', tabId);
+				window.history.pushState({}, '', url);
+				
+				// Activar pestaña y contenido
+				tabItems.forEach(item => item.classList.remove('active'));
+				tabContents.forEach(content => content.classList.remove('active'));
+				
+				this.classList.add('active');
+				document.getElementById('tab-' + tabId).classList.add('active');
+			});
+		});
+		
+		// Verificar las pestañas al cargar
+		console.log('Pestañas activas:', document.querySelectorAll('.tab-item.active').length);
+		console.log('Contenidos activos:', document.querySelectorAll('.tab-content.active').length);
+	});
+	</script>
 </body>
 </html>
