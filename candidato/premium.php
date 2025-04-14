@@ -48,7 +48,7 @@ $pageTitle = 'Servicios Premium - Resultados y Desarrollo Profesional';
     
     <div class="dashboard-container">
         <!-- Sidebar -->
-        <?php include 'includes/sidebar.php'; ?>
+        <?php include 'includes/sidebar-fix.php'; ?>
         
         <main class="dashboard-content">
             <div class="content-header">

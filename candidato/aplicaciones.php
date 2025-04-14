@@ -514,7 +514,7 @@ $site_title = "Mis Aplicaciones - SolFis Talentos";
     
     <div class="dashboard-container">
         <!-- Sidebar -->
-        <?php include 'includes/sidebar.php'; ?>
+        <?php include 'includes/sidebar-fix.php'; ?>
         
         <main class="dashboard-content">
             <div class="content-header">

@@ -586,7 +586,7 @@ $site_title = "Detalle de Aplicación - SolFis Talentos";
     
     <div class="dashboard-container">
         <!-- Sidebar -->
-        <?php include 'includes/sidebar.php'; ?>
+        <?php include 'includes/sidebar-fix.php'; ?>
         
         <main class="dashboard-content">
             <div class="breadcrumbs animate-fade-in" style="margin-bottom: 1.5rem;">

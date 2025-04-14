@@ -825,7 +825,7 @@ $site_title = htmlspecialchars($vacante['titulo']) . " - SolFis Talentos";
     
     <div class="dashboard-container">
         <!-- Sidebar -->
-        <?php include 'includes/sidebar.php'; ?>
+       <?php include 'includes/sidebar-fix.php'; ?>
         
         <main class="dashboard-content">
             <div class="breadcrumbs mb-3 animate-fade-in">

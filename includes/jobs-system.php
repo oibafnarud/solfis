@@ -15,48 +15,50 @@ if (file_exists(__DIR__ . '/EmailSender.php')) {
  * del sistema de vacantes, incluyendo modelos para todas las entidades.
  */
 	// Clase para gestionar la base de datos (singleton)
-	class Database {
-		private $connection;
-		private static $instance;
-		
-		private function __construct() {
-			// Incluir archivo de configuración si no están definidas las constantes
-			if (!defined('DB_HOST')) {
-				// Incluir el archivo config.php que contiene las constantes de la base de datos
-				require_once __DIR__ . '/../config.php';
+	if (!class_exists('Database')) {
+		class Database {
+			private $connection;
+			private static $instance;
+			
+			private function __construct() {
+				// Incluir archivo de configuración si no están definidas las constantes
+				if (!defined('DB_HOST')) {
+					// Incluir el archivo config.php que contiene las constantes de la base de datos
+					require_once __DIR__ . '/../config.php';
+				}
+				
+				// Establecer conexión
+				$this->connection = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+				
+				if ($this->connection->connect_error) {
+					die('Error de conexión: ' . $this->connection->connect_error);
+				}
+				
+				$this->connection->set_charset("utf8mb4");
 			}
 			
-			// Establecer conexión
-			$this->connection = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-			
-			if ($this->connection->connect_error) {
-				die('Error de conexión: ' . $this->connection->connect_error);
+			public static function getInstance() {
+				if (!self::$instance) {
+					self::$instance = new self();
+				}
+				return self::$instance;
 			}
 			
-			$this->connection->set_charset("utf8mb4");
-		}
-		
-		public static function getInstance() {
-			if (!self::$instance) {
-				self::$instance = new self();
+			public function getConnection() {
+				return $this->connection;
 			}
-			return self::$instance;
-		}
-		
-		public function getConnection() {
-			return $this->connection;
-		}
-		
-		public function query($sql) {
-			return $this->connection->query($sql);
-		}
-		
-		public function escape($string) {
-			return $this->connection->real_escape_string($string);
-		}
-		
-		public function lastInsertId() {
-			return $this->connection->insert_id;
+			
+			public function query($sql) {
+				return $this->connection->query($sql);
+			}
+			
+			public function escape($string) {
+				return $this->connection->real_escape_string($string);
+			}
+			
+			public function lastInsertId() {
+				return $this->connection->insert_id;
+			}
 		}
 	}
 
@@ -64,7 +66,7 @@ if (file_exists(__DIR__ . '/EmailSender.php')) {
 // Si ya existe una clase Database en blog-system.php, puedes comentar esta
 // Clase para gestionar la base de datos (usando la misma conexión del sistema)
 
-class VacanciesDatabase {
+/**class VacanciesDatabase {
     private $connection;
     private static $instance;
     
@@ -107,7 +109,7 @@ class VacanciesDatabase {
     public function lastInsertId() {
         return $this->connection->insert_id;
     }
-}
+}*/
 
 /**
  * Clase para gestionar vacantes
@@ -116,12 +118,8 @@ class VacancyManager {
     public $db; // Cambiado a público para facilitar el acceso
     
     public function __construct() {
-        // Intentar usar la clase Database existente, si no, usar VacanciesDatabase
-        if (class_exists('Database')) {
-            $this->db = Database::getInstance();
-        } else {
-            $this->db = VacanciesDatabase::getInstance();
-        }
+        // Usar siempre la clase Database
+        $this->db = Database::getInstance();
     }
     
     /**
@@ -346,18 +344,18 @@ class VacancyManager {
     /**
      * Obtener una vacante por su ID
      */
-		public function getVacancyById($id) {
-			$id = (int)$id;
-			
-			$sql = "SELECT v.*, c.nombre as categoria_nombre 
-					FROM vacantes v
-					LEFT JOIN categorias_vacantes c ON v.categoria_id = c.id
-					WHERE v.id = $id";
-					
-			$result = $this->db->query($sql);
-			
-			return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
-		}
+	public function getVacancyById($id) {
+		$id = (int)$id;
+		
+		$sql = "SELECT v.*, c.nombre as categoria_nombre 
+				FROM vacantes v
+				LEFT JOIN categorias_vacantes c ON v.categoria_id = c.id
+				WHERE v.id = $id";
+				
+		$result = $this->db->query($sql);
+		
+		return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
+	}
     
     /**
      * Actualizar una vacante existente

@@ -11,7 +11,7 @@ if (!isset($_SESSION['candidato_id'])) {
 // Incluir archivos necesarios
 require_once '../includes/jobs-system.php';
 
-// Instanciar clases necesarias
+// Instanciar gestores necesarios
 $candidateManager = new CandidateManager();
 $vacancyManager = new VacancyManager();
 
@@ -28,6 +28,8 @@ $pruebasPendientesCount = 0;
 $pruebasEnProgresoCount = 0;
 $pruebasCompletadasCount = 0;
 $progresoGeneral = 0;
+$resultado_global = 0;
+$perfil_tipo = '';
 
 // Comprobar si existe el archivo TestManager.php
 if (file_exists(__DIR__ . '/../includes/TestManager.php')) {
@@ -42,15 +44,60 @@ if (file_exists(__DIR__ . '/../includes/TestManager.php')) {
             $pruebasEnProgreso = $testManager->getInProgressTests($candidato_id);
             $pruebasCompletadas = $testManager->getCompletedTests($candidato_id);
             
+            // Asegurar que todos son arrays
+            $pruebasPendientes = is_array($pruebasPendientes) ? $pruebasPendientes : [];
+            $pruebasEnProgreso = is_array($pruebasEnProgreso) ? $pruebasEnProgreso : [];
+            $pruebasCompletadas = is_array($pruebasCompletadas) ? $pruebasCompletadas : [];
+            
             // Contar correctamente
-            $pruebasPendientesCount = is_array($pruebasPendientes) ? count($pruebasPendientes) : 0;
-            $pruebasEnProgresoCount = is_array($pruebasEnProgreso) ? count($pruebasEnProgreso) : 0;
-            $pruebasCompletadasCount = is_array($pruebasCompletadas) ? count($pruebasCompletadas) : 0;
+            $pruebasPendientesCount = count($pruebasPendientes);
+            $pruebasEnProgresoCount = count($pruebasEnProgreso);
+            $pruebasCompletadasCount = count($pruebasCompletadas);
             
             $totalPruebas = $pruebasPendientesCount + $pruebasEnProgresoCount + $pruebasCompletadasCount;
             
             // Calcular progreso general
             $progresoGeneral = $totalPruebas > 0 ? round(($pruebasCompletadasCount / $totalPruebas) * 100) : 0;
+            
+            // Calcular resultado global promediando todos los resultados
+            if (!empty($pruebasCompletadas)) {
+                $total_resultados = 0;
+                $count_resultados = 0;
+                
+                foreach ($pruebasCompletadas as $prueba) {
+                    if (isset($prueba['resultado_global']) && is_numeric($prueba['resultado_global'])) {
+                        $total_resultados += $prueba['resultado_global'];
+                        $count_resultados++;
+                    }
+                }
+                
+                if ($count_resultados > 0) {
+                    $resultado_global = round($total_resultados / $count_resultados);
+                    
+                    // Determinar tipo de perfil según el resultado global
+                    if ($resultado_global >= 90) {
+                        $perfil_tipo = 'Sobresaliente';
+                        $perfil_descripcion = 'Has demostrado habilidades y competencias excepcionales en todas las áreas evaluadas.';
+                        $perfil_class = 'sobresaliente';
+                    } elseif ($resultado_global >= 75) {
+                        $perfil_tipo = 'Avanzado';
+                        $perfil_descripcion = 'Tu perfil muestra un alto nivel de competencia y habilidades bien desarrolladas.';
+                        $perfil_class = 'avanzado';
+                    } elseif ($resultado_global >= 60) {
+                        $perfil_tipo = 'Competente';
+                        $perfil_descripcion = 'Demuestras un buen nivel de habilidades, con algunas áreas destacadas y otras por desarrollar.';
+                        $perfil_class = 'competente';
+                    } elseif ($resultado_global >= 40) {
+                        $perfil_tipo = 'En desarrollo';
+                        $perfil_descripcion = 'Tu perfil muestra potencial, con áreas específicas que requieren más desarrollo.';
+                        $perfil_class = 'desarrollo';
+                    } else {
+                        $perfil_tipo = 'Inicial';
+                        $perfil_descripcion = 'Estás en las etapas iniciales de desarrollo de las habilidades evaluadas.';
+                        $perfil_class = 'inicial';
+                    }
+                }
+            }
         }
     }
 }
@@ -116,534 +163,616 @@ $site_title = "Panel de Candidato - SolFis Talentos";
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="css/candidato.css">
     
+    <!-- Fuentes y íconos -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Estilos adicionales específicos para el panel -->
     <style>
-        /* Estilos para la tarjeta de progreso */
-        .progress-overview {
-            background-color: #f0f8ff;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        /* Estilos para el panel mejorado */
+        .welcome-banner {
+            background: linear-gradient(135deg, #0088cc, #003366);
+            border-radius: 15px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
-
-        .overview-header {
+        
+        .welcome-content {
+            flex: 1;
+        }
+        
+        .welcome-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .welcome-stat {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            flex: 1;
+            min-width: 120px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .welcome-stat h3 {
+            margin: 0 0 5px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+        
+        .welcome-stat p {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .welcome-actions {
+            margin-left: 30px;
+        }
+        
+        .profile-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .perfil-header {
+            padding: 20px;
+            border-bottom: 1px solid #eef2f7;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
         }
-
-        .overview-header h2 {
-            font-size: 1.2rem;
-            color: #003366;
+        
+        .perfil-header h2 {
             margin: 0;
+            font-size: 1.2rem;
+            color: #333;
             display: flex;
             align-items: center;
         }
-
-        .overview-header h2 i {
+        
+        .perfil-header h2 i {
             margin-right: 10px;
-        }
-
-        .progress-percentage {
-            font-size: 1.1rem;
-            font-weight: 600;
             color: #0088cc;
         }
-
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 20px;
+        
+        .perfil-body {
+            padding: 20px;
         }
-
+        
+        .perfil-body p {
+            margin-top: 0;
+        }
+        
+        .perfil-completion {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .perfil-completion span {
+            font-weight: 500;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #eef2f7;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
         .progress-fill {
             height: 100%;
             background-color: #0088cc;
-            border-radius: 5px;
+            border-radius: 4px;
         }
-
-        .progress-stats {
+        
+        .progress-fill.success {
+            background-color: #36b37e;
+        }
+        
+        .progress-fill.warning {
+            background-color: #ffab00;
+        }
+        
+        .missing-items {
+            font-size: 0.9rem;
+        }
+        
+        .missing-items ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .missing-items li {
+            margin-bottom: 5px;
+            color: #6b7280;
+        }
+        
+        .results-card {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 20px;
+        }
+        
+        .test-chart-container {
+            position: relative;
             display: flex;
-            justify-content: space-around;
-            text-align: center;
+            align-items: center;
+            justify-content: center;
         }
-
-        .stat-item {
-            padding: 0 15px;
-        }
-
-        .stat-value {
-            font-size: 2rem;
+        
+        .chart-score {
+            position: absolute;
+            font-size: 1.8rem;
             font-weight: 700;
-            color: #003366;
-            line-height: 1;
+            color: #0088cc;
         }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-top: 5px;
+        
+        .test-results-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-
-        /* Estilos para el listado de pruebas */
-        .test-list {
-            margin-bottom: 20px;
+        
+        .profile-type {
+            margin-bottom: 15px;
         }
-
-        .test-item {
+        
+        .profile-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .profile-badge.sobresaliente {
+            background-color: #e3f9e5;
+            color: #22863a;
+        }
+        
+        .profile-badge.avanzado {
+            background-color: #def0fc;
+            color: #0366d6;
+        }
+        
+        .profile-badge.competente {
+            background-color: #fff8c5;
+            color: #b08800;
+        }
+        
+        .profile-badge.desarrollo {
+            background-color: #ffebe9;
+            color: #d73a49;
+        }
+        
+        .profile-badge.inicial {
+            background-color: #f6f8fa;
+            color: #6a737d;
+        }
+        
+        .dashboard-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 20px;
         }
-
-        .test-item:last-child {
-            border-bottom: none;
+        
+        .section-header h2 {
+            margin: 0;
+            font-size: 1.3rem;
+            color: #333;
         }
-
-        .test-info h3 {
-            margin: 0 0 5px;
-            font-size: 1rem;
-            color: #212529;
-        }
-
-        .test-meta {
-            font-size: 0.85rem;
-            color: #6c757d;
-        }
-
-        .test-meta span {
-            display: inline-flex;
-            align-items: center;
-            margin-right: 15px;
-        }
-
-        .test-meta span i {
-            margin-right: 5px;
-        }
-
-        .btn-primary {
-            background-color: #0088cc;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+        
+        .section-header a {
+            color: #0088cc;
             font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            transition: background-color 0.2s;
         }
-
-        .btn-primary:hover {
-            background-color: #0077b3;
+        
+        .section-header a i {
+            margin-left: 5px;
+            font-size: 0.9rem;
         }
-
-        .view-all {
-            text-align: right;
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .aplication-card, .vacancy-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .aplication-card:hover, .vacancy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .aplication-card-header {
+            padding: 20px;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #eef2f7;
+        }
+        
+        .aplication-card-header h3, .vacancy-card-header h3 {
+            margin: 0 0 10px;
+            font-size: 1.1rem;
+        }
+        
+        .vacancy-card-header {
+            padding: 20px;
+            border-bottom: 1px solid #eef2f7;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.received {
+            background-color: #def0fc;
+            color: #0366d6;
+        }
+        
+        .status-badge.review {
+            background-color: #fff8c5;
+            color: #b08800;
+        }
+        
+        .status-badge.interview {
+            background-color: #e3f9e5;
+            color: #22863a;
+        }
+        
+        .status-badge.rejected {
+            background-color: #ffebe9;
+            color: #d73a49;
+        }
+        
+        .aplication-card-body, .vacancy-card-body {
+            padding: 20px;
+            flex: 1;
+        }
+        
+        .aplication-meta, .vacancy-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .meta-item i {
+            margin-right: 5px;
+            color: #0088cc;
+            font-size: 0.85rem;
+        }
+        
+        .match-indicator {
+            display: flex;
+            align-items: center;
             margin-top: 10px;
         }
-
-        .btn-link {
+        
+        .match-value {
+            font-weight: 600;
             color: #0088cc;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .btn-link i {
-            margin-left: 5px;
+            margin-right: 10px;
         }
         
-        /* Estilos para el botón Iniciar */
-        .btn-accent {
-            background-color: #ff9900;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            transition: background-color 0.2s;
+        .match-bar {
+            flex: 1;
+            height: 6px;
+            background-color: #eef2f7;
+            border-radius: 3px;
+            overflow: hidden;
         }
         
-        .btn-accent:hover {
-            background-color: #e68a00;
+        .match-fill {
+            height: 100%;
+            border-radius: 3px;
         }
         
-        /* Estilos adicionales para botones */
-        .btn-secondary {
-            background-color: #17a2b8;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            transition: background-color 0.2s;
+        .match-fill.high {
+            background-color: #36b37e;
         }
         
-        .btn-secondary:hover {
-            background-color: #138496;
-        }
-        
-        .btn-outline-primary {
-            background-color: transparent;
-            color: #0088cc;
-            border: 1px solid #0088cc;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            transition: all 0.2s;
-        }
-        
-        .btn-outline-primary:hover {
+        .match-fill.medium {
             background-color: #0088cc;
-            color: white;
         }
         
-        /* Estilos para tarjetas */
-        .card-header.light-primary {
-            background-color: rgba(0, 51, 102, 0.1);
-            color: #003366;
+        .match-fill.low {
+            background-color: #ffab00;
         }
         
-        .card-header.light-secondary {
-            background-color: rgba(0, 136, 204, 0.1);
+        .aplication-card-footer, .vacancy-card-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eef2f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .aplication-date, .vacancy-date {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .chart-container {
+            margin-top: 20px;
+            height: 200px;
+        }
+        
+        .highlights-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .highlights-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .highlights-header h2 {
+            margin: 0;
+            font-size: 1.3rem;
+            color: #333;
+        }
+        
+        .highlights-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .highlight-card {
+            border: 1px solid #eef2f7;
+            border-radius: 10px;
+            padding: 15px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .highlight-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .highlight-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .highlight-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #def0fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .highlight-icon i {
             color: #0088cc;
+            font-size: 1.1rem;
         }
         
-        .card-header.light-accent {
-            background-color: rgba(255, 153, 0, 0.1);
-            color: #ff9900;
+        .highlight-title {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .highlight-content {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .action-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #f0f7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+        
+        .action-icon i {
+            color: #0088cc;
+            font-size: 1.5rem;
+        }
+        
+        .action-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .action-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        /* Estilos responsivos */
+        @media (max-width: 768px) {
+            .welcome-banner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .welcome-stats {
+                margin-top: 20px;
+                gap: 10px;
+            }
+            
+            .welcome-stat {
+                min-width: 100px;
+                padding: 12px;
+            }
+            
+            .welcome-actions {
+                margin-left: 0;
+                margin-top: 20px;
+                width: 100%;
+            }
+            
+            .welcome-actions .btn {
+                width: 100%;
+            }
+            
+            .profile-summary {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .test-chart-container {
+                margin-bottom: 20px;
+            }
+            
+            .highlights-container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
-    
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Navbar -->
-    <header class="dashboard-navbar">
-        <div class="navbar-container">
-            <a href="panel.php" class="navbar-brand">
-                <img src="../assets/img/logo.png" alt="SolFis Logo">
-            </a>
-            
-            <div class="navbar-nav">
-                <div class="nav-item">
-                    <a href="vacantes.php" class="nav-link">
-                        <i class="fas fa-briefcase"></i> Vacantes
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="fas fa-bell"></i>
-                    </a>
-                </div>
-                
-                <div class="nav-item dropdown">
-                    <div class="dropdown-toggle" id="userDropdown">
-                        <?php if (!empty($candidato['foto_path'])): ?>
-                        <img src="../uploads/profile_photos/<?php echo $candidato['foto_path']; ?>" alt="<?php echo $candidato['nombre']; ?>">
-                        <?php else: ?>
-                        <i class="fas fa-user-circle fa-2x"></i>
-                        <?php endif; ?>
-                        <span><?php echo $candidato['nombre']; ?></span>
-                    </div>
-                    
-                    <div class="dropdown-menu" id="userMenu">
-                        <a href="profile.php" class="dropdown-item">
-                            <i class="fas fa-user"></i> Mi Perfil
-                        </a>
-                        <a href="pruebas.php" class="dropdown-item">
-                            <i class="fas fa-clipboard-check"></i> Mis Evaluaciones
-                        </a>
-                        <a href="aplicaciones.php" class="dropdown-item">
-                            <i class="fas fa-briefcase"></i> Mis Aplicaciones
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="configuracion.php" class="dropdown-item">
-                            <i class="fas fa-cog"></i> Configuración
-                        </a>
-                        <a href="logout.php" class="dropdown-item">
-                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+    <?php include 'includes/navbar.php'; ?>
     
     <div class="dashboard-container">
         <!-- Sidebar -->
-        <aside class="dashboard-sidebar">
-            <ul class="sidebar-menu">
-                <li class="sidebar-item">
-                    <a href="panel.php" class="sidebar-link active">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Panel Principal</span>
-                    </a>
-                </li>
-                
-                <li class="sidebar-item">
-                    <a href="profile.php" class="sidebar-link">
-                        <i class="fas fa-user"></i>
-                        <span>Mi Perfil</span>
-                    </a>
-                </li>
-                
-                <li class="sidebar-category">Evaluaciones</li>
-                
-                <li class="sidebar-item">
-                    <a href="pruebas.php" class="sidebar-link">
-                        <i class="fas fa-clipboard-check"></i>
-                        <span>Mis Evaluaciones</span>
-                    </a>
-                </li>
-                
-                <?php if (isset($pruebasPendientes) && !empty($pruebasPendientes)): ?>
-                <li class="sidebar-item">
-                    <a href="pruebas-pendientes.php" class="sidebar-link">
-                        <i class="fas fa-hourglass-half"></i>
-                        <span>Pendientes (<?php echo count($pruebasPendientes); ?>)</span>
-                    </a>
-                </li>
-                <?php endif; ?>
-                
-                <?php if (isset($pruebasCompletadas) && !empty($pruebasCompletadas)): ?>
-                <li class="sidebar-item">
-                    <a href="resultados.php" class="sidebar-link">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Mis Resultados</span>
-                    </a>
-                </li>
-                <?php endif; ?>
-                
-                <li class="sidebar-category">Empleo</li>
-                
-                <li class="sidebar-item">
-                    <a href="aplicaciones.php" class="sidebar-link">
-                        <i class="fas fa-briefcase"></i>
-                        <span>Mis Aplicaciones</span>
-                    </a>
-                </li>
-                
-                <li class="sidebar-item">
-                    <a href="vacantes.php" class="sidebar-link">
-                        <i class="fas fa-search"></i>
-                        <span>Buscar Vacantes</span>
-                    </a>
-                </li>
-                
-                <li class="sidebar-category">Cuenta</li>
-                
-                <li class="sidebar-item">
-                    <a href="configuracion.php" class="sidebar-link">
-                        <i class="fas fa-cog"></i>
-                        <span>Configuración</span>
-                    </a>
-                </li>
-                
-                <li class="sidebar-item">
-                    <a href="logout.php" class="sidebar-link">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Cerrar Sesión</span>
-                    </a>
-                </li>
-            </ul>
-        </aside>
+        <?php include 'includes/sidebar.php'; ?>
         
         <main class="dashboard-content">
-            <div class="content-header">
-                <div>
-                    <h1>Bienvenido, <?php echo $candidato['nombre']; ?></h1>
-                    <p class="welcome-message">Este es tu panel personal donde podrás gestionar tu perfil y completar evaluaciones.</p>
+            <!-- Banner de bienvenida -->
+            <div class="welcome-banner">
+                <div class="welcome-content">
+                    <h1>Bienvenido, <?php echo htmlspecialchars($candidato['nombre']); ?></h1>
+                    <p>Este es tu panel personal donde encontrarás toda la información sobre tu perfil, evaluaciones y oportunidades laborales.</p>
+                    
+                    <div class="welcome-stats">
+                        <div class="welcome-stat">
+                            <h3>Pruebas Completadas</h3>
+                            <p><?php echo $pruebasCompletadasCount; ?></p>
+                        </div>
+                        <div class="welcome-stat">
+                            <h3>Aplicaciones</h3>
+                            <p><?php echo count($aplicaciones); ?></p>
+                        </div>
+                        <div class="welcome-stat">
+                            <h3>Perfil</h3>
+                            <p><?php echo $completitudPerfil; ?>%</p>
+                        </div>
+                    </div>
                 </div>
-                <a href="profile.php" class="btn-outline-primary">
-                    <i class="fas fa-user-edit"></i> Editar Perfil
-                </a>
+                
+                <div class="welcome-actions">
+                    <a href="vacantes.php" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Explorar Vacantes
+                    </a>
+                </div>
             </div>
             
-            <!-- Progreso General de Evaluaciones -->
-            <?php if (isset($testManager) && $testManager && isset($totalPruebas) && $totalPruebas > 0): ?>
-            <div class="progress-overview">
-                <div class="overview-header">
-                    <h2><i class="fas fa-chart-line"></i> Progreso de Evaluaciones</h2>
-                    <span class="progress-percentage"><?php echo $progresoGeneral; ?>% completado</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: <?php echo $progresoGeneral; ?>%"></div>
-                </div>
-                <div class="progress-stats">
-                    <div class="stat-item">
-                        <div class="stat-value"><?php echo $pruebasCompletadasCount; ?></div>
-                        <div class="stat-label">Completadas</div>
+            <!-- Resumen de perfil -->
+            <div class="profile-summary">
+                <!-- Tarjeta de Perfil -->
+                <div class="profile-card">
+                    <div class="perfil-header">
+                        <h2><i class="fas fa-user"></i> Perfil Profesional</h2>
+                        <a href="profile.php" class="btn-link">Editar</a>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value"><?php echo $pruebasEnProgresoCount; ?></div>
-                        <div class="stat-label">En progreso</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value"><?php echo $pruebasPendientesCount; ?></div>
-                        <div class="stat-label">Pendientes</div>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <div class="dashboard-grid">
-                <!-- Evaluaciones Pendientes -->
-                <?php if (isset($testManager) && $testManager && isset($pruebasPendientes) && !empty($pruebasPendientes)): ?>
-                <div class="dashboard-card">
-                    <div class="card-header light-accent">
-                        <h2><i class="fas fa-clipboard-list"></i> Evaluaciones Pendientes</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="test-list">
-                            <?php foreach (array_slice($pruebasPendientes, 0, 3) as $prueba): ?>
-                            <div class="test-item">
-                                <div class="test-info">
-                                    <h3><?php echo htmlspecialchars($prueba['titulo']); ?></h3>
-                                    <div class="test-meta">
-                                        <span><i class="fas fa-clock"></i> <?php echo isset($prueba['tiempo_estimado']) ? $prueba['tiempo_estimado'] : '30'; ?> min</span>
-                                        <?php if (isset($prueba['categoria_nombre'])): ?>
-                                        <span><i class="fas fa-folder"></i> <?php echo htmlspecialchars($prueba['categoria_nombre']); ?></span>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                                <a href="prueba.php?id=<?php echo $prueba['id']; ?>" class="btn-accent">
-                                    <i class="fas fa-play"></i> Iniciar
-                                </a>
-                            </div>
-                            <?php endforeach; ?>
+                    <div class="perfil-body">
+                        <div class="perfil-completion">
+                            <span>Completitud del perfil</span>
+                            <span><?php echo $completitudPerfil; ?>%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill <?php echo $completitudPerfil >= 80 ? 'success' : ($completitudPerfil >= 50 ? '' : 'warning'); ?>" style="width: <?php echo $completitudPerfil; ?>%"></div>
                         </div>
                         
-                        <?php if (count($pruebasPendientes) > 3): ?>
-                        <div class="view-all">
-                            <a href="pruebas.php?tab=pendientes" class="btn-link">
-                                Ver todas las evaluaciones <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <!-- Evaluaciones en progreso -->
-                <?php if (isset($testManager) && $testManager && isset($pruebasEnProgreso) && !empty($pruebasEnProgreso)): ?>
-                <div class="dashboard-card">
-                    <div class="card-header light-secondary">
-                        <h2><i class="fas fa-spinner"></i> Evaluaciones en Progreso</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="test-list">
-                            <?php foreach (array_slice($pruebasEnProgreso, 0, 3) as $prueba): ?>
-                            <div class="test-item">
-                                <div class="test-info">
-                                    <h3><?php echo isset($prueba['prueba_titulo']) ? htmlspecialchars($prueba['prueba_titulo']) : htmlspecialchars($prueba['titulo']); ?></h3>
-                                    <div class="test-meta">
-                                        <span><i class="fas fa-calendar"></i> Iniciada: <?php echo date('d/m/Y', strtotime($prueba['fecha_inicio'])); ?></span>
-                                        <?php 
-                                        // Obtener estadísticas si están disponibles
-                                        $stats = null;
-                                        if (method_exists($testManager, 'getSessionStats')) {
-                                            $stats = $testManager->getSessionStats($prueba['id']);
-                                        }
-                                        ?>
-                                        <?php if (isset($stats) && isset($stats['respondidas']) && isset($stats['total'])): ?>
-                                        <span><i class="fas fa-tasks"></i> <?php echo $stats['respondidas']; ?> de <?php echo $stats['total']; ?> preguntas</span>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                                <a href="prueba.php?id=<?php echo isset($prueba['prueba_id']) ? $prueba['prueba_id'] : $prueba['id']; ?>" class="btn-secondary">
-                                    <i class="fas fa-sync-alt"></i> Continuar
-                                </a>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
-                        
-                        <?php if (count($pruebasEnProgreso) > 3): ?>
-                        <div class="view-all">
-                            <a href="pruebas.php?tab=progreso" class="btn-link">
-                                Ver todas las evaluaciones en progreso <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <!-- Evaluaciones completadas -->
-                <?php if (isset($testManager) && $testManager && isset($pruebasCompletadas) && !empty($pruebasCompletadas)): ?>
-                <div class="dashboard-card">
-                    <div class="card-header light-primary">
-                        <h2><i class="fas fa-check-circle"></i> Evaluaciones Completadas</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="test-list">
-                            <?php foreach (array_slice($pruebasCompletadas, 0, 3) as $prueba): ?>
-                            <div class="test-item">
-                                <div class="test-info">
-                                    <h3><?php echo isset($prueba['prueba_titulo']) ? htmlspecialchars($prueba['prueba_titulo']) : 'Evaluación'; ?></h3>
-                                    <div class="test-meta">
-                                        <span><i class="fas fa-calendar-check"></i> Completada: <?php echo date('d/m/Y', strtotime($prueba['fecha_fin'])); ?></span>
-                                        <?php if (isset($prueba['resultado_global'])): ?>
-                                        <span><i class="fas fa-chart-bar"></i> Resultado: <?php echo $prueba['resultado_global']; ?>%</span>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                                <a href="resultado-prueba.php?sesion_id=<?php echo isset($prueba['sesion_id']) ? $prueba['sesion_id'] : $prueba['id']; ?>" class="btn-outline-primary">
-                                    <i class="fas fa-chart-pie"></i> Ver Resultados
-                                </a>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
-                        
-                        <?php if (count($pruebasCompletadas) > 3): ?>
-                        <div class="view-all">
-                            <a href="pruebas.php?tab=completadas" class="btn-link">
-                                Ver todas las evaluaciones completadas <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <!-- Completar Perfil -->
-                <?php if ($completitudPerfil < 100): ?>
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h2><i class="fas fa-user-edit"></i> Completa tu perfil</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="profile-progress">
-                            <div class="progress-percentage"><?php echo $completitudPerfil; ?>%</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: <?php echo $completitudPerfil; ?>%"></div>
-                            </div>
-                        </div>
-                        
-                        <p>Tener un perfil completo aumenta tus posibilidades de ser contactado para oportunidades laborales.</p>
-                        
-                        <div class="missing-fields">
-                            <h4>Campos pendientes:</h4>
+                        <?php if ($completitudPerfil < 100): ?>
+                        <div class="missing-items">
+                            <p>Complete los siguientes campos para mejorar su perfil:</p>
                             <ul>
                                 <?php if (empty($candidato['ubicacion'])): ?>
                                 <li>Ubicación</li>
@@ -654,120 +783,320 @@ $site_title = "Panel de Candidato - SolFis Talentos";
                                 <?php if (empty($candidato['experiencia_general'])): ?>
                                 <li>Experiencia general</li>
                                 <?php endif; ?>
-                                <?php if (empty($candidato['linkedin'])): ?>
-                                <li>Perfil de LinkedIn</li>
-                                <?php endif; ?>
-                                <?php if (empty($candidato['foto_path'])): ?>
-                                <li>Foto de perfil</li>
-                                <?php endif; ?>
-                                <?php if (empty($candidato['habilidades_destacadas'])): ?>
-                                <li>Habilidades destacadas</li>
+                                <?php if (empty($candidato['cv_path'])): ?>
+                                <li>Currículum Vitae</li>
                                 <?php endif; ?>
                             </ul>
+                            <a href="profile.php" class="btn btn-sm btn-primary">Completar perfil</a>
                         </div>
-                        
-                        <a href="profile.php" class="btn-primary">Completar mi perfil</a>
+                        <?php else: ?>
+                        <p>¡Felicidades! Has completado tu perfil al 100%.</p>
+                        <a href="profile.php" class="btn btn-sm btn-outline-primary">Ver perfil</a>
+                        <?php endif; ?>
                     </div>
                 </div>
-                <?php endif; ?>
                 
-                <!-- Aplicaciones Recientes -->
-                <?php if (!empty($aplicaciones)): ?>
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h2><i class="fas fa-briefcase"></i> Aplicaciones recientes</h2>
+                <!-- Tarjeta de Resultados -->
+                <?php if ($pruebasCompletadasCount > 0 && $resultado_global > 0): ?>
+                <div class="profile-card">
+                    <div class="perfil-header">
+                        <h2><i class="fas fa-chart-pie"></i> Resultados de Evaluaciones</h2>
+                        <a href="pruebas.php?tab=completadas" class="btn-link">Ver todo</a>
                     </div>
-                    <div class="card-body">
-                        <div class="test-list">
-                            <?php foreach ($aplicaciones as $aplicacion): ?>
-                            <div class="test-item">
-                                <div class="test-info">
-                                    <h3><?php echo htmlspecialchars($aplicacion['vacante_titulo']); ?></h3>
-                                    <div class="test-meta">
-                                        <span><i class="fas fa-calendar"></i> <?php echo date('d/m/Y', strtotime($aplicacion['fecha_aplicacion'])); ?></span>
-                                        <span>
-                                            <i class="fas fa-circle" style="color: 
-                                                <?php
-                                                    switch ($aplicacion['estado']) {
-                                                        case 'recibida': echo '#17a2b8'; break;
-                                                        case 'revisada': echo '#ffc107'; break;
-                                                        case 'entrevista': echo '#28a745'; break;
-                                                        case 'rechazada': echo '#dc3545'; break;
-                                                        default: echo '#6c757d';
-                                                    }
-                                                ?>; font-size: 10px;"></i>
-                                            <?php echo ucfirst($aplicacion['estado']); ?>
-                                        </span>
-                                    </div>
-                                </div>
-                                <a href="aplicacion.php?id=<?php echo $aplicacion['id']; ?>" class="btn-outline-primary">Detalles</a>
+                    <div class="perfil-body">
+                        <div class="results-card">
+                            <div class="test-chart-container">
+                                <canvas id="scoreChart"></canvas>
+                                <div class="chart-score"><?php echo $resultado_global; ?></div>
                             </div>
-                            <?php endforeach; ?>
-                        </div>
-                        
-                        <div class="view-all">
-                            <a href="aplicaciones.php" class="btn-link">
-                                Ver todas las aplicaciones <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="test-results-info">
+                                <div class="profile-type">
+                                    <span class="profile-badge <?php echo $perfil_class; ?>"><?php echo $perfil_tipo; ?></span>
+                                    <p><?php echo $perfil_descripcion; ?></p>
+                                </div>
+                                <div class="profile-actions">
+                                    <a href="pruebas.php?tab=completadas" class="btn btn-sm btn-primary">Ver resultados detallados</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <?php endif; ?>
-                
-                <!-- Vacantes Recomendadas -->
-                <?php if (!empty($vacantesRecomendadas)): ?>
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h2><i class="fas fa-star"></i> Vacantes recomendadas</h2>
+                <?php elseif ($pruebasPendientesCount > 0): ?>
+                <div class="profile-card">
+                    <div class="perfil-header">
+                        <h2><i class="fas fa-clipboard-list"></i> Evaluaciones Pendientes</h2>
                     </div>
-                    <div class="card-body">
-                        <div class="test-list">
-                            <?php foreach ($vacantesRecomendadas as $vacante): ?>
-                            <div class="test-item">
-                                <div class="test-info">
-                                    <h3><?php echo htmlspecialchars($vacante['titulo']); ?></h3>
-                                    <div class="test-meta">
-                                        <span><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($vacante['ubicacion']); ?></span>
-                                        <span><i class="fas fa-building"></i> <?php echo ucfirst(htmlspecialchars($vacante['modalidad'])); ?></span>
-                                        <?php if (isset($vacante['match_percentage'])): ?>
-                                        <span><i class="fas fa-star"></i> <?php echo $vacante['match_percentage']; ?>% compatible</span>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                                <a href="detalle-vacante.php?id=<?php echo $vacante['id']; ?>" class="btn-primary">Ver detalle</a>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
+                    <div class="perfil-body">
+                        <p>Tienes <?php echo $pruebasPendientesCount; ?> evaluaciones pendientes. Completa estas evaluaciones para obtener un perfil profesional más detallado.</p>
                         
-                        <div class="view-all">
-                            <a href="vacantes.php" class="btn-link">
-                                Ver todas las vacantes <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
+                        <a href="pruebas.php?tab=pendientes" class="btn btn-primary">
+                            <i class="fas fa-play"></i> Iniciar evaluaciones
+                        </a>
+                    </div>
+                </div>
+                <?php else: ?>
+                <div class="profile-card">
+                    <div class="perfil-header">
+                        <h2><i class="fas fa-star"></i> Servicios Premium</h2>
+                    </div>
+                    <div class="perfil-body">
+                        <p>Descubre nuestros servicios premium para potenciar tu desarrollo profesional y destacar entre los candidatos.</p>
+                        
+                        <a href="premium.php" class="btn btn-primary">
+                            <i class="fas fa-crown"></i> Ver servicios premium
+                        </a>
                     </div>
                 </div>
                 <?php endif; ?>
             </div>
             
-            <!-- Banner informativo -->
-            <div class="info-banner">
-                <div class="info-banner-icon">
-                    <i class="fas fa-info-circle"></i>
+            <!-- Acciones rápidas -->
+            <div class="quick-actions">
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="action-title">Buscar Vacantes</h3>
+                    <p class="action-description">Encuentra las mejores oportunidades laborales según tu perfil.</p>
+                    <a href="vacantes.php" class="btn btn-sm btn-primary">Explorar</a>
                 </div>
-                <div class="info-banner-content">
-                    <h3>¿Cómo funciona nuestro sistema de evaluaciones?</h3>
-                    <p>Las evaluaciones psicométricas nos permiten identificar tus fortalezas y áreas de desarrollo profesional. Completar todas las evaluaciones aumentará tus posibilidades de ser considerado para las oportunidades que mejor se ajusten a tu perfil.</p>
-                    <a href="faq.php" class="btn-link">
-                        Más información <i class="fas fa-arrow-right"></i>
-                    </a>
+                
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <h3 class="action-title">Evaluaciones</h3>
+                    <p class="action-description">Completa pruebas para mejorar tu perfil profesional.</p>
+                    <a href="pruebas.php" class="btn btn-sm btn-primary">Ver evaluaciones</a>
+                </div>
+                
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="action-title">Mi CV</h3>
+                    <p class="action-description">Sube o actualiza tu currículum vitae.</p>
+                    <a href="profile.php#cv" class="btn btn-sm btn-primary">Actualizar CV</a>
+                </div>
+                
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="action-title">Premium</h3>
+                    <p class="action-description">Accede a servicios exclusivos para potenciar tu carrera.</p>
+                    <a href="premium.php" class="btn btn-sm btn-primary">Ver planes</a>
+                </div>
+            </div>
+            
+            <!-- Aplicaciones recientes -->
+            <?php if (!empty($aplicaciones)): ?>
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>Aplicaciones Recientes</h2>
+                    <a href="aplicaciones.php">Ver todas <i class="fas fa-arrow-right"></i></a>
+                </div>
+                
+                <div class="cards-grid">
+                    <?php foreach ($aplicaciones as $aplicacion): ?>
+                    <div class="aplication-card">
+                        <div class="aplication-card-header">
+                            <h3><?php echo htmlspecialchars($aplicacion['vacante_titulo']); ?></h3>
+                            <?php 
+                            $statusClass = '';
+                            $statusText = '';
+                            
+                            switch($aplicacion['estado']) {
+                                case 'recibida':
+                                    $statusClass = 'received';
+                                    $statusText = 'Recibida';
+                                    break;
+                                case 'revision':
+                                    $statusClass = 'review';
+                                    $statusText = 'En revisión';
+                                    break;
+                                case 'entrevista':
+                                    $statusClass = 'interview';
+                                    $statusText = 'Entrevista';
+                                    break;
+                                case 'rechazada':
+                                    $statusClass = 'rejected';
+                                    $statusText = 'Rechazada';
+                                    break;
+                                default:
+                                    $statusClass = 'received';
+                                    $statusText = ucfirst($aplicacion['estado']);
+                            }
+                            ?>
+                            <span class="status-badge <?php echo $statusClass; ?>"><?php echo $statusText; ?></span>
+                        </div>
+                        <div class="aplication-card-body">
+                            <div class="aplication-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-folder"></i>
+                                    <span><?php echo htmlspecialchars($aplicacion['categoria_nombre']); ?></span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span><?php echo htmlspecialchars($aplicacion['modalidad']); ?></span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span><?php echo htmlspecialchars($aplicacion['tipo_contrato']); ?></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="aplication-card-footer">
+                            <span class="aplication-date">
+                                <i class="far fa-calendar-alt"></i>
+                                <?php echo date('d/m/Y', strtotime($aplicacion['fecha_aplicacion'])); ?>
+                            </span>
+                            <a href="aplicacion.php?id=<?php echo $aplicacion['id']; ?>" class="btn btn-sm btn-outline-primary">Ver detalles</a>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <!-- Vacantes recomendadas -->
+            <?php if (!empty($vacantesRecomendadas)): ?>
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>Vacantes Recomendadas</h2>
+                    <a href="vacantes.php">Ver todas <i class="fas fa-arrow-right"></i></a>
+                </div>
+                
+                <div class="cards-grid">
+                    <?php foreach ($vacantesRecomendadas as $vacante): ?>
+                    <div class="vacancy-card">
+                        <div class="vacancy-card-header">
+                            <h3><?php echo htmlspecialchars($vacante['titulo']); ?></h3>
+                        </div>
+                        <div class="vacancy-card-body">
+                            <div class="vacancy-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-folder"></i>
+                                    <span><?php echo htmlspecialchars($vacante['categoria_nombre']); ?></span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span><?php echo htmlspecialchars($vacante['ubicacion']); ?></span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-building"></i>
+                                    <span><?php echo ucfirst(htmlspecialchars($vacante['modalidad'])); ?></span>
+                                </div>
+                            </div>
+                            
+                            <?php if (isset($vacante['match_percentage'])): ?>
+                            <div class="match-indicator">
+                                <span class="match-value"><?php echo $vacante['match_percentage']; ?>%</span>
+                                <div class="match-bar">
+                                    <?php
+                                    $matchClass = '';
+                                    if ($vacante['match_percentage'] >= 80) {
+                                        $matchClass = 'high';
+                                    } elseif ($vacante['match_percentage'] >= 60) {
+                                        $matchClass = 'medium';
+                                    } else {
+                                        $matchClass = 'low';
+                                    }
+                                    ?>
+                                    <div class="match-fill <?php echo $matchClass; ?>" style="width: <?php echo $vacante['match_percentage']; ?>%"></div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="vacancy-card-footer">
+                            <span class="vacancy-date">
+                                <i class="far fa-calendar-alt"></i>
+                                <?php echo date('d/m/Y', strtotime($vacante['fecha_publicacion'])); ?>
+                            </span>
+                            <a href="detalle-vacante.php?id=<?php echo $vacante['id']; ?>" class="btn btn-sm btn-primary">Ver detalle</a>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <!-- Recomendaciones y mejoras -->
+            <div class="highlights-section">
+                <div class="highlights-header">
+                    <h2>Recomendaciones para tu desarrollo profesional</h2>
+                </div>
+                
+                <div class="highlights-container">
+                    <div class="highlight-card">
+                        <div class="highlight-header">
+                            <div class="highlight-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <h3 class="highlight-title">Actualiza tu experiencia laboral</h3>
+                        </div>
+                        <p class="highlight-content">Completa toda tu experiencia laboral para aumentar las coincidencias con las vacantes disponibles.</p>
+                    </div>
+                    
+                    <div class="highlight-card">
+                        <div class="highlight-header">
+                            <div class="highlight-icon">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <h3 class="highlight-title">Completa tus evaluaciones</h3>
+                        </div>
+                        <p class="highlight-content">Las empresas valoran candidatos con evaluaciones completas. Realiza todas tus evaluaciones pendientes.</p>
+                    </div>
+                    
+                    <div class="highlight-card">
+                        <div class="highlight-header">
+                            <div class="highlight-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <h3 class="highlight-title">Mantén tu CV actualizado</h3>
+                        </div>
+                        <p class="highlight-content">Un CV actualizado y bien estructurado aumenta significativamente tus oportunidades laborales.</p>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Scripts -->
     <script>
-        // Toggle para el menú desplegable de usuario
         document.addEventListener('DOMContentLoaded', function() {
+            // Configuración de gráfico de puntuación
+            <?php if ($pruebasCompletadasCount > 0 && $resultado_global > 0): ?>
+            var ctx = document.getElementById('scoreChart').getContext('2d');
+            var scoreChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [<?php echo $resultado_global; ?>, 100 - <?php echo $resultado_global; ?>],
+                        backgroundColor: [
+                            '#0088cc',
+                            '#eef2f7'
+                        ],
+                        borderWidth: 0,
+                        cutout: '80%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    }
+                }
+            });
+            <?php endif; ?>
+            
+            // Toggle para el menú desplegable de usuario
             const userDropdown = document.getElementById('userDropdown');
             const userMenu = document.getElementById('userMenu');
             
