@@ -204,7 +204,6 @@ $beneficios = $vacante['beneficios'] ? explode("\n", $vacante['beneficios']) : [
                     </div>
                     
                     <div class="job-detail-sidebar">
-<<<<<<< HEAD
 					
 <?php if (isset($vacante['empresa_contratante']) && !empty($vacante['empresa_contratante'])): ?>
     <?php if (isset($vacante['mostrar_empresa']) && $vacante['mostrar_empresa'] == 1): ?>
@@ -219,8 +218,6 @@ $beneficios = $vacante['beneficios'] ? explode("\n", $vacante['beneficios']) : [
 		</div>
     <?php endif; ?>
 <?php endif; ?>
-=======
->>>>>>> bfdd4b60a420df76ff03f2ca490715c5b78545c5
                         <div class="job-sidebar-card">
                             <h3>Resumen de la Vacante</h3>
                             <div class="job-summary">

@@ -1,0 +1,506 @@
+Estructura de directorios y archivos (excluyendo node_modules y .next) 
+Ruta analizada: C:\xampp\htdocs\solfisweb 
+Fecha: lun 04/14/2025  0:39:32.32 
+ 
+Directorios y Archivos: 
+==================== 
+[DIR] \.git 
+[FILE] \.htaccess (%~zF bytes) 
+[DIR] \admin 
+[FILE] \aplicar.php (%~zF bytes) 
+[FILE] \articulo.php (%~zF bytes) 
+[DIR] \assets 
+[FILE] \auditoria.php (%~zF bytes) 
+[FILE] \blog-buscar.php (%~zF bytes) 
+[FILE] \blog.php (%~zF bytes) 
+[DIR] \candidato 
+[FILE] \composer.json (%~zF bytes) 
+[FILE] \composer.lock (%~zF bytes) 
+[FILE] \config.php (%~zF bytes) 
+[FILE] \contabilidad.php (%~zF bytes) 
+[FILE] \contacto.php (%~zF bytes) 
+[FILE] \crear_tablas.sql (%~zF bytes) 
+[FILE] \detalle.php (%~zF bytes) 
+[FILE] \empresarial.php (%~zF bytes) 
+[FILE] \error_log (%~zF bytes) 
+[FILE] \estructura.bat (%~zF bytes) 
+[FILE] \estructura.php (%~zF bytes) 
+[FILE] \estructura_directorios.txt (%~zF bytes) 
+[FILE] \fiscal.php (%~zF bytes) 
+[FILE] \fronteriza.php (%~zF bytes) 
+[DIR] \img 
+[DIR] \includes 
+[FILE] \index.php (%~zF bytes) 
+[FILE] \inicializar_db.php (%~zF bytes) 
+[FILE] \Install.php (%~zF bytes) 
+[FILE] \listado.php (%~zF bytes) 
+[DIR] \logs 
+[FILE] \nosotros.php (%~zF bytes) 
+[FILE] \proceso.php (%~zF bytes) 
+[FILE] \README.md (%~zF bytes) 
+[FILE] \registro-candidato.php (%~zF bytes) 
+[DIR] \sections 
+[FILE] \servicios.php (%~zF bytes) 
+[FILE] \sistemas.php (%~zF bytes) 
+[FILE] \solfis_blog (1).sql (%~zF bytes) 
+[FILE] \suscribir.php (%~zF bytes) 
+[DIR] \uploads 
+[DIR] \vacantes 
+[FILE] \vacantes.php (%~zF bytes) 
+[DIR] \vendor 
+[FILE] \.git\config (%~zF bytes) 
+[FILE] \.git\description (%~zF bytes) 
+[FILE] \.git\FETCH_HEAD (%~zF bytes) 
+[FILE] \.git\HEAD (%~zF bytes) 
+[DIR] \.git\hooks 
+[FILE] \.git\index (%~zF bytes) 
+[DIR] \.git\info 
+[DIR] \.git\logs 
+[DIR] \.git\objects 
+[FILE] \.git\ORIG_HEAD (%~zF bytes) 
+[FILE] \.git\packed-refs (%~zF bytes) 
+[DIR] \.git\refs 
+[FILE] \.git\hooks\applypatch-msg.sample (%~zF bytes) 
+[FILE] \.git\hooks\commit-msg.sample (%~zF bytes) 
+[FILE] \.git\hooks\fsmonitor-watchman.sample (%~zF bytes) 
+[FILE] \.git\hooks\post-update.sample (%~zF bytes) 
+[FILE] \.git\hooks\pre-applypatch.sample (%~zF bytes) 
+[FILE] \.git\hooks\pre-commit.sample (%~zF bytes) 
+[FILE] \.git\hooks\pre-merge-commit.sample (%~zF bytes) 
+[FILE] \.git\hooks\pre-push.sample (%~zF bytes) 
+[FILE] \.git\hooks\pre-rebase.sample (%~zF bytes) 
+[FILE] \.git\hooks\pre-receive.sample (%~zF bytes) 
+[FILE] \.git\hooks\prepare-commit-msg.sample (%~zF bytes) 
+[FILE] \.git\hooks\push-to-checkout.sample (%~zF bytes) 
+[FILE] \.git\hooks\sendemail-validate.sample (%~zF bytes) 
+[FILE] \.git\hooks\update.sample (%~zF bytes) 
+[FILE] \.git\info\exclude (%~zF bytes) 
+[FILE] \.git\logs\HEAD (%~zF bytes) 
+[DIR] \.git\logs\refs 
+[DIR] \.git\logs\refs\heads 
+[DIR] \.git\logs\refs\remotes 
+[FILE] \.git\logs\refs\heads\main (%~zF bytes) 
+[DIR] \.git\logs\refs\remotes\origin 
+[FILE] \.git\logs\refs\remotes\origin\HEAD (%~zF bytes) 
+[FILE] \.git\logs\refs\remotes\origin\main (%~zF bytes) 
+[DIR] \.git\objects\0a 
+[DIR] \.git\objects\18 
+[DIR] \.git\objects\19 
+[DIR] \.git\objects\1e 
+[DIR] \.git\objects\26 
+[DIR] \.git\objects\2b 
+[DIR] \.git\objects\2e 
+[DIR] \.git\objects\3a 
+[DIR] \.git\objects\4c 
+[DIR] \.git\objects\4d 
+[DIR] \.git\objects\4e 
+[DIR] \.git\objects\65 
+[DIR] \.git\objects\75 
+[DIR] \.git\objects\86 
+[DIR] \.git\objects\88 
+[DIR] \.git\objects\99 
+[DIR] \.git\objects\a0 
+[DIR] \.git\objects\a8 
+[DIR] \.git\objects\aa 
+[DIR] \.git\objects\ad 
+[DIR] \.git\objects\b4 
+[DIR] \.git\objects\bb 
+[DIR] \.git\objects\cc 
+[DIR] \.git\objects\d3 
+[DIR] \.git\objects\db 
+[DIR] \.git\objects\e1 
+[DIR] \.git\objects\e2 
+[DIR] \.git\objects\info 
+[DIR] \.git\objects\pack 
+[FILE] \.git\objects\0a\ef56bb780d9a4de3cea47b4bde463f424067e4 (%~zF bytes) 
+[FILE] \.git\objects\18\a291a49c1d9cefdf3f20f855913cb6efbe80a8 (%~zF bytes) 
+[FILE] \.git\objects\18\ce2105d08f3c53c6a7a3885d73eeba9e08b10a (%~zF bytes) 
+[FILE] \.git\objects\19\05f89912f48111c5e76f60813535a039a5b4e2 (%~zF bytes) 
+[FILE] \.git\objects\1e\aa17491ca3a82075f7a325d3e9b92b6cd24f13 (%~zF bytes) 
+[FILE] \.git\objects\26\0987be18a26598bc7dbd7d5c8cd7fc31aea817 (%~zF bytes) 
+[FILE] \.git\objects\2b\d029099cee70b1d202dfd4752c76707096d2ea (%~zF bytes) 
+[FILE] \.git\objects\2e\be0a3d6743543d633ef1f749af13286fb9c3ce (%~zF bytes) 
+[FILE] \.git\objects\3a\4a38f9a70a8bbb9eb91fc40293d564121fa1a6 (%~zF bytes) 
+[FILE] \.git\objects\4c\479dfca4203c6759d857a607d05db169ac61dc (%~zF bytes) 
+[FILE] \.git\objects\4c\74a6b50ee91c25d55525ca6fcfdbae57d44694 (%~zF bytes) 
+[FILE] \.git\objects\4d\a1beb7f3c7b9a38ca8d93807d1eac03245f15d (%~zF bytes) 
+[FILE] \.git\objects\4e\cc1832db58e39f6a71df6f297bc275d60d6d32 (%~zF bytes) 
+[FILE] \.git\objects\65\ac9855f2f2c2ffa33e10e217b93206b3dd0738 (%~zF bytes) 
+[FILE] \.git\objects\75\592d988606c2525c49478752e1a4de4212f55f (%~zF bytes) 
+[FILE] \.git\objects\86\0f9ddd302f0ee17c45ee6a822e9aa9fb80fbbf (%~zF bytes) 
+[FILE] \.git\objects\88\aa70c8fff279c12d819228122ed04bec264845 (%~zF bytes) 
+[FILE] \.git\objects\99\730c1cf86149102bac2e0db04836116d95a5c3 (%~zF bytes) 
+[FILE] \.git\objects\a0\6fe0ac7e2ea6f5685203a756172d6c927ed092 (%~zF bytes) 
+[FILE] \.git\objects\a8\ceb7349da379b929708e8304d4daaa79d371cb (%~zF bytes) 
+[FILE] \.git\objects\aa\7f0d154e9fc3a04091bcc7c6e554b81a91e237 (%~zF bytes) 
+[FILE] \.git\objects\ad\b25d5d8f967bdd62e29ec65b7046d6dce0d21e (%~zF bytes) 
+[FILE] \.git\objects\b4\4f11e683de55d1615fa3dafcc7472c7dde223a (%~zF bytes) 
+[FILE] \.git\objects\bb\1c7b8d3064130081f6572fe6cdb87e18d72021 (%~zF bytes) 
+[FILE] \.git\objects\cc\02203457f22edee77fa5844ef652fe16471bf9 (%~zF bytes) 
+[FILE] \.git\objects\d3\a58df49f124071f622bf6ad278be8eae6d15a8 (%~zF bytes) 
+[FILE] \.git\objects\db\5c7b46a8874f955b974b37a862d7efea0eccc2 (%~zF bytes) 
+[FILE] \.git\objects\db\bc5e34410690a76e294be98acd092909753576 (%~zF bytes) 
+[FILE] \.git\objects\e1\ce3da518be143741b301ff6e69d29de56643d9 (%~zF bytes) 
+[FILE] \.git\objects\e2\db98fe5448e1c8091f06f82f5597209949ce1c (%~zF bytes) 
+[FILE] \.git\objects\pack\pack-9a459a64dc0fb8c7fcec03e293b673cb47f50c91.idx (%~zF bytes) 
+[FILE] \.git\objects\pack\pack-9a459a64dc0fb8c7fcec03e293b673cb47f50c91.pack (%~zF bytes) 
+[FILE] \.git\objects\pack\pack-9a459a64dc0fb8c7fcec03e293b673cb47f50c91.rev (%~zF bytes) 
+[DIR] \.git\refs\heads 
+[DIR] \.git\refs\remotes 
+[DIR] \.git\refs\tags 
+[FILE] \.git\refs\heads\main (%~zF bytes) 
+[DIR] \.git\refs\remotes\origin 
+[FILE] \.git\refs\remotes\origin\HEAD (%~zF bytes) 
+[FILE] \.git\refs\remotes\origin\main (%~zF bytes) 
+[DIR] \admin\aplicaciones 
+[DIR] \admin\candidatos 
+[FILE] \admin\categories.php (%~zF bytes) 
+[FILE] \admin\category-delete.php (%~zF bytes) 
+[FILE] \admin\category-edit.php (%~zF bytes) 
+[FILE] \admin\category-new.php (%~zF bytes) 
+[FILE] \admin\comment-approve.php (%~zF bytes) 
+[FILE] \admin\comment-delete.php (%~zF bytes) 
+[FILE] \admin\comment-reject.php (%~zF bytes) 
+[FILE] \admin\comments.php (%~zF bytes) 
+[FILE] \admin\config.php (%~zF bytes) 
+[FILE] \admin\contact-reply.php (%~zF bytes) 
+[FILE] \admin\contact-view.php (%~zF bytes) 
+[FILE] \admin\contact.php (%~zF bytes) 
+[FILE] \admin\email-settings.php (%~zF bytes) 
+[FILE] \admin\error_log (%~zF bytes) 
+[FILE] \admin\fix-image-paths.php (%~zF bytes) 
+[DIR] \admin\img 
+[DIR] \admin\includes 
+[FILE] \admin\index.html (%~zF bytes) 
+[FILE] \admin\index.php (%~zF bytes) 
+[DIR] \admin\js 
+[FILE] \admin\login.php (%~zF bytes) 
+[FILE] \admin\logout.php (%~zF bytes) 
+[FILE] \admin\media-delete.php (%~zF bytes) 
+[FILE] \admin\media-upload.php (%~zF bytes) 
+[FILE] \admin\media.php (%~zF bytes) 
+[FILE] \admin\post-delete.php (%~zF bytes) 
+[FILE] \admin\post-edit.php (%~zF bytes) 
+[FILE] \admin\post-new.php (%~zF bytes) 
+[FILE] \admin\posts.php (%~zF bytes) 
+[FILE] \admin\profile.php (%~zF bytes) 
+[FILE] \admin\settings.php (%~zF bytes) 
+[FILE] \admin\subscriber-activate.php (%~zF bytes) 
+[FILE] \admin\subscriber-add.php (%~zF bytes) 
+[FILE] \admin\subscriber-deactivate.php (%~zF bytes) 
+[FILE] \admin\subscriber-delete.php (%~zF bytes) 
+[FILE] \admin\subscribers-export.php (%~zF bytes) 
+[FILE] \admin\subscribers.php (%~zF bytes) 
+[FILE] \admin\test-email.php (%~zF bytes) 
+[FILE] \admin\user-add.php (%~zF bytes) 
+[FILE] \admin\user-delete.php (%~zF bytes) 
+[FILE] \admin\user-edit.php (%~zF bytes) 
+[FILE] \admin\users.php (%~zF bytes) 
+[DIR] \admin\vacantes 
+[FILE] \admin\aplicaciones\actualizar-entrevista.php (%~zF bytes) 
+[FILE] \admin\aplicaciones\actualizar-estado.php (%~zF bytes) 
+[FILE] \admin\aplicaciones\agregar-nota.php (%~zF bytes) 
+[FILE] \admin\aplicaciones\cambiar-estado.php (%~zF bytes) 
+[FILE] \admin\aplicaciones\detalle.php (%~zF bytes) 
+[FILE] \admin\aplicaciones\editar-nota.php (%~zF bytes) 
+[FILE] \admin\aplicaciones\guardar-nota.php (%~zF bytes) 
+[FILE] \admin\aplicaciones\index.php (%~zF bytes) 
+[FILE] \admin\aplicaciones\programar-entrevista.php (%~zF bytes) 
+[FILE] \admin\candidatos\actualizar-estado.php (%~zF bytes) 
+[FILE] \admin\candidatos\agregar-nota.php (%~zF bytes) 
+[DIR] \admin\candidatos\css 
+[FILE] \admin\candidatos\detalle.php (%~zF bytes) 
+[FILE] \admin\candidatos\editar-nota.php (%~zF bytes) 
+[FILE] \admin\candidatos\editar.php (%~zF bytes) 
+[FILE] \admin\candidatos\eliminar-nota.php (%~zF bytes) 
+[FILE] \admin\candidatos\guardar-nota.php (%~zF bytes) 
+[DIR] \admin\candidatos\img 
+[FILE] \admin\candidatos\index.php (%~zF bytes) 
+[FILE] \admin\candidatos\resultado-prueba.php (%~zF bytes) 
+[DIR] \admin\img\blog 
+[DIR] \admin\img\blog\uploads 
+[FILE] \admin\img\blog\uploads\67d066c569a17_2149191355.jpg (%~zF bytes) 
+[FILE] \admin\img\blog\uploads\default.jpg (%~zF bytes) 
+[FILE] \admin\includes\footer.php (%~zF bytes) 
+[FILE] \admin\includes\header.php (%~zF bytes) 
+[FILE] \admin\includes\sidebar.php (%~zF bytes) 
+[FILE] \admin\js\media-manager.js (%~zF bytes) 
+[FILE] \admin\vacantes\index.php (%~zF bytes) 
+[DIR] \admin\vacantes\js 
+[FILE] \admin\vacantes\vacante-editar.php (%~zF bytes) 
+[FILE] \admin\vacantes\vacante-eliminar.php (%~zF bytes) 
+[FILE] \admin\vacantes\vacante-nueva.php (%~zF bytes) 
+[FILE] \admin\vacantes\js\vacantes-admin.js (%~zF bytes) 
+[DIR] \assets\css 
+[DIR] \assets\js 
+[DIR] \assets\css\components 
+[FILE] \assets\css\fixes.css (%~zF bytes) 
+[FILE] \assets\css\job-details.css (%~zF bytes) 
+[FILE] \assets\css\main.css (%~zF bytes) 
+[FILE] \assets\css\vacantes-aplicar.css (%~zF bytes) 
+[FILE] \assets\css\vacantes-base.css (%~zF bytes) 
+[FILE] \assets\css\vacantes-detalles.css (%~zF bytes) 
+[FILE] \assets\css\vacantes-home.css (%~zF bytes) 
+[FILE] \assets\css\vacantes-listado.css (%~zF bytes) 
+[FILE] \assets\css\vacantes.css (%~zF bytes) 
+[FILE] \assets\css\components\about-us.css (%~zF bytes) 
+[FILE] \assets\css\components\admin-styles.css (%~zF bytes) 
+[FILE] \assets\css\components\admin.css (%~zF bytes) 
+[FILE] \assets\css\components\articulo.css (%~zF bytes) 
+[FILE] \assets\css\components\blog.css (%~zF bytes) 
+[FILE] \assets\css\components\contact-form.css (%~zF bytes) 
+[FILE] \assets\css\components\contact-section.css (%~zF bytes) 
+[FILE] \assets\css\components\contact.css (%~zF bytes) 
+[FILE] \assets\css\components\dropdown-menu.css (%~zF bytes) 
+[FILE] \assets\css\components\footer.css (%~zF bytes) 
+[FILE] \assets\css\components\fronteriza.css (%~zF bytes) 
+[FILE] \assets\css\components\hero-banner.css (%~zF bytes) 
+[FILE] \assets\css\components\hero-building-cubes.css (%~zF bytes) 
+[FILE] \assets\css\components\hero-cubes.css (%~zF bytes) 
+[FILE] \assets\css\components\hero.css (%~zF bytes) 
+[FILE] \assets\css\components\industries-section.css (%~zF bytes) 
+[FILE] \assets\css\components\industries-tabs.css (%~zF bytes) 
+[FILE] \assets\css\components\industries.css (%~zF bytes) 
+[FILE] \assets\css\components\mobile-layout.css (%~zF bytes) 
+[FILE] \assets\css\components\mobile-menu.css (%~zF bytes) 
+[FILE] \assets\css\components\mobile-optimizations.css (%~zF bytes) 
+[FILE] \assets\css\components\nav.css (%~zF bytes) 
+[FILE] \assets\css\components\newsletter.css (%~zF bytes) 
+[FILE] \assets\css\components\popup.css (%~zF bytes) 
+[FILE] \assets\css\components\process.css (%~zF bytes) 
+[FILE] \assets\css\components\service-detail.css (%~zF bytes) 
+[FILE] \assets\css\components\services-page.css (%~zF bytes) 
+[FILE] \assets\css\components\services.css (%~zF bytes) 
+[FILE] \assets\css\components\simple-mobile.css (%~zF bytes) 
+[FILE] \assets\css\components\stats.css (%~zF bytes) 
+[FILE] \assets\css\components\success-cases.css (%~zF bytes) 
+[FILE] \assets\css\components\testimonials-compact.css (%~zF bytes) 
+[FILE] \assets\css\components\testimonials.css (%~zF bytes) 
+[FILE] \assets\css\components\testimonials2.css (%~zF bytes) 
+[FILE] \assets\css\components\text-contrast-fixes.css (%~zF bytes) 
+[FILE] \assets\css\components\why-us.css (%~zF bytes) 
+[DIR] \assets\js\components 
+[FILE] \assets\js\main.js (%~zF bytes) 
+[FILE] \assets\js\vacantes.js (%~zF bytes) 
+[FILE] \assets\js\components\admin.js (%~zF bytes) 
+[FILE] \assets\js\components\contact.js (%~zF bytes) 
+[FILE] \assets\js\components\footer.js (%~zF bytes) 
+[FILE] \assets\js\components\hero-banner.js (%~zF bytes) 
+[FILE] \assets\js\components\hero-building-cubes.js (%~zF bytes) 
+[FILE] \assets\js\components\hero-cubes.js (%~zF bytes) 
+[FILE] \assets\js\components\hero.js (%~zF bytes) 
+[FILE] \assets\js\components\industries-tabs.js (%~zF bytes) 
+[FILE] \assets\js\components\industries.js (%~zF bytes) 
+[FILE] \assets\js\components\mobile-menu-jquery.js (%~zF bytes) 
+[FILE] \assets\js\components\navbar.js (%~zF bytes) 
+[FILE] \assets\js\components\popup.js (%~zF bytes) 
+[FILE] \assets\js\components\stats.js (%~zF bytes) 
+[FILE] \assets\js\components\success-cases.js (%~zF bytes) 
+[FILE] \assets\js\components\testimonials.js (%~zF bytes) 
+[FILE] \assets\js\components\testimonials2.js (%~zF bytes) 
+[FILE] \assets\js\components\why-us.js (%~zF bytes) 
+[FILE] \candidato\aplicacion.php (%~zF bytes) 
+[FILE] \candidato\aplicaciones.php (%~zF bytes) 
+[DIR] \candidato\css 
+[FILE] \candidato\detalle-vacante.php (%~zF bytes) 
+[DIR] \candidato\img 
+[DIR] \candidato\includes 
+[FILE] \candidato\login.php (%~zF bytes) 
+[FILE] \candidato\logout.php (%~zF bytes) 
+[FILE] \candidato\panel.php (%~zF bytes) 
+[FILE] \candidato\premium.php (%~zF bytes) 
+[FILE] \candidato\profile.php (%~zF bytes) 
+[FILE] \candidato\prueba.php (%~zF bytes) 
+[FILE] \candidato\vacantes.php (%~zF bytes) 
+[FILE] \candidato\css\candidato.css (%~zF bytes) 
+[DIR] \candidato\img\blog 
+[DIR] \candidato\img\blog\uploads 
+[FILE] \candidato\includes\navbar.php (%~zF bytes) 
+[FILE] \candidato\includes\sidebar.php (%~zF bytes) 
+[DIR] \img\about 
+[DIR] \img\blog 
+[DIR] \img\cases 
+[DIR] \img\industries 
+[FILE] \img\logo-icon.png (%~zF bytes) 
+[FILE] \img\logo-white.png (%~zF bytes) 
+[FILE] \img\logo.png (%~zF bytes) 
+[FILE] \img\quality-assurance.jpg (%~zF bytes) 
+[DIR] \img\services 
+[DIR] \img\team 
+[DIR] \img\testimonials 
+[FILE] \img\why-us.jpg (%~zF bytes) 
+[FILE] \img\about\about-story.jpg (%~zF bytes) 
+[FILE] \img\blog\default.jpg (%~zF bytes) 
+[DIR] \img\blog\uploads 
+[FILE] \img\blog\uploads\67d066c569a17_2149191355.jpg (%~zF bytes) 
+[FILE] \img\blog\uploads\67d06ba3e1401_2149241226.jpg (%~zF bytes) 
+[FILE] \img\blog\uploads\67d06f81ed553_15818.jpg (%~zF bytes) 
+[FILE] \img\blog\uploads\67d06fd4db688_2148475340.jpg (%~zF bytes) 
+[FILE] \img\blog\uploads\67d06fe3c0aa7_135731.jpg (%~zF bytes) 
+[FILE] \img\blog\uploads\67d0711a68994_10327.jpg (%~zF bytes) 
+[FILE] \img\blog\uploads\default.jpg (%~zF bytes) 
+[FILE] \img\cases\logo_jaz.png (%~zF bytes) 
+[FILE] \img\cases\logo_teamlogic.png (%~zF bytes) 
+[FILE] \img\industries\comercio.jpg (%~zF bytes) 
+[FILE] \img\industries\construccion.jpg (%~zF bytes) 
+[FILE] \img\industries\manufactura.jpg (%~zF bytes) 
+[FILE] \img\industries\salud.jpg (%~zF bytes) 
+[FILE] \img\industries\servicios.jpg (%~zF bytes) 
+[FILE] \img\industries\tecnologia.jpg (%~zF bytes) 
+[FILE] \img\services\2.jpg (%~zF bytes) 
+[FILE] \img\services\auditoria-hero.jpg (%~zF bytes) 
+[FILE] \img\services\auditoria.jpg (%~zF bytes) 
+[FILE] \img\services\contabilidad-hero.jpg (%~zF bytes) 
+[FILE] \img\services\contabilidad.jpg (%~zF bytes) 
+[FILE] \img\services\empresarial-hero.jpg (%~zF bytes) 
+[FILE] \img\services\empresarial.jpg (%~zF bytes) 
+[FILE] \img\services\fiscal-hero.jpg (%~zF bytes) 
+[FILE] \img\services\fiscal.jpg (%~zF bytes) 
+[FILE] \img\services\fronteriza-hero.jpg (%~zF bytes) 
+[FILE] \img\services\fronteriza-popup.jpg (%~zF bytes) 
+[FILE] \img\services\fronteriza-popup2.jpg (%~zF bytes) 
+[FILE] \img\services\sistemas-hero.jpg (%~zF bytes) 
+[FILE] \img\services\sistemas.jpg (%~zF bytes) 
+[FILE] \img\team\author1.jpg (%~zF bytes) 
+[FILE] \img\team\member1.jpg (%~zF bytes) 
+[FILE] \img\team\member2.jpg (%~zF bytes) 
+[FILE] \img\team\member3.jpg (%~zF bytes) 
+[FILE] \img\team\member33.jpg (%~zF bytes) 
+[FILE] \img\testimonials\client1.jpg (%~zF bytes) 
+[FILE] \img\testimonials\client2.jpg (%~zF bytes) 
+[FILE] \img\testimonials\client3.jpg (%~zF bytes) 
+[FILE] \img\testimonials\client4.jpg (%~zF bytes) 
+[FILE] \includes\blog-system.php (%~zF bytes) 
+[FILE] \includes\contact-class.php (%~zF bytes) 
+[FILE] \includes\email-sender.php (%~zF bytes) 
+[FILE] \includes\EmailSender.php (%~zF bytes) 
+[FILE] \includes\jobs-system.php (%~zF bytes) 
+[DIR] \includes\phpmailer 
+[FILE] \includes\TestManager.php (%~zF bytes) 
+[FILE] \includes\phpmailer\.editorconfig (%~zF bytes) 
+[FILE] \includes\phpmailer\COMMITMENT (%~zF bytes) 
+[FILE] \includes\phpmailer\composer.json (%~zF bytes) 
+[FILE] \includes\phpmailer\get_oauth_token.php (%~zF bytes) 
+[DIR] \includes\phpmailer\language 
+[FILE] \includes\phpmailer\LICENSE (%~zF bytes) 
+[FILE] \includes\phpmailer\README.md (%~zF bytes) 
+[FILE] \includes\phpmailer\SECURITY.md (%~zF bytes) 
+[DIR] \includes\phpmailer\src 
+[FILE] \includes\phpmailer\VERSION (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-af.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-ar.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-as.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-az.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-ba.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-be.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-bg.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-bn.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-ca.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-cs.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-da.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-de.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-el.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-eo.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-es.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-et.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-fa.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-fi.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-fo.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-fr.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-gl.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-he.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-hi.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-hr.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-hu.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-hy.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-id.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-it.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-ja.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-ka.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-ko.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-ku.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-lt.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-lv.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-mg.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-mn.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-ms.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-nb.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-nl.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-pl.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-pt.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-pt_br.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-ro.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-ru.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-si.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-sk.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-sl.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-sr.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-sr_latn.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-sv.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-tl.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-tr.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-uk.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-ur.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-vi.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-zh.php (%~zF bytes) 
+[FILE] \includes\phpmailer\language\phpmailer.lang-zh_cn.php (%~zF bytes) 
+[FILE] \includes\phpmailer\src\DSNConfigurator.php (%~zF bytes) 
+[FILE] \includes\phpmailer\src\Exception.php (%~zF bytes) 
+[FILE] \includes\phpmailer\src\OAuth.php (%~zF bytes) 
+[FILE] \includes\phpmailer\src\OAuthTokenProvider.php (%~zF bytes) 
+[FILE] \includes\phpmailer\src\PHPMailer.php (%~zF bytes) 
+[FILE] \includes\phpmailer\src\POP3.php (%~zF bytes) 
+[FILE] \includes\phpmailer\src\SMTP.php (%~zF bytes) 
+[FILE] \logs\email_log.txt (%~zF bytes) 
+[FILE] \logs\replies.json (%~zF bytes) 
+[FILE] \logs\smtp_debug.log (%~zF bytes) 
+[FILE] \sections\blog-section.html (%~zF bytes) 
+[FILE] \sections\blog.html (%~zF bytes) 
+[FILE] \sections\contact-section.html (%~zF bytes) 
+[FILE] \sections\footer.html (%~zF bytes) 
+[FILE] \sections\hero-banner.html (%~zF bytes) 
+[FILE] \sections\hero.html (%~zF bytes) 
+[FILE] \sections\industries.html (%~zF bytes) 
+[FILE] \sections\navbar.html (%~zF bytes) 
+[FILE] \sections\newsletter-section.html (%~zF bytes) 
+[FILE] \sections\popup.html (%~zF bytes) 
+[FILE] \sections\services.html (%~zF bytes) 
+[FILE] \sections\stats.html (%~zF bytes) 
+[FILE] \sections\success-cases.html (%~zF bytes) 
+[FILE] \sections\testimonials.html (%~zF bytes) 
+[FILE] \sections\why-us.html (%~zF bytes) 
+[DIR] \uploads\profile_photos 
+[DIR] \uploads\resumes 
+[FILE] \uploads\profile_photos\profile_67fc5ebd67549.jpeg (%~zF bytes) 
+[FILE] \uploads\resumes\67eed7547fc81_1743705940.pdf (%~zF bytes) 
+[FILE] \uploads\resumes\67eedd2cd471f_1743707436.pdf (%~zF bytes) 
+[FILE] \uploads\resumes\67eee8b3c0c91_1743710387.pdf (%~zF bytes) 
+[FILE] \vacantes\aplicar.php (%~zF bytes) 
+[FILE] \vacantes\detalle.php (%~zF bytes) 
+[DIR] \vacantes\img 
+[FILE] \vacantes\index.php (%~zF bytes) 
+[FILE] \vacantes\listado.php (%~zF bytes) 
+[DIR] \vacantes\img\blog 
+[DIR] \vacantes\img\blog\uploads 
+[FILE] \vendor\autoload.php (%~zF bytes) 
+[DIR] \vendor\composer 
+[DIR] \vendor\paragonie 
+[FILE] \vendor\composer\autoload_classmap.php (%~zF bytes) 
+[FILE] \vendor\composer\autoload_namespaces.php (%~zF bytes) 
+[FILE] \vendor\composer\autoload_psr4.php (%~zF bytes) 
+[FILE] \vendor\composer\autoload_real.php (%~zF bytes) 
+[FILE] \vendor\composer\autoload_static.php (%~zF bytes) 
+[FILE] \vendor\composer\ClassLoader.php (%~zF bytes) 
+[FILE] \vendor\composer\installed.json (%~zF bytes) 
+[FILE] \vendor\composer\installed.php (%~zF bytes) 
+[FILE] \vendor\composer\InstalledVersions.php (%~zF bytes) 
+[FILE] \vendor\composer\LICENSE (%~zF bytes) 
+[FILE] \vendor\composer\platform_check.php (%~zF bytes) 
+ 
+Resumen: 
+======== 
+Total de carpetas (excluyendo node_modules y .next): 91 
+Total de archivos (excluyendo node_modules y .next): 401 
+Tamaño total (excluyendo node_modules y .next): 25707606 bytes 
+Carpetas excluidas (node_modules y .next): 0 
+Archivos excluidos (node_modules y .next): 0 

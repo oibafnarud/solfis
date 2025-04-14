@@ -47,12 +47,13 @@ if ($sesion && $sesion['estado'] === 'completada') {
 
 // Si hay una sesión en progreso, continuarla
 $sesion_id = $sesion ? $sesion['id'] : null;
-$pregunta_actual = $sesion ? $testManager->getCurrentQuestionNumber($sesion['id']) : 0;
+
+// Obtener número de pregunta actual
+$pregunta_actual = isset($_GET['p']) ? (int)$_GET['p'] : 0;
 
 // Si no hay sesión, crear una nueva
 if (!$sesion_id) {
     $sesion_id = $testManager->createSession($candidato_id, $prueba_id);
-    $pregunta_actual = 0;
 }
 
 // Obtener todas las preguntas de la prueba
@@ -161,7 +162,7 @@ $pageTitle = $prueba['titulo'];
                 </div>
             </div>
             <div class="test-actions">
-                <a href="panel.php" class="btn-outline pause-test" id="pauseBtn">
+                <a href="#" class="btn-outline pause-test" id="pauseBtn">
                     <i class="fas fa-pause"></i> Pausar
                 </a>
             </div>
@@ -171,7 +172,7 @@ $pageTitle = $prueba['titulo'];
             <div class="question-container">
                 <div class="question-header">
                     <span class="question-number">Pregunta <?php echo $pregunta_actual + 1; ?></span>
-                    <?php if ($pregunta['tiempo_sugerido']): ?>
+                    <?php if (!empty($pregunta['tiempo_sugerido'])): ?>
                     <div class="question-timer" data-seconds="<?php echo $pregunta['tiempo_sugerido']; ?>">
                         <i class="fas fa-clock"></i> <span id="timer"><?php echo $pregunta['tiempo_sugerido']; ?></span> seg
                     </div>
@@ -200,7 +201,7 @@ $pageTitle = $prueba['titulo'];
                                        id="option_<?php echo $opcion['id']; ?>" 
                                        name="opcion_id" 
                                        value="<?php echo $opcion['id']; ?>"
-                                       <?php echo ($respuesta_actual && $respuesta_actual['opcion_id'] == $opcion['id']) ? 'checked' : ''; ?>>
+                                       <?php echo ($respuesta_actual && isset($respuesta_actual['opcion_id']) && $respuesta_actual['opcion_id'] == $opcion['id']) ? 'checked' : ''; ?>>
                                 <label for="option_<?php echo $opcion['id']; ?>" class="option-label">
                                     <?php echo htmlspecialchars($opcion['texto']); ?>
                                 </label>
@@ -213,7 +214,7 @@ $pageTitle = $prueba['titulo'];
                                        id="option_true" 
                                        name="valor" 
                                        value="1"
-                                       <?php echo ($respuesta_actual && $respuesta_actual['valor_escala'] == 1) ? 'checked' : ''; ?>>
+                                       <?php echo ($respuesta_actual && isset($respuesta_actual['valor_escala']) && $respuesta_actual['valor_escala'] == 1) ? 'checked' : ''; ?>>
                                 <label for="option_true" class="option-label">Verdadero</label>
                             </div>
                             <div class="answer-option">
@@ -221,21 +222,38 @@ $pageTitle = $prueba['titulo'];
                                        id="option_false" 
                                        name="valor" 
                                        value="0"
-                                       <?php echo ($respuesta_actual && $respuesta_actual['valor_escala'] == 0) ? 'checked' : ''; ?>>
+                                       <?php echo ($respuesta_actual && isset($respuesta_actual['valor_escala']) && $respuesta_actual['valor_escala'] == 0) ? 'checked' : ''; ?>>
                                 <label for="option_false" class="option-label">Falso</label>
                             </div>
                         
                         <?php elseif ($pregunta['tipo'] === 'escala_likert'): ?>
                             <div class="likert-scale">
-                                <?php foreach ($opciones as $opcion): ?>
+                                <?php 
+                                // Si no hay opciones definidas, creamos opciones predeterminadas para escalas Likert
+                                if (empty($opciones)) {
+                                    $opciones = [
+                                        ['id' => 'likert_5', 'valor' => 5, 'texto' => 'Totalmente de acuerdo'],
+                                        ['id' => 'likert_4', 'valor' => 4, 'texto' => 'De acuerdo'],
+                                        ['id' => 'likert_3', 'valor' => 3, 'texto' => 'Neutral'],
+                                        ['id' => 'likert_2', 'valor' => 2, 'texto' => 'En desacuerdo'],
+                                        ['id' => 'likert_1', 'valor' => 1, 'texto' => 'Totalmente en desacuerdo']
+                                    ];
+                                }
+                                
+                                foreach ($opciones as $index => $opcion): 
+                                    // Asegurarse de que las opciones tengan todos los campos necesarios
+                                    $opcionId = isset($opcion['id']) ? $opcion['id'] : 'likert_' . ($index + 1);
+                                    $valor = isset($opcion['valor']) ? $opcion['valor'] : ($index + 1);
+                                    $texto = isset($opcion['texto']) ? $opcion['texto'] : 'Opción ' . ($index + 1);
+                                ?>
                                 <div class="likert-option">
                                     <input type="radio" 
-                                           id="option_<?php echo $opcion['id']; ?>" 
+                                           id="option_<?php echo $opcionId; ?>" 
                                            name="valor_escala" 
-                                           value="<?php echo $opcion['valor']; ?>"
-                                           <?php echo ($respuesta_actual && $respuesta_actual['valor_escala'] == $opcion['valor']) ? 'checked' : ''; ?>>
-                                    <label for="option_<?php echo $opcion['id']; ?>" class="likert-label">
-                                        <?php echo htmlspecialchars($opcion['texto']); ?>
+                                           value="<?php echo $valor; ?>"
+                                           <?php echo ($respuesta_actual && isset($respuesta_actual['valor_escala']) && $respuesta_actual['valor_escala'] == $valor) ? 'checked' : ''; ?>>
+                                    <label for="option_<?php echo $opcionId; ?>" class="likert-label">
+                                        <?php echo htmlspecialchars($texto); ?>
                                     </label>
                                 </div>
                                 <?php endforeach; ?>
@@ -246,26 +264,28 @@ $pageTitle = $prueba['titulo'];
                                 <textarea name="texto_respuesta" 
                                           id="texto_respuesta" 
                                           rows="5" 
-                                          placeholder="Escribe tu respuesta aquí..."><?php echo $respuesta_actual ? $respuesta_actual['texto_respuesta'] : ''; ?></textarea>
+                                          placeholder="Escribe tu respuesta aquí..."><?php echo isset($respuesta_actual['texto_respuesta']) ? $respuesta_actual['texto_respuesta'] : ''; ?></textarea>
                             </div>
                         <?php endif; ?>
                     </div>
                     
                     <div class="form-navigation">
                         <?php if ($hay_anterior): ?>
-                        <button type="submit" name="accion" value="anterior" class="btn-outline nav-btn">
+                        <button type="submit" name="accion" value="anterior" class="nav-btn btn-outline">
                             <i class="fas fa-chevron-left"></i> Anterior
                         </button>
+                        <?php else: ?>
+                        <div></div> <!-- Espaciador -->
                         <?php endif; ?>
                         
                         <input type="hidden" name="responder" value="1">
                         
                         <?php if ($hay_siguiente): ?>
-                        <button type="submit" name="accion" value="siguiente" class="btn-primary nav-btn" id="nextBtn">
+                        <button type="submit" name="accion" value="siguiente" class="nav-btn btn-primary" id="nextBtn">
                             Siguiente <i class="fas fa-chevron-right"></i>
                         </button>
                         <?php else: ?>
-                        <button type="submit" name="accion" value="finalizar" class="btn-success nav-btn" id="finishBtn">
+                        <button type="submit" name="accion" value="finalizar" class="nav-btn btn-success" id="finishBtn">
                             Finalizar Prueba <i class="fas fa-check"></i>
                         </button>
                         <?php endif; ?>
@@ -287,52 +307,90 @@ $pageTitle = $prueba['titulo'];
     </div>
 
     <script>
-        // Timer functionality
-        const timerElement = document.getElementById('timer');
-        if (timerElement) {
-            const timerContainer = document.querySelector('.question-timer');
-            const seconds = parseInt(timerContainer.dataset.seconds);
-            let timeLeft = seconds;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Timer functionality
+            const timerElement = document.getElementById('timer');
+            if (timerElement) {
+                const timerContainer = document.querySelector('.question-timer');
+                const seconds = parseInt(timerContainer.dataset.seconds);
+                let timeLeft = seconds;
+                
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    timerElement.textContent = timeLeft;
+                    
+                    if (timeLeft <= 10) {
+                        timerContainer.classList.add('warning');
+                    }
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        // Auto-submit after time is up
+                        setTimeout(() => {
+                            document.getElementById('answerForm').submit();
+                        }, 500);
+                    }
+                }, 1000);
+            }
             
-            const timer = setInterval(() => {
-                timeLeft--;
-                timerElement.textContent = timeLeft;
-                
-                if (timeLeft <= 10) {
-                    timerContainer.classList.add('warning');
-                }
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    // Auto-submit after time is up
-                    setTimeout(() => {
-                        document.getElementById('answerForm').submit();
-                    }, 500);
-                }
-            }, 1000);
-        }
-        
-        // Pause modal functionality
-        const pauseBtn = document.getElementById('pauseBtn');
-        const pauseModal = document.getElementById('pauseModal');
-        const continuarBtn = document.getElementById('continuarBtn');
-        
-        pauseBtn?.addEventListener('click', function(e) {
-            e.preventDefault();
-            pauseModal.classList.add('show');
-        });
-        
-        continuarBtn?.addEventListener('click', function() {
-            pauseModal.classList.remove('show');
-        });
-        
-        // Auto-save responses for non-radio inputs
-        const textareaField = document.getElementById('texto_respuesta');
-        if (textareaField) {
-            textareaField.addEventListener('blur', function() {
-                // Could implement autosave via AJAX here
+            // Pause modal functionality
+            const pauseBtn = document.getElementById('pauseBtn');
+            const pauseModal = document.getElementById('pauseModal');
+            const continuarBtn = document.getElementById('continuarBtn');
+            
+            pauseBtn?.addEventListener('click', function(e) {
+                e.preventDefault();
+                pauseModal.classList.add('show');
             });
-        }
+            
+            continuarBtn?.addEventListener('click', function() {
+                pauseModal.classList.remove('show');
+            });
+            
+            // Auto-save responses for non-radio inputs
+            const textareaField = document.getElementById('texto_respuesta');
+            if (textareaField) {
+                textareaField.addEventListener('blur', function() {
+                    // Could implement autosave via AJAX here
+                });
+            }
+            
+            // Validación del formulario
+            const answerForm = document.getElementById('answerForm');
+            if (answerForm) {
+                answerForm.addEventListener('submit', function(event) {
+                    // Verificar si hay alguna opción seleccionada para opción múltiple
+                    if (document.querySelector('input[type="radio"]')) {
+                        const radioChecked = document.querySelector('input[type="radio"]:checked');
+                        if (!radioChecked) {
+                            event.preventDefault();
+                            alert('Por favor selecciona una opción antes de continuar.');
+                            return false;
+                        }
+                    }
+                    
+                    // Verificar si hay texto en la respuesta abierta
+                    if (textareaField && textareaField.value.trim() === '') {
+                        event.preventDefault();
+                        alert('Por favor escribe tu respuesta antes de continuar.');
+                        textareaField.focus();
+                        return false;
+                    }
+                });
+            }
+            
+            // Mejorar la interacción con las opciones para escala Likert
+            const likertOptions = document.querySelectorAll('.likert-option');
+            likertOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Programáticamente seleccionar el radio button cuando se hace clic en cualquier parte de la opción
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

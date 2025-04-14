@@ -728,5 +728,6 @@ class TestManager {
         
         return 0; // Fuera del rango aceptable
     }
+	
 }
 ?>
