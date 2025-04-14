@@ -112,7 +112,7 @@ if ($max_score < 100) {
 // Consulta para contar total de resultados
 $countSql = str_replace("SELECT s.id, s.candidato_id, s.prueba_id, s.fecha_inicio, s.fecha_fin, s.resultado_global,
                c.nombre as nombre_candidato, c.apellido as apellido_candidato, c.email as email_candidato,
-               p.titulo as titulo_prueba, p.nivel_dificultad", "SELECT COUNT(*) as total", $sql);
+               p.titulo as titulo_prueba", "SELECT COUNT(*) as total", $sql);
 $countResult = $db->query($countSql);
 $totalResults = ($countResult && $countResult->num_rows > 0) ? $countResult->fetch_assoc()['total'] : 0;
 $totalPages = ceil($totalResults / $per_page);
