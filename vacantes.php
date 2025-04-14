@@ -1,11 +1,11 @@
 <?php
 $site_title = "Portal de Empleo - SolFis";
 $site_description = "Encuentra las mejores oportunidades laborales en SolFis. Tu carrera profesional comienza aquí.";
-$base_path = '../sections/';
-$assets_path = '../assets/';
+$base_path = 'sections/';
+$assets_path = 'assets/';
 
 // Incluir el sistema de vacantes
-require_once '../includes/jobs-system.php';
+require_once 'includes/jobs-system.php';
 
 // Instanciar gestores
 $vacancyManager = new VacancyManager();
@@ -54,7 +54,7 @@ $categorias = $categoryManager->getCategories();
         <section class="jobs-hero">
             <div class="container">
                 <div class="hero-content" data-aos="fade-up">
-                    <h1>Forma parte del equipo SolFis</h1>
+                    <h1>Forma parte de una empresa</h1>
                     <p>Descubre las oportunidades profesionales que tenemos para ti y da el siguiente paso en tu carrera.</p>
                     
                     <div class="search-container">
@@ -113,7 +113,7 @@ $categorias = $categoryManager->getCategories();
                                     <span class="badge-featured">Destacada</span>
                                 </div>
                                 <div class="job-company">
-                                    <img src="../img/logo-icon.png" alt="SolFis" class="company-logo">
+                                    <img src="img/logo-icon.png" alt="SolFis" class="company-logo">
                                 </div>
                             </div>
                             <div class="job-details">

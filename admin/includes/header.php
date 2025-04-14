@@ -1,6 +1,6 @@
 <?php
 // Verificar autenticación
-require_once '../includes/blog-system.php';
+require_once dirname(dirname(__DIR__)) . '/includes/blog-system.php';
 $auth = Auth::getInstance();
 if (!$auth->isLoggedIn()) {
     header('Location: login.php');

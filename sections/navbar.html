@@ -36,7 +36,9 @@
             <a href="proceso.php" class="nav-link">Proceso</a>
             <a href="blog.php" class="nav-link">Blog</a>
             <a href="contacto.php" class="nav-link">Contacto</a>
-            <a href="https://portal.solfis.com.do" class="nav-button">Portal Cliente</a>
+<!--            <a href="https://portal.solfis.com.do" class="nav-button">Portal Cliente</a>-->
+			<a class="nav-button <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' && strpos($_SERVER['PHP_SELF'], '/vacantes/') !== false ? 'active' : ''; ?>" href="<?php echo $base_url ?? ''; ?>vacantes/index.php">Encuentra Empleo</a>
+
         </div>
     </div>
 </nav>

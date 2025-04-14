@@ -1,11 +1,11 @@
 <?php
 $site_title = "Detalle de Vacante - SolFis";
 $site_description = "Información detallada sobre la vacante y proceso de aplicación en SolFis";
-$base_path = '../sections/';
-$assets_path = '../assets/';
+$base_path = 'sections/';
+$assets_path = 'assets/';
 
 // Incluir el sistema de vacantes
-require_once '../includes/jobs-system.php';
+require_once 'includes/jobs-system.php';
 
 // Verificar si se proporcionó un ID
 if (!isset($_GET['id']) || empty($_GET['id'])) {
@@ -204,6 +204,20 @@ $beneficios = $vacante['beneficios'] ? explode("\n", $vacante['beneficios']) : [
                     </div>
                     
                     <div class="job-detail-sidebar">
+					
+<?php if (isset($vacante['empresa_contratante']) && !empty($vacante['empresa_contratante'])): ?>
+    <?php if (isset($vacante['mostrar_empresa']) && $vacante['mostrar_empresa'] == 1): ?>
+        <div class="job-sidebar-card">
+		<div class="job-detail-section">
+            <h3>Empresa Contratante</h3>
+            <div class="job-detail-company-info">
+                <h4><?php echo htmlspecialchars($vacante['empresa_contratante']); ?></h4>
+                <p>Esta vacante es para ser contratado directamente por esta empresa.</p>
+            </div>
+        </div>
+		</div>
+    <?php endif; ?>
+<?php endif; ?>
                         <div class="job-sidebar-card">
                             <h3>Resumen de la Vacante</h3>
                             <div class="job-summary">
