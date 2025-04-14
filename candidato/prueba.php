@@ -116,9 +116,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['responder'])) {
         }
         // Si se seleccionó "Finalizar", completar la prueba
         else if (isset($_POST['accion']) && $_POST['accion'] === 'finalizar') {
-            $testManager->completeSession($sesion_id);
-            header('Location: resultado-prueba.php?sesion_id=' . $sesion_id);
-            exit;
+            try {
+                // Registrar en un log
+                error_log("Completando sesión de prueba: $sesion_id");
+                
+                // Completar la sesión
+                $success = $testManager->completeSession($sesion_id);
+                
+                if ($success) {
+                    header('Location: resultado-prueba.php?sesion_id=' . $sesion_id);
+                    exit;
+                } else {
+                    // Si falló, mostrar un mensaje de error
+                    $error_message = "Hubo un problema al completar la prueba. Por favor, contacta a soporte.";
+                    
+                    // Log del error
+                    error_log("Error al completar sesión $sesion_id: " . print_r(error_get_last(), true));
+                }
+            } catch (Exception $e) {
+                // Capturar cualquier excepción
+                $error_message = "Error inesperado: " . $e->getMessage();
+                error_log("Excepción al completar sesión $sesion_id: " . $e->getMessage());
+            }
         }
     }
 }
@@ -145,6 +164,41 @@ $pageTitle = $prueba['titulo'];
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Estilos adicionales para imágenes fallidas -->
+    <style>
+    .image-error {
+        background-color: #f8f9fa;
+        border: 1px dashed #ced4da;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        color: #6c757d;
+    }
+    
+    .image-error i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+    
+    /* Mejorar visibilidad del temporizador */
+    .question-timer {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    
+    .question-timer.warning {
+        background-color: rgba(255, 193, 7, 0.3);
+        color: #FF6600;
+        animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+    </style>
 </head>
 <body>
     <div class="test-container">
@@ -304,6 +358,24 @@ $pageTitle = $prueba['titulo'];
                 </div>
             </div>
         </div>
+        
+        <!-- Modal de error para mostrar cuando hay problemas -->
+        <?php if (isset($error_message)): ?>
+        <div class="test-modal show" id="errorModal">
+            <div class="modal-content">
+                <h3><i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i> Error</h3>
+                <p><?php echo $error_message; ?></p>
+                <div class="modal-actions">
+                    <a href="pruebas.php" class="btn-outline">
+                        Volver a mis evaluaciones
+                    </a>
+                    <a href="prueba.php?id=<?php echo $prueba_id; ?>" class="btn-primary">
+                        Intentar de nuevo
+                    </a>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 
     <script>
@@ -389,6 +461,26 @@ $pageTitle = $prueba['titulo'];
                         radio.checked = true;
                     }
                 });
+            });
+            
+            // Verificar la carga de imágenes
+            const questionImages = document.querySelectorAll('.question-image img');
+            
+            questionImages.forEach(img => {
+                img.onerror = function() {
+                    // Si la imagen falla al cargar, mostrar un mensaje
+                    const imgContainer = this.parentElement;
+                    imgContainer.innerHTML = '<div class="image-error">' + 
+                                            '<i class="fas fa-image"></i>' + 
+                                            '<p>No se pudo cargar la imagen</p>' + 
+                                            '</div>';
+                };
+                
+                // Verificar si la URL de la imagen está vacía o es inválida
+                if (!img.src || img.src === window.location.href || 
+                    img.src === 'http://' || img.src === 'https://') {
+                    img.onerror();
+                }
             });
         });
     </script>

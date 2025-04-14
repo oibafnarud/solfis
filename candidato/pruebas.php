@@ -42,8 +42,12 @@ if (!$testManager) {
 }
 
 // Calcular progreso general de pruebas
-$totalPruebas = count($pruebasPendientes) + count($pruebasEnProgreso) + count($pruebasCompletadas);
-$progresoGeneral = $totalPruebas > 0 ? round((count($pruebasCompletadas) / $totalPruebas) * 100) : 0;
+$pruebasPendientesCount = is_array($pruebasPendientes) ? count($pruebasPendientes) : 0;
+$pruebasEnProgresoCount = is_array($pruebasEnProgreso) ? count($pruebasEnProgreso) : 0;
+$pruebasCompletadasCount = is_array($pruebasCompletadas) ? count($pruebasCompletadas) : 0;
+
+$totalPruebas = $pruebasPendientesCount + $pruebasEnProgresoCount + $pruebasCompletadasCount;
+$progresoGeneral = $totalPruebas > 0 ? round(($pruebasCompletadasCount / $totalPruebas) * 100) : 0;
 
 // Título de la página
 $pageTitle = "Mis Evaluaciones - SolFis Talentos";
@@ -125,15 +129,15 @@ if ($tab !== 'pendientes' && $tab !== 'progreso' && $tab !== 'completadas') {
                         </div>
                         <div class="progress-stats">
                             <div class="stat-item">
-                                <div class="stat-value"><?php echo count($pruebasCompletadas); ?></div>
+                                <div class="stat-value"><?php echo $pruebasCompletadasCount; ?></div>
                                 <div class="stat-label">Completadas</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value"><?php echo count($pruebasEnProgreso); ?></div>
+                                <div class="stat-value"><?php echo $pruebasEnProgresoCount; ?></div>
                                 <div class="stat-label">En progreso</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value"><?php echo count($pruebasPendientes); ?></div>
+                                <div class="stat-value"><?php echo $pruebasPendientesCount; ?></div>
                                 <div class="stat-label">Pendientes</div>
                             </div>
                         </div>
@@ -150,13 +154,13 @@ if ($tab !== 'pendientes' && $tab !== 'progreso' && $tab !== 'completadas') {
                 
                 <div class="tests-tabs">
                     <div class="tab-item <?php echo $tab === 'pendientes' ? 'active' : ''; ?>" data-tab="pendientes">
-                        <i class="fas fa-hourglass-half"></i> Pendientes (<?php echo count($pruebasPendientes); ?>)
+                        <i class="fas fa-hourglass-half"></i> Pendientes (<?php echo $pruebasPendientesCount; ?>)
                     </div>
                     <div class="tab-item <?php echo $tab === 'progreso' ? 'active' : ''; ?>" data-tab="progreso">
-                        <i class="fas fa-spinner"></i> En Progreso (<?php echo count($pruebasEnProgreso); ?>)
+                        <i class="fas fa-spinner"></i> En Progreso (<?php echo $pruebasEnProgresoCount; ?>)
                     </div>
                     <div class="tab-item <?php echo $tab === 'completadas' ? 'active' : ''; ?>" data-tab="completadas">
-                        <i class="fas fa-check-circle"></i> Completadas (<?php echo count($pruebasCompletadas); ?>)
+                        <i class="fas fa-check-circle"></i> Completadas (<?php echo $pruebasCompletadasCount; ?>)
                     </div>
                 </div>
                 
@@ -186,7 +190,7 @@ if ($tab !== 'pendientes' && $tab !== 'progreso' && $tab !== 'completadas') {
                                 </div>
                                 <div class="test-meta-item">
                                     <i class="fas fa-question-circle"></i>
-                                    <span>Tipo: <?php echo isset($prueba['nombre']) ? htmlspecialchars($prueba['nombre']) : 'Evaluación'; ?></span>
+                                    <span>Tipo: <?php echo isset($prueba['categoria_nombre']) ? htmlspecialchars($prueba['categoria_nombre']) : 'Evaluación'; ?></span>
                                 </div>
                             </div>
                             <div class="test-card-actions">
@@ -212,12 +216,12 @@ if ($tab !== 'pendientes' && $tab !== 'progreso' && $tab !== 'completadas') {
                     <?php foreach ($pruebasEnProgreso as $prueba): ?>
                     <div class="test-card animate-fade-in">
                         <div class="test-card-header">
-                            <h2><?php echo isset($prueba['titulo']) ? htmlspecialchars($prueba['titulo']) : 'Evaluación'; ?></h2>
+                            <h2><?php echo isset($prueba['prueba_titulo']) ? htmlspecialchars($prueba['prueba_titulo']) : 'Evaluación'; ?></h2>
                             <span class="test-status progress">En Progreso</span>
                         </div>
                         <div class="test-card-body">
                             <div class="test-description">
-                                <?php echo isset($prueba['descripcion']) && !empty($prueba['descripcion']) ? htmlspecialchars($prueba['descripcion']) : 'Sin descripción disponible.'; ?>
+                                <?php echo isset($prueba['prueba_descripcion']) && !empty($prueba['prueba_descripcion']) ? htmlspecialchars($prueba['prueba_descripcion']) : 'Sin descripción disponible.'; ?>
                             </div>
                             <div class="test-meta">
                                 <div class="test-meta-item">

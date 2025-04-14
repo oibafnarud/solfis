@@ -15,21 +15,43 @@ require_once '../includes/jobs-system.php';
 $candidateManager = new CandidateManager();
 $vacancyManager = new VacancyManager();
 
-// Si existe TestManager, usarlo
+// Añadir estas líneas al principio de panel.php (después de session_start() y las verificaciones de autenticación)
+// para inicializar correctamente la variable $testManager y evitar errores
+
+// Inicializar la variable testManager
 $testManager = null;
 $pruebasPendientes = [];
 $pruebasEnProgreso = [];
 $pruebasCompletadas = [];
+$totalPruebas = 0;
+$pruebasPendientesCount = 0;
+$pruebasEnProgresoCount = 0;
+$pruebasCompletadasCount = 0;
+$progresoGeneral = 0;
 
+// Comprobar si existe el archivo TestManager.php
 if (file_exists(__DIR__ . '/../includes/TestManager.php')) {
     require_once __DIR__ . '/../includes/TestManager.php';
     if (class_exists('TestManager')) {
         $testManager = new TestManager();
-        // Obtener pruebas pendientes, en progreso y completadas
-        $candidato_id = $_SESSION['candidato_id'];
-        $pruebasPendientes = $testManager->getPendingTests($candidato_id);
-        $pruebasEnProgreso = $testManager->getInProgressTests($candidato_id);
-        $pruebasCompletadas = $testManager->getCompletedTests($candidato_id);
+        
+        // Obtener pruebas del candidato si existe testManager
+        if ($testManager) {
+            $candidato_id = $_SESSION['candidato_id'];
+            $pruebasPendientes = $testManager->getPendingTests($candidato_id);
+            $pruebasEnProgreso = $testManager->getInProgressTests($candidato_id);
+            $pruebasCompletadas = $testManager->getCompletedTests($candidato_id);
+            
+            // Contar correctamente
+            $pruebasPendientesCount = is_array($pruebasPendientes) ? count($pruebasPendientes) : 0;
+            $pruebasEnProgresoCount = is_array($pruebasEnProgreso) ? count($pruebasEnProgreso) : 0;
+            $pruebasCompletadasCount = is_array($pruebasCompletadas) ? count($pruebasCompletadas) : 0;
+            
+            $totalPruebas = $pruebasPendientesCount + $pruebasEnProgresoCount + $pruebasCompletadasCount;
+            
+            // Calcular progreso general
+            $progresoGeneral = $totalPruebas > 0 ? round(($pruebasCompletadasCount / $totalPruebas) * 100) : 0;
+        }
     }
 }
 
@@ -78,10 +100,6 @@ foreach ($camposRequeridos as $campo) {
 }
 
 $completitudPerfil = round(($camposCompletados / count($camposRequeridos)) * 100);
-
-// Calcular progreso general de pruebas
-$totalPruebas = count($pruebasPendientes) + count($pruebasEnProgreso) + count($pruebasCompletadas);
-$progresoGeneral = $totalPruebas > 0 ? round((count($pruebasCompletadas) / $totalPruebas) * 100) : 0;
 
 // Variables para la página
 $site_title = "Panel de Candidato - SolFis Talentos";
@@ -260,6 +278,58 @@ $site_title = "Panel de Candidato - SolFis Talentos";
         .btn-accent:hover {
             background-color: #e68a00;
         }
+        
+        /* Estilos adicionales para botones */
+        .btn-secondary {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #138496;
+        }
+        
+        .btn-outline-primary {
+            background-color: transparent;
+            color: #0088cc;
+            border: 1px solid #0088cc;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: #0088cc;
+            color: white;
+        }
+        
+        /* Estilos para tarjetas */
+        .card-header.light-primary {
+            background-color: rgba(0, 51, 102, 0.1);
+            color: #003366;
+        }
+        
+        .card-header.light-secondary {
+            background-color: rgba(0, 136, 204, 0.1);
+            color: #0088cc;
+        }
+        
+        .card-header.light-accent {
+            background-color: rgba(255, 153, 0, 0.1);
+            color: #ff9900;
+        }
     </style>
     
     <!-- Fonts -->
@@ -347,7 +417,7 @@ $site_title = "Panel de Candidato - SolFis Talentos";
                     </a>
                 </li>
                 
-                <?php if (!empty($pruebasPendientes)): ?>
+                <?php if (isset($pruebasPendientes) && !empty($pruebasPendientes)): ?>
                 <li class="sidebar-item">
                     <a href="pruebas-pendientes.php" class="sidebar-link">
                         <i class="fas fa-hourglass-half"></i>
@@ -356,7 +426,7 @@ $site_title = "Panel de Candidato - SolFis Talentos";
                 </li>
                 <?php endif; ?>
                 
-                <?php if (!empty($pruebasCompletadas)): ?>
+                <?php if (isset($pruebasCompletadas) && !empty($pruebasCompletadas)): ?>
                 <li class="sidebar-item">
                     <a href="resultados.php" class="sidebar-link">
                         <i class="fas fa-chart-bar"></i>
@@ -411,7 +481,7 @@ $site_title = "Panel de Candidato - SolFis Talentos";
             </div>
             
             <!-- Progreso General de Evaluaciones -->
-            <?php if ($testManager && $totalPruebas > 0): ?>
+            <?php if (isset($testManager) && $testManager && isset($totalPruebas) && $totalPruebas > 0): ?>
             <div class="progress-overview">
                 <div class="overview-header">
                     <h2><i class="fas fa-chart-line"></i> Progreso de Evaluaciones</h2>
@@ -422,15 +492,15 @@ $site_title = "Panel de Candidato - SolFis Talentos";
                 </div>
                 <div class="progress-stats">
                     <div class="stat-item">
-                        <div class="stat-value"><?php echo count($pruebasCompletadas); ?></div>
+                        <div class="stat-value"><?php echo $pruebasCompletadasCount; ?></div>
                         <div class="stat-label">Completadas</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value"><?php echo count($pruebasEnProgreso); ?></div>
+                        <div class="stat-value"><?php echo $pruebasEnProgresoCount; ?></div>
                         <div class="stat-label">En progreso</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value"><?php echo count($pruebasPendientes); ?></div>
+                        <div class="stat-value"><?php echo $pruebasPendientesCount; ?></div>
                         <div class="stat-label">Pendientes</div>
                     </div>
                 </div>
@@ -439,7 +509,7 @@ $site_title = "Panel de Candidato - SolFis Talentos";
             
             <div class="dashboard-grid">
                 <!-- Evaluaciones Pendientes -->
-                <?php if ($testManager && count($pruebasPendientes) > 0): ?>
+                <?php if (isset($testManager) && $testManager && isset($pruebasPendientes) && !empty($pruebasPendientes)): ?>
                 <div class="dashboard-card">
                     <div class="card-header light-accent">
                         <h2><i class="fas fa-clipboard-list"></i> Evaluaciones Pendientes</h2>
@@ -452,17 +522,103 @@ $site_title = "Panel de Candidato - SolFis Talentos";
                                     <h3><?php echo htmlspecialchars($prueba['titulo']); ?></h3>
                                     <div class="test-meta">
                                         <span><i class="fas fa-clock"></i> <?php echo isset($prueba['tiempo_estimado']) ? $prueba['tiempo_estimado'] : '30'; ?> min</span>
+                                        <?php if (isset($prueba['categoria_nombre'])): ?>
+                                        <span><i class="fas fa-folder"></i> <?php echo htmlspecialchars($prueba['categoria_nombre']); ?></span>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
-                                <a href="prueba.php?id=<?php echo $prueba['id']; ?>" class="btn-accent">Iniciar</a>
+                                <a href="prueba.php?id=<?php echo $prueba['id']; ?>" class="btn-accent">
+                                    <i class="fas fa-play"></i> Iniciar
+                                </a>
                             </div>
                             <?php endforeach; ?>
                         </div>
                         
                         <?php if (count($pruebasPendientes) > 3): ?>
                         <div class="view-all">
-                            <a href="pruebas-pendientes.php" class="btn-link">
+                            <a href="pruebas.php?tab=pendientes" class="btn-link">
                                 Ver todas las evaluaciones <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Evaluaciones en progreso -->
+                <?php if (isset($testManager) && $testManager && isset($pruebasEnProgreso) && !empty($pruebasEnProgreso)): ?>
+                <div class="dashboard-card">
+                    <div class="card-header light-secondary">
+                        <h2><i class="fas fa-spinner"></i> Evaluaciones en Progreso</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="test-list">
+                            <?php foreach (array_slice($pruebasEnProgreso, 0, 3) as $prueba): ?>
+                            <div class="test-item">
+                                <div class="test-info">
+                                    <h3><?php echo isset($prueba['prueba_titulo']) ? htmlspecialchars($prueba['prueba_titulo']) : htmlspecialchars($prueba['titulo']); ?></h3>
+                                    <div class="test-meta">
+                                        <span><i class="fas fa-calendar"></i> Iniciada: <?php echo date('d/m/Y', strtotime($prueba['fecha_inicio'])); ?></span>
+                                        <?php 
+                                        // Obtener estadísticas si están disponibles
+                                        $stats = null;
+                                        if (method_exists($testManager, 'getSessionStats')) {
+                                            $stats = $testManager->getSessionStats($prueba['id']);
+                                        }
+                                        ?>
+                                        <?php if (isset($stats) && isset($stats['respondidas']) && isset($stats['total'])): ?>
+                                        <span><i class="fas fa-tasks"></i> <?php echo $stats['respondidas']; ?> de <?php echo $stats['total']; ?> preguntas</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <a href="prueba.php?id=<?php echo isset($prueba['prueba_id']) ? $prueba['prueba_id'] : $prueba['id']; ?>" class="btn-secondary">
+                                    <i class="fas fa-sync-alt"></i> Continuar
+                                </a>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        
+                        <?php if (count($pruebasEnProgreso) > 3): ?>
+                        <div class="view-all">
+                            <a href="pruebas.php?tab=progreso" class="btn-link">
+                                Ver todas las evaluaciones en progreso <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Evaluaciones completadas -->
+                <?php if (isset($testManager) && $testManager && isset($pruebasCompletadas) && !empty($pruebasCompletadas)): ?>
+                <div class="dashboard-card">
+                    <div class="card-header light-primary">
+                        <h2><i class="fas fa-check-circle"></i> Evaluaciones Completadas</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="test-list">
+                            <?php foreach (array_slice($pruebasCompletadas, 0, 3) as $prueba): ?>
+                            <div class="test-item">
+                                <div class="test-info">
+                                    <h3><?php echo isset($prueba['prueba_titulo']) ? htmlspecialchars($prueba['prueba_titulo']) : 'Evaluación'; ?></h3>
+                                    <div class="test-meta">
+                                        <span><i class="fas fa-calendar-check"></i> Completada: <?php echo date('d/m/Y', strtotime($prueba['fecha_fin'])); ?></span>
+                                        <?php if (isset($prueba['resultado_global'])): ?>
+                                        <span><i class="fas fa-chart-bar"></i> Resultado: <?php echo $prueba['resultado_global']; ?>%</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <a href="resultado-prueba.php?sesion_id=<?php echo isset($prueba['sesion_id']) ? $prueba['sesion_id'] : $prueba['id']; ?>" class="btn-outline-primary">
+                                    <i class="fas fa-chart-pie"></i> Ver Resultados
+                                </a>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        
+                        <?php if (count($pruebasCompletadas) > 3): ?>
+                        <div class="view-all">
+                            <a href="pruebas.php?tab=completadas" class="btn-link">
+                                Ver todas las evaluaciones completadas <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
                         <?php endif; ?>
