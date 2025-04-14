@@ -86,6 +86,7 @@ $pageTitle = 'Nueva Vacante - Panel de Administración';
                                             Por favor ingrese un título para la vacante.
                                         </div>
                                     </div>
+<<<<<<< HEAD
 									
 									<!-- Agregar después del checkbox "destacada" -->
 									<div class="mb-3">
@@ -100,6 +101,8 @@ $pageTitle = 'Nueva Vacante - Panel de Administración';
 											Mostrar empresa contratante en publicación
 										</label>
 									</div>
+=======
+>>>>>>> bfdd4b60a420df76ff03f2ca490715c5b78545c5
                                     
                                     <div class="mb-3">
                                         <label for="descripcion" class="form-label">Descripción <span class="text-danger">*</span></label>

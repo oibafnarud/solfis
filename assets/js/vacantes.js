@@ -466,6 +466,7 @@ document.addEventListener('click', function(e) {
             }
         }
     }
+<<<<<<< HEAD
 });
 
 /**
@@ -907,3 +908,6 @@ function closeNotification(notification) {
         }
     }, 300);
 }
+=======
+});
+>>>>>>> bfdd4b60a420df76ff03f2ca490715c5b78545c5

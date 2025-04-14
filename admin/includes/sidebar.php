@@ -4,6 +4,7 @@
             <img src="../img/logo.png" alt="SolFis" class="img-fluid" style="max-width: 120px;">
         </div>
         
+<<<<<<< HEAD
         <!-- Menú colapsable con acordeón -->
         <div class="accordion" id="sidebarAccordion">
             <!-- BLOG -->
@@ -147,6 +148,104 @@
                 </div>
             </div>
         </div>
+=======
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>BLOG</span>
+        </h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : ''; ?>" href="index.php">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?php echo in_array(basename($_SERVER['PHP_SELF']), ['posts.php', 'post-new.php', 'post-edit.php']) ? 'active' : ''; ?>" href="posts.php">
+                    <i class="fas fa-file-alt"></i> Artículos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?php echo in_array(basename($_SERVER['PHP_SELF']), ['categories.php', 'category-new.php', 'category-edit.php']) ? 'active' : ''; ?>" href="categories.php">
+                    <i class="fas fa-folder"></i> Categorías
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'comments.php' ? 'active' : ''; ?>" href="comments.php">
+                    <i class="fas fa-comments"></i> Comentarios
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'media.php' ? 'active' : ''; ?>" href="media.php">
+                    <i class="fas fa-images"></i> Multimedia
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'subscribers.php' ? 'active' : ''; ?>" href="subscribers.php">
+                    <i class="fas fa-users"></i> Suscriptores
+                </a>
+            </li>
+        </ul>
+		
+		<!-- 
+		MENSAJES
+		-->
+
+		<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+			<span>MENSAJES</span>
+		</h6>
+		<ul class="nav flex-column">
+			<li class="nav-item">
+				<a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'contact.php' ? 'active' : ''; ?>" href="contact.php">
+					<i class="fas fa-envelope"></i> Mensajes de Contacto
+					<?php 
+					if (class_exists('Contact')) {
+						$contact = new Contact();
+						$newCount = $contact->getMessages(1, 1, 'new')['total'];
+						if ($newCount > 0): 
+					?>
+					<span class="badge bg-danger rounded-pill ms-2"><?php echo $newCount; ?></span>
+					<?php 
+						endif;
+					} 
+					?>
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'test-email.php' ? 'active' : ''; ?>" href="test-email.php">
+					<i class="fas fa-paper-plane"></i> Probar Correo
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'email-settings.php' ? 'active' : ''; ?>" href="email-settings.php">
+					<i class="fas fa-cog"></i> Configuración de Correo
+				</a>
+			</li>
+		</ul>
+		
+		<!-- 
+		VACANTES Y RECLUTAMIENTO
+		-->
+
+		<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+			<span>VACANTES Y RECLUTAMIENTO</span>
+		</h6>
+		<ul class="nav flex-column">
+			<li class="nav-item">
+				<a class="nav-link <?php echo in_array(basename($_SERVER['PHP_SELF']), ['index.php', 'vacante-nueva.php', 'vacante-editar.php']) && strpos($_SERVER['PHP_SELF'], '/vacantes/') !== false ? 'active' : ''; ?>" href="<?php echo isset($adminUrl) ? $adminUrl : ''; ?>vacantes/index.php">
+					<i class="fas fa-briefcase"></i> Vacantes
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' && strpos($_SERVER['PHP_SELF'], '/aplicaciones/') !== false ? 'active' : ''; ?>" href="<?php echo isset($adminUrl) ? $adminUrl : ''; ?>aplicaciones/index.php">
+					<i class="fas fa-clipboard-list"></i> Aplicaciones
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' && strpos($_SERVER['PHP_SELF'], '/candidatos/') !== false ? 'active' : ''; ?>" href="<?php echo isset($adminUrl) ? $adminUrl : ''; ?>candidatos/index.php">
+					<i class="fas fa-user-tie"></i> Candidatos
+				</a>
+			</li>
+		</ul>
+>>>>>>> bfdd4b60a420df76ff03f2ca490715c5b78545c5
         
         <!-- Botón de Ver Sitio -->
         <div class="mt-4 px-3">
