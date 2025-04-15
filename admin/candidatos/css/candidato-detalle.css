@@ -1,0 +1,678 @@
+/**
+ * Estilos específicos para el perfil de candidato
+ */
+
+:root {
+    --primary: #0d6efd;
+    --primary-light: #e3f2fd;
+    --success: #198754;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --dark: #212529;
+    --gray: #6c757d;
+    --light: #f8f9fa;
+    --white: #fff;
+    --shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    --radius: 0.5rem;
+}
+
+/* Encabezado del perfil */
+.profile-header {
+    position: relative;
+    padding: 2rem;
+    border-radius: var(--radius);
+    background-color: var(--white);
+    margin-bottom: 2rem;
+    border-left: 5px solid var(--primary);
+    box-shadow: var(--shadow);
+}
+
+.profile-header-top {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 2rem;
+    background-color: var(--primary-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid var(--white);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    color: var(--primary);
+}
+
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-image i {
+    font-size: 3.5rem;
+    color: var(--primary);
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.profile-title {
+    margin: 0.25rem 0 1rem;
+    font-size: 1.25rem;
+    color: var(--gray);
+}
+
+.profile-match {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--success);
+    color: white;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.match-icon {
+    font-size: 1rem;
+}
+
+.profile-contact {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.contact-item {
+    margin-right: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.contact-item i {
+    margin-right: 0.5rem;
+    color: var(--primary);
+}
+
+.profile-badges {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.profile-badge {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.profile-badge.primary {
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+
+.profile-badge.success {
+    background-color: #d1e7dd;
+    color: #146c43;
+}
+
+.profile-badge.warning {
+    background-color: #fff3cd;
+    color: #997404;
+}
+
+.profile-badge.info {
+    background-color: #cff4fc;
+    color: #087990;
+}
+
+.profile-badge.danger {
+    background-color: #f8d7da;
+    color: #b02a37;
+}
+
+.profile-actions {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+}
+
+/* Tabs modernos */
+.tabs-container {
+    margin-bottom: 2rem;
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #eaeaea;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+}
+
+.tab {
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--gray);
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+}
+
+.tab:hover {
+    color: var(--primary);
+}
+
+.tab.active {
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Cards modernas */
+.profile-section {
+    margin-bottom: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    background-color: var(--white);
+    overflow: hidden;
+}
+
+.profile-section-header {
+    padding: 1.25rem 1.5rem;
+    background-color: var(--white);
+    border-bottom: 1px solid #eaeaea;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.profile-section-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.profile-section-body {
+    padding: 1.5rem;
+}
+
+/* Barras de competencia */
+.competency-bar {
+    height: 8px;
+    background-color: #eaeaea;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+}
+
+.competency-progress {
+    height: 100%;
+    border-radius: 4px;
+}
+
+.progress-exceptional {
+    background-color: #00c853;
+}
+
+.progress-outstanding {
+    background-color: #64dd17;
+}
+
+.progress-notable {
+    background-color: #aeea00;
+}
+
+.progress-adequate {
+    background-color: #ffd600;
+}
+
+.progress-moderate {
+    background-color: #ffab00;
+}
+
+.progress-developing {
+    background-color: #ff6d00;
+}
+
+.progress-incipient {
+    background-color: #dd2c00;
+}
+
+.competency-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.competency-label {
+    width: 180px;
+    font-weight: 500;
+    padding-right: 1rem;
+}
+
+.competency-score {
+    width: 50px;
+    text-align: right;
+    padding-right: 1rem;
+    font-weight: bold;
+}
+
+.competency-bar-container {
+    flex: 1;
+}
+
+.competency-level {
+    width: 120px;
+    text-align: right;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Resultados de evaluaciones */
+.assessment-result {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.result-score {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    border: 3px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.result-info {
+    flex: 1;
+}
+
+.result-title {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.result-date {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--gray);
+}
+
+.score-high {
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.score-medium {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.score-low {
+    border-color: var(--warning);
+    color: var(--warning);
+}
+
+/* Gráficos y visualizaciones */
+.chart-container {
+    height: 300px;
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+/* Dimensiones de evaluación */
+.dimension-item {
+    margin-bottom: 1rem;
+}
+
+.dimension-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.dimension-title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.dimension-score {
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.dimension-bar {
+    height: 6px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.dimension-progress {
+    height: 100%;
+    transition: width 1s ease;
+}
+
+.dimension-progress.high {
+    background-color: var(--success);
+}
+
+.dimension-progress.medium {
+    background-color: var(--primary);
+}
+
+.dimension-progress.low {
+    background-color: var(--warning);
+}
+
+/* Fortalezas y debilidades */
+.strengths-weaknesses {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .strengths-weaknesses {
+        grid-template-columns: 1fr;
+    }
+}
+
+.strength-item, .weakness-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.item-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    background-color: #d1e7dd;
+    color: #146c43;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+.weakness-icon {
+    background-color: #f8d7da;
+    color: #b02a37;
+}
+
+.item-content {
+    flex: 1;
+}
+
+.item-title {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.item-description {
+    font-size: 0.875rem;
+    color: var(--gray);
+}
+
+/* Personalidad */
+.personality-dimension {
+    display: flex;
+    margin-bottom: 1.5rem;
+    align-items: center;
+}
+
+.dimension-label {
+    width: 140px;
+    text-align: right;
+    padding-right: 1rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.dimension-scale {
+    flex: 1;
+    height: 24px;
+    background: linear-gradient(to right, #e3f2fd, #f5f5f5, #f8d7da);
+    border-radius: 12px;
+    position: relative;
+}
+
+.dimension-marker {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    top: 0;
+    transform: translateX(-50%);
+}
+
+.opposite-label {
+    width: 140px;
+    padding-left: 1rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+/* Recomendaciones */
+.recommendation-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #eaeaea;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+
+.recommendation-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+}
+
+.recommendation-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--primary-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.5rem;
+}
+
+.recommendation-content {
+    flex: 1;
+}
+
+.recommendation-title {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.recommendation-match {
+    font-size: 0.875rem;
+    color: var(--success);
+    font-weight: 500;
+}
+
+/* Habilidades */
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Entrevistas */
+.interview-section {
+    margin-bottom: 1.5rem;
+}
+
+.interview-section-title {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    color: var(--primary);
+}
+
+.interview-question {
+    margin-bottom: 0.75rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.interview-question:before {
+    content: "•";
+    position: absolute;
+    left: 0.5rem;
+    color: var(--primary);
+}
+
+.signals-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .signals-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Estilos responsivos */
+@media (max-width: 991px) {
+    .profile-header-top {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .profile-image {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .profile-contact {
+        justify-content: center;
+    }
+    
+    .profile-badges {
+        justify-content: center;
+    }
+    
+    .competency-row {
+        flex-wrap: wrap;
+    }
+    
+    .competency-label {
+        width: 100%;
+        margin-bottom: 0.25rem;
+    }
+    
+    .competency-score {
+        width: auto;
+    }
+    
+    .competency-level {
+        width: auto;
+        margin-left: 1rem;
+    }
+}
+
+/* Estilos para impresión */
+@media print {
+    body {
+        padding: 0;
+        margin: 0;
+        background-color: white !important;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+    
+    .container-fluid {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+    }
+    
+    .profile-header {
+        border-radius: 0;
+        box-shadow: none;
+        padding: 1rem 0;
+    }
+    
+    .profile-section {
+        page-break-inside: avoid;
+        border-radius: 0;
+        box-shadow: none;
+        margin-bottom: 1rem;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .col-md-4, .col-md-8, .col-md-6 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+    
+    .profile-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .profile-name {
+        font-size: 1.5rem;
+    }
+    
+    .profile-title {
+        font-size: 1rem;
+    }
+    
+    .profile-section-title {
+        font-size: 1.25rem;
+    }
+}
