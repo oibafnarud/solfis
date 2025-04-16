@@ -1113,5 +1113,469 @@ public function getCompletedTests($candidato_id) {
     
     return $tests;
 }
+
+    /**
+     * Obtiene los índices compuestos
+     * @return array Listado de índices compuestos
+     */
+    public function getIndicesCompuestos() {
+        $sql = "SELECT * FROM indices_compuestos ORDER BY nombre";
+        $result = $this->db->query($sql);
+        $indices = [];
+        
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $indices[] = $row;
+            }
+        }
+        
+        return $indices;
+    }
+    
+    /**
+     * Obtiene un índice compuesto por su ID
+     * @param int $id ID del índice compuesto
+     * @return array|null Datos del índice o null si no existe
+     */
+    public function getIndiceById($id) {
+        $id = (int)$id;
+        $sql = "SELECT * FROM indices_compuestos WHERE id = $id";
+        $result = $this->db->query($sql);
+        
+        return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
+    }
+    
+    /**
+     * Obtiene los componentes de un índice compuesto
+     * @param int $indiceId ID del índice compuesto
+     * @return array Componentes del índice
+     */
+    public function getComponentesIndice($indiceId) {
+        $indiceId = (int)$indiceId;
+        
+        $sql = "SELECT ic.*, 
+                CASE 
+                    WHEN ic.origen_tipo = 'dimension' THEN d.nombre 
+                    ELSE ind.nombre 
+                END AS componente_nombre,
+                ic.ponderacion
+                FROM indices_componentes ic
+                LEFT JOIN dimensiones d ON ic.origen_tipo = 'dimension' AND ic.origen_id = d.id
+                LEFT JOIN indices_compuestos ind ON ic.origen_tipo = 'indice' AND ic.origen_id = ind.id
+                WHERE ic.indice_id = $indiceId
+                ORDER BY ic.ponderacion DESC";
+                
+        $result = $this->db->query($sql);
+        $componentes = [];
+        
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $componentes[] = $row;
+            }
+        }
+        
+        return $componentes;
+    }
+    
+    /**
+     * Crea o actualiza un índice compuesto
+     * @param array $data Datos del índice
+     * @return array Resultado de la operación
+     */
+    public function saveIndiceCompuesto($data) {
+        // Validar datos requeridos
+        if (empty($data['nombre'])) {
+            return [
+                'success' => false,
+                'message' => 'El nombre del índice es obligatorio'
+            ];
+        }
+        
+        $nombre = $this->db->escape($data['nombre']);
+        $descripcion = $this->db->escape($data['descripcion'] ?? '');
+        
+        if (empty($data['id'])) {
+            // Crear nuevo índice
+            $sql = "INSERT INTO indices_compuestos (nombre, descripcion, created_at)
+                    VALUES ('$nombre', '$descripcion', NOW())";
+                    
+            if ($this->db->query($sql)) {
+                $indiceId = $this->db->lastInsertId();
+                
+                // Guardar componentes si se proporcionaron
+                if (!empty($data['componentes']) && is_array($data['componentes'])) {
+                    foreach ($data['componentes'] as $componente) {
+                        $this->saveComponenteIndice($indiceId, $componente);
+                    }
+                }
+                
+                return [
+                    'success' => true,
+                    'message' => 'Índice compuesto creado correctamente',
+                    'id' => $indiceId
+                ];
+            }
+        } else {
+            // Actualizar índice existente
+            $id = (int)$data['id'];
+            
+            $sql = "UPDATE indices_compuestos 
+                    SET nombre = '$nombre', 
+                        descripcion = '$descripcion', 
+                        updated_at = NOW()
+                    WHERE id = $id";
+                    
+            if ($this->db->query($sql)) {
+                // Eliminar componentes anteriores si es necesario
+                if (isset($data['clear_componentes']) && $data['clear_componentes']) {
+                    $this->clearComponentesIndice($id);
+                }
+                
+                // Guardar nuevos componentes
+                if (!empty($data['componentes']) && is_array($data['componentes'])) {
+                    foreach ($data['componentes'] as $componente) {
+                        $this->saveComponenteIndice($id, $componente);
+                    }
+                }
+                
+                return [
+                    'success' => true,
+                    'message' => 'Índice compuesto actualizado correctamente'
+                ];
+            }
+        }
+        
+        return [
+            'success' => false,
+            'message' => 'Error al guardar el índice compuesto: ' . $this->db->getConnection()->error
+        ];
+    }
+    
+    /**
+     * Guarda un componente de índice
+     * @param int $indiceId ID del índice
+     * @param array $data Datos del componente
+     * @return bool Resultado de la operación
+     */
+    private function saveComponenteIndice($indiceId, $data) {
+        $indiceId = (int)$indiceId;
+        $origenTipo = $this->db->escape($data['origen_tipo']);
+        $origenId = (int)$data['origen_id'];
+        $ponderacion = (float)$data['ponderacion'];
+        
+        // Validar que la ponderación esté entre 0 y 1
+        $ponderacion = max(0, min(1, $ponderacion));
+        
+        $sql = "INSERT INTO indices_componentes 
+                (indice_id, origen_tipo, origen_id, ponderacion, created_at)
+                VALUES ($indiceId, '$origenTipo', $origenId, $ponderacion, NOW())";
+                
+        return $this->db->query($sql);
+    }
+    
+    /**
+     * Elimina todos los componentes de un índice
+     * @param int $indiceId ID del índice
+     * @return bool Resultado de la operación
+     */
+    private function clearComponentesIndice($indiceId) {
+        $indiceId = (int)$indiceId;
+        
+        $sql = "DELETE FROM indices_componentes WHERE indice_id = $indiceId";
+        
+        return $this->db->query($sql);
+    }
+    
+    /**
+     * Obtiene los niveles de interpretación
+     * @return array Listado de niveles
+     */
+    public function getNivelesInterpretacion() {
+        $sql = "SELECT * FROM niveles_interpretacion ORDER BY orden ASC";
+        $result = $this->db->query($sql);
+        $niveles = [];
+        
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $niveles[] = $row;
+            }
+        }
+        
+        return $niveles;
+    }
+    
+    /**
+     * Calcula los índices compuestos para un candidato
+     * @param int $candidatoId ID del candidato
+     * @return bool Resultado de la operación
+     */
+    public function calculateCompositeIndices($candidatoId) {
+        $candidatoId = (int)$candidatoId;
+        
+        // Obtener todos los índices compuestos
+        $indices = $this->getIndicesCompuestos();
+        
+        foreach ($indices as $indice) {
+            // Obtener componentes del índice
+            $componentes = $this->getComponentesIndice($indice['id']);
+            
+            if (empty($componentes)) continue;
+            
+            $valorTotal = 0;
+            $ponderacionTotal = 0;
+            $componentesDisponibles = 0;
+            
+            // Calcular valor ponderado de cada componente
+            foreach ($componentes as $componente) {
+                $valor = null;
+                
+                if ($componente['origen_tipo'] == 'dimension') {
+                    // Obtener el valor de la dimensión primaria
+                    $sql = "SELECT valor_normalizado FROM resultados 
+                            WHERE candidato_id = {$candidatoId} AND dimension_id = {$componente['origen_id']}
+                            ORDER BY created_at DESC LIMIT 1";
+                    $result = $this->db->query($sql);
+                    
+                    if ($result && $result->num_rows > 0) {
+                        $row = $result->fetch_assoc();
+                        $valor = $row['valor_normalizado'];
+                    }
+                } else {
+                    // Obtener el valor del índice compuesto (recursivo)
+                    $sql = "SELECT valor FROM resultados_indices 
+                            WHERE candidato_id = {$candidatoId} AND indice_id = {$componente['origen_id']}
+                            ORDER BY created_at DESC LIMIT 1";
+                    $result = $this->db->query($sql);
+                    
+                    if ($result && $result->num_rows > 0) {
+                        $row = $result->fetch_assoc();
+                        $valor = $row['valor'];
+                    }
+                }
+                
+                if ($valor !== null) {
+                    $valorTotal += $valor * $componente['ponderacion'];
+                    $ponderacionTotal += $componente['ponderacion'];
+                    $componentesDisponibles++;
+                }
+            }
+            
+            // Si hay componentes disponibles, calcular el valor final
+            if ($componentesDisponibles > 0 && $ponderacionTotal > 0) {
+                $valorFinal = $valorTotal / $ponderacionTotal;
+                
+                // Obtener el nivel de interpretación
+                $nivelId = $this->determineInterpretationLevel($valorFinal);
+                
+                // Generar interpretación basada en el nivel
+                $interpretacion = $this->generateInterpretation($indice['id'], $nivelId);
+                
+                // Insertar o actualizar el resultado del índice
+                $sql = "INSERT INTO resultados_indices 
+                        (candidato_id, indice_id, valor, nivel_id, interpretacion, created_at) 
+                        VALUES ({$candidatoId}, {$indice['id']}, {$valorFinal}, ";
+                
+                $sql .= $nivelId ? "$nivelId" : "NULL";
+                $sql .= ", ";
+                $sql .= $interpretacion ? "'{$this->db->escape($interpretacion)}'" : "NULL";
+                $sql .= ", NOW())";
+                
+                $this->db->query($sql);
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Determina el nivel de interpretación para un valor
+     * @param float $valor Valor a interpretar
+     * @return int|null ID del nivel de interpretación o null si no hay ninguno aplicable
+     */
+    private function determineInterpretationLevel($valor) {
+        $sql = "SELECT id FROM niveles_interpretacion 
+                WHERE $valor BETWEEN rango_min AND rango_max
+                ORDER BY orden ASC LIMIT 1";
+        $result = $this->db->query($sql);
+        
+        return ($result && $result->num_rows > 0) ? $result->fetch_assoc()['id'] : null;
+    }
+    
+    /**
+     * Genera interpretación para un valor
+     * @param int $entidadId ID de la entidad (índice o dimensión)
+     * @param int|null $nivelId ID del nivel
+     * @param string $tipo Tipo de entidad ('indice' o 'dimension')
+     * @return string|null Texto de interpretación o null si no hay ninguna aplicable
+     */
+    private function generateInterpretation($entidadId, $nivelId, $tipo = 'indice') {
+        if (!$nivelId) return null;
+        
+        // Buscar interpretación específica
+        $sql = "SELECT descripcion_completa FROM interpretaciones 
+                WHERE entidad_tipo = '$tipo' AND entidad_id = $entidadId AND nivel_id = $nivelId";
+        $result = $this->db->query($sql);
+        
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row['descripcion_completa'];
+        }
+        
+        // Si no hay interpretación específica, usar la general del nivel
+        $sql = "SELECT n.nombre, ni.descripcion_generica
+                FROM niveles_interpretacion n
+                LEFT JOIN niveles_interpretacion_text ni ON n.id = ni.nivel_id
+                WHERE n.id = $nivelId";
+        $result = $this->db->query($sql);
+        
+        if ($result && $result->num_rows > 0) {
+            $nivel = $result->fetch_assoc();
+            
+            // Obtener nombre de la entidad
+            if ($tipo == 'indice') {
+                $sql = "SELECT nombre FROM indices_compuestos WHERE id = $entidadId";
+            } else {
+                $sql = "SELECT nombre FROM dimensiones WHERE id = $entidadId";
+            }
+            $result = $this->db->query($sql);
+            
+            if ($result && $result->num_rows > 0) {
+                $entidad = $result->fetch_assoc();
+                
+                return "Nivel {$nivel['nombre']} en {$entidad['nombre']}: " . 
+                       ($nivel['descripcion_generica'] ?? 'No hay descripción disponible para este nivel.');
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Obtiene los resultados de índices compuestos para un candidato
+     * @param int $candidatoId ID del candidato
+     * @return array Resultados de índices compuestos
+     */
+    public function getIndicesResultsByCandidate($candidatoId) {
+        $candidatoId = (int)$candidatoId;
+        
+        $sql = "SELECT ri.*, ic.nombre as indice_nombre, ni.nombre as nivel_nombre, ni.color as nivel_color
+                FROM resultados_indices ri
+                JOIN indices_compuestos ic ON ri.indice_id = ic.id
+                LEFT JOIN niveles_interpretacion ni ON ri.nivel_id = ni.id
+                WHERE ri.candidato_id = $candidatoId
+                ORDER BY ri.created_at DESC";
+                
+        $result = $this->db->query($sql);
+        $results = [];
+        
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $results[] = $row;
+            }
+        }
+        
+        // Agrupar por índice (mostrar solo el resultado más reciente para cada índice)
+        $grouped = [];
+        foreach ($results as $r) {
+            if (!isset($grouped[$r['indice_id']])) {
+                $grouped[$r['indice_id']] = $r;
+            }
+        }
+        
+        return array_values($grouped);
+    }
+    
+    /**
+     * Obtiene el núcleo motivacional de un candidato
+     * @param int $candidatoId ID del candidato
+     * @return array|null Datos del núcleo motivacional o null si no existe
+     */
+    public function getMotivationalCoreByCandidate($candidatoId) {
+        $candidatoId = (int)$candidatoId;
+        
+        $sql = "SELECT nm.*, 
+                d1.nombre as motivacion1_nombre,
+                d2.nombre as motivacion2_nombre,
+                d3.nombre as motivacion3_nombre
+                FROM nucleos_motivacionales nm
+                JOIN dimensiones d1 ON nm.motivacion1_id = d1.id
+                LEFT JOIN dimensiones d2 ON nm.motivacion2_id = d2.id
+                LEFT JOIN dimensiones d3 ON nm.motivacion3_id = d3.id
+                WHERE nm.candidato_id = $candidatoId
+                ORDER BY nm.created_at DESC
+                LIMIT 1";
+                
+        $result = $this->db->query($sql);
+        
+        return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
+    }
+    
+    /**
+     * Genera un informe completo para un candidato
+     * @param int $candidatoId ID del candidato
+     * @param string $type Tipo de informe (resumen, completo, ejecutivo)
+     * @return string HTML del informe generado
+     */
+    public function generateCandidateReport($candidatoId, $type = 'completo') {
+        $candidatoId = (int)$candidatoId;
+        
+        // Obtener datos del candidato
+        $candidateManager = new CandidateManager();
+        $candidate = $candidateManager->getCandidateById($candidatoId);
+        
+        if (!$candidate) {
+            return '<div class="alert alert-danger">Candidato no encontrado</div>';
+        }
+        
+        // Obtener resultados
+        $resultsDimensions = $this->getResultsByCandidate($candidatoId);
+        $resultsIndices = $this->getIndicesResultsByCandidate($candidatoId);
+        $motivationalCore = $this->getMotivationalCoreByCandidate($candidatoId);
+        
+        // Generar HTML según el tipo de informe
+        $html = '';
+        
+        switch ($type) {
+            case 'resumen':
+                $html = $this->generateSummaryReport($candidate, $resultsDimensions, $resultsIndices, $motivationalCore);
+                break;
+                
+            case 'ejecutivo':
+                $html = $this->generateExecutiveReport($candidate, $resultsDimensions, $resultsIndices, $motivationalCore);
+                break;
+                
+            case 'completo':
+            default:
+                $html = $this->generateCompleteReport($candidate, $resultsDimensions, $resultsIndices, $motivationalCore);
+                break;
+        }
+        
+        return $html;
+    }
+    
+    /**
+     * Guarda un informe generado
+     * @param int $candidatoId ID del candidato
+     * @param string $type Tipo de informe
+     * @param string $content Contenido del informe
+     * @param int|null $userId ID del usuario que generó el informe
+     * @return int|false ID del informe guardado o false si hubo error
+     */
+    public function saveReport($candidatoId, $type, $content, $userId = null) {
+        $candidatoId = (int)$candidatoId;
+        $type = $this->db->escape($type);
+        $content = $this->db->escape($content);
+        $userId = $userId ? (int)$userId : 'NULL';
+        
+        $sql = "INSERT INTO informes_generados 
+                (candidato_id, tipo, contenido, fecha_generacion, generado_por)
+                VALUES ($candidatoId, '$type', '$content', NOW(), $userId)";
+                
+        if ($this->db->query($sql)) {
+            return $this->db->lastInsertId();
+        }
+        
+        return false;
+    }
 }
 ?>
