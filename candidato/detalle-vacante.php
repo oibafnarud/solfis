@@ -1234,5 +1234,58 @@ $site_title = htmlspecialchars($vacante['titulo']) . " - SolFis Talentos";
             }
         });
     </script>
+	
+	<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Autocompletar campos del formulario con datos del perfil
+        const applicationForm = document.getElementById('applicationForm');
+        
+        if (applicationForm) {
+            // Obtener datos del perfil del candidato
+            const candidatoData = {
+                experiencia: "<?php echo htmlspecialchars($candidato['experiencia_general'] ?? ''); ?>",
+                empresa_actual: "<?php echo htmlspecialchars($candidato['empresa_actual'] ?? ''); ?>",
+                cargo_actual: "<?php echo htmlspecialchars($candidato['cargo_actual'] ?? ''); ?>",
+                salario_esperado: "<?php echo htmlspecialchars($candidato['salario_esperado'] ?? ''); ?>",
+                disponibilidad: "<?php echo htmlspecialchars($candidato['disponibilidad'] ?? ''); ?>",
+                modalidad_preferida: "<?php echo htmlspecialchars($candidato['modalidad_preferida'] ?? ''); ?>"
+            };
+            
+            // Autocompletar campos si existen
+            for (const [key, value] of Object.entries(candidatoData)) {
+                const field = document.getElementById(key);
+                if (field && value) {
+                    if (field.tagName === 'SELECT') {
+                        // Para campos select
+                        Array.from(field.options).forEach(option => {
+                            if (option.value === value) {
+                                option.selected = true;
+                            }
+                        });
+                    } else {
+                        // Para inputs y textareas
+                        field.value = value;
+                    }
+                }
+            }
+            
+            // Generar una carta de presentación preliminar si está vacía
+            const cartaPresentacion = document.getElementById('carta_presentacion');
+            if (cartaPresentacion && !cartaPresentacion.value.trim()) {
+                cartaPresentacion.value = `Estimado/a Reclutador/a,
+
+Me dirijo a usted para expresar mi interés en la posición de ${document.querySelector('.job-detail-title')?.textContent || 'esta vacante'}. 
+
+Con mi experiencia en ${candidatoData.experiencia || 'el área'} y mis habilidades profesionales, considero que puedo aportar valor a su organización.
+
+Agradezco su tiempo y consideración. Quedo a la espera de su respuesta.
+
+Atentamente,
+${document.querySelector('.profile-info h2')?.textContent || 'Candidato'}`;
+            }
+        }
+    });
+</script>
+
 </body>
 </html>

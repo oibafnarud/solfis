@@ -1481,83 +1481,557 @@ class CandidateManager {
         return $this->db->query($sql);
     }
     
-    /**
-     * Actualizar datos de un candidato
-     */
-    public function updateCandidate($id, $data) {
-        $id = (int)$id;
-        
-        // Validar datos requeridos
-        if (empty($data['nombre']) || empty($data['apellido']) || empty($data['email'])) {
-            return [
-                'success' => false,
-                'message' => 'Faltan campos obligatorios'
-            ];
-        }
-        
-        // Verificar si el email ya existe para otro candidato
-        $email = $this->db->escape($data['email']);
-        $checkSql = "SELECT id FROM candidatos WHERE email = '$email' AND id != $id";
-        $checkResult = $this->db->query($checkSql);
-        
-        if ($checkResult && $checkResult->num_rows > 0) {
-            return [
-                'success' => false,
-                'message' => 'El email ya está en uso por otro candidato'
-            ];
-        }
-        
-        // Construir la consulta SQL dinámicamente
-        $updates = [];
-        
-        // Campos conocidos que podrían venir en $data
-        $posibles_campos = [
-            'nombre', 'apellido', 'email', 'telefono', 'ubicacion', 'resumen',
-            'cv_path', 'foto_path', 'linkedin', 'portfolio', 'user_id',
-            'password', 'nivel_educativo', 'fecha_nacimiento', 'genero',
-            'areas_interes', 'habilidades_destacadas', 'experiencia_general',
-            'salario_esperado', 'modalidad_preferida', 'tipo_contrato_preferido',
-            'disponibilidad', 'evaluaciones_pendientes', 'recibir_notificaciones',
-            'disponibilidad_viajar', 'ubicacion_preferida', 'resumen_profesional'
+ /**
+ * Actualiza los datos de un candidato
+ *
+ * @param int $id ID del candidato
+ * @param array $data Datos a actualizar
+ * @return array Resultado de la operación
+ */
+public function updateCandidate($id, $data) {
+    // Validar ID
+    $id = (int)$id;
+    if ($id <= 0) {
+        return ['success' => false, 'message' => 'ID de candidato inválido'];
+    }
+    
+    // Validar datos requeridos
+    if (empty($data['nombre']) || empty($data['apellido']) || empty($data['email'])) {
+        return [
+            'success' => false,
+            'message' => 'Faltan campos obligatorios'
         ];
+    }
+    
+    // Verificar si el email ya existe para otro candidato
+    $email = $this->db->escape($data['email']);
+    $checkSql = "SELECT id FROM candidatos WHERE email = '$email' AND id != $id";
+    $checkResult = $this->db->query($checkSql);
+    
+    if ($checkResult && $checkResult->num_rows > 0) {
+        return [
+            'success' => false,
+            'message' => 'El email ya está en uso por otro candidato'
+        ];
+    }
+    
+    // Construir la consulta SQL dinámicamente
+    $updates = [];
+    
+    // Campos conocidos que podrían venir en $data
+    $posibles_campos = [
+        'nombre', 'apellido', 'email', 'telefono', 'ubicacion', 'resumen',
+        'cv_path', 'foto_path', 'linkedin', 'portfolio', 'user_id',
+        'password', 'nivel_educativo', 'fecha_nacimiento', 'genero',
+        'areas_interes', 'habilidades_destacadas', 'experiencia_general',
+        'salario_esperado', 'modalidad_preferida', 'tipo_contrato_preferido',
+        'disponibilidad', 'evaluaciones_pendientes', 'recibir_notificaciones',
+        'disponibilidad_viajar', 'ubicacion_preferida', 'resumen_profesional',
+        'status'
+    ];
+    
+    // Procesar cada campo posible
+    foreach ($posibles_campos as $campo) {
+        if (isset($data[$campo])) {
+            // Tratar el valor según su tipo
+            if (in_array($campo, ['user_id', 'evaluaciones_pendientes', 'recibir_notificaciones', 'status'])) {
+                // Campos enteros
+                $updates[] = "$campo = " . (!empty($data[$campo]) ? (int)$data[$campo] : 'NULL');
+            } elseif ($campo === 'fecha_nacimiento') {
+                // Fechas
+                $updates[] = "$campo = " . (!empty($data[$campo]) ? "'" . $this->db->escape($data[$campo]) . "'" : 'NULL');
+            } else {
+                // Cadenas de texto
+                $updates[] = "$campo = '" . $this->db->escape($data[$campo]) . "'";
+            }
+        }
+    }
+    
+    // Añadir campo de actualización
+    $updates[] = "updated_at = NOW()";
+    
+    // Construir la consulta SQL
+    $updates_str = implode(', ', $updates);
+    
+    $sql = "UPDATE candidatos SET $updates_str WHERE id = $id";
+    
+    // Ejecutar la consulta
+    if ($this->db->query($sql)) {
+        // Recalcular completitud del perfil
+        $this->calcularCompletitudPerfil($id);
         
-        // Procesar cada campo posible
-        foreach ($posibles_campos as $campo) {
-            if (isset($data[$campo])) {
-                // Tratar el valor según su tipo
-                if ($campo === 'user_id' || $campo === 'evaluaciones_pendientes' || $campo === 'recibir_notificaciones') {
-                    // Campos enteros
-                    $updates[] = "$campo = " . (!empty($data[$campo]) ? (int)$data[$campo] : 'NULL');
-                } elseif ($campo === 'fecha_nacimiento') {
-                    // Fechas
-                    $updates[] = "$campo = " . (!empty($data[$campo]) ? "'" . $this->db->escape($data[$campo]) . "'" : 'NULL');
-                } else {
-                    // Cadenas de texto
-                    $updates[] = "$campo = '" . $this->db->escape($data[$campo]) . "'";
-                }
+        return [
+            'success' => true,
+            'message' => 'Candidato actualizado con éxito'
+        ];
+    } else {
+        return [
+            'success' => false,
+            'message' => 'Error al actualizar el candidato: ' . $this->db->getConnection()->error
+        ];
+    }
+}
+	
+	    /**
+     * Obtiene la experiencia laboral de un candidato
+     *
+     * @param int $candidato_id ID del candidato
+     * @return array Experiencias laborales
+     */
+    public function getExperienciaLaboral($candidato_id) {
+        $candidato_id = (int)$candidato_id;
+        
+        $sql = "SELECT * FROM experiencia_laboral 
+                WHERE candidato_id = $candidato_id 
+                ORDER BY actual DESC, fecha_inicio DESC";
+                
+        $result = $this->db->query($sql);
+        $experiencias = [];
+        
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $experiencias[] = $row;
             }
         }
         
-        // Añadir campo de actualización
-        $updates[] = "updated_at = NOW()";
+        return $experiencias;
+    }
+    
+    /**
+     * Añade una experiencia laboral
+     *
+     * @param array $data Datos de la experiencia
+     * @return array Resultado de la operación
+     */
+    public function addExperienciaLaboral($data) {
+        // Validar datos requeridos
+        if (empty($data['candidato_id']) || empty($data['empresa']) || empty($data['puesto']) || empty($data['fecha_inicio'])) {
+            return ['success' => false, 'message' => 'Faltan datos requeridos'];
+        }
         
-        // Construir la consulta SQL
-        $updates_str = implode(', ', $updates);
+        // Sanitizar datos
+        $candidato_id = (int)$data['candidato_id'];
+        $empresa = $this->db->escape($data['empresa']);
+        $puesto = $this->db->escape($data['puesto']);
+        $fecha_inicio = $this->db->escape($data['fecha_inicio']);
+        $fecha_fin = !empty($data['fecha_fin']) ? "'" . $this->db->escape($data['fecha_fin']) . "'" : "NULL";
+        $actual = !empty($data['actual']) ? 1 : 0;
+        $ubicacion = !empty($data['ubicacion']) ? "'" . $this->db->escape($data['ubicacion']) . "'" : "NULL";
+        $descripcion = !empty($data['descripcion']) ? "'" . $this->db->escape($data['descripcion']) . "'" : "NULL";
+        $logros = !empty($data['logros']) ? "'" . $this->db->escape($data['logros']) . "'" : "NULL";
+        $sector = !empty($data['sector']) ? "'" . $this->db->escape($data['sector']) . "'" : "NULL";
+        $razon_salida = !empty($data['razon_salida']) ? "'" . $this->db->escape($data['razon_salida']) . "'" : "NULL";
         
-        $sql = "UPDATE candidatos SET $updates_str WHERE id = $id";
-        
-        // Ejecutar la consulta
+        // Insertar experiencia
+        $sql = "INSERT INTO experiencia_laboral (
+                    candidato_id, empresa, puesto, fecha_inicio, fecha_fin, actual, 
+                    ubicacion, descripcion, logros, sector, razon_salida
+                ) VALUES (
+                    $candidato_id, '$empresa', '$puesto', '$fecha_inicio', $fecha_fin, $actual,
+                    $ubicacion, $descripcion, $logros, $sector, $razon_salida
+                )";
+                
         if ($this->db->query($sql)) {
+            // Recalcular completitud del perfil
+            $this->calcularCompletitudPerfil($candidato_id);
+            
+            return ['success' => true, 'message' => 'Experiencia laboral añadida correctamente', 'id' => $this->db->lastInsertId()];
+        }
+        
+        return ['success' => false, 'message' => 'Error al añadir experiencia laboral: ' . $this->db->getLastError()];
+    }
+    
+    /**
+     * Actualiza una experiencia laboral
+     *
+     * @param array $data Datos de la experiencia
+     * @return array Resultado de la operación
+     */
+    public function updateExperienciaLaboral($data) {
+        // Validar datos requeridos
+        if (empty($data['id']) || empty($data['candidato_id']) || empty($data['empresa']) || empty($data['puesto']) || empty($data['fecha_inicio'])) {
+            return ['success' => false, 'message' => 'Faltan datos requeridos'];
+        }
+        
+        // Sanitizar datos
+        $id = (int)$data['id'];
+        $candidato_id = (int)$data['candidato_id'];
+        $empresa = $this->db->escape($data['empresa']);
+        $puesto = $this->db->escape($data['puesto']);
+        $fecha_inicio = $this->db->escape($data['fecha_inicio']);
+        $fecha_fin = !empty($data['fecha_fin']) ? "'" . $this->db->escape($data['fecha_fin']) . "'" : "NULL";
+        $actual = !empty($data['actual']) ? 1 : 0;
+        $ubicacion = !empty($data['ubicacion']) ? "'" . $this->db->escape($data['ubicacion']) . "'" : "NULL";
+        $descripcion = !empty($data['descripcion']) ? "'" . $this->db->escape($data['descripcion']) . "'" : "NULL";
+        $logros = !empty($data['logros']) ? "'" . $this->db->escape($data['logros']) . "'" : "NULL";
+        $sector = !empty($data['sector']) ? "'" . $this->db->escape($data['sector']) . "'" : "NULL";
+        $razon_salida = !empty($data['razon_salida']) ? "'" . $this->db->escape($data['razon_salida']) . "'" : "NULL";
+        
+        // Verificar que la experiencia pertenece al candidato
+        $checkSql = "SELECT id FROM experiencia_laboral WHERE id = $id AND candidato_id = $candidato_id";
+        $checkResult = $this->db->query($checkSql);
+        
+        if (!$checkResult || $checkResult->num_rows === 0) {
+            return ['success' => false, 'message' => 'La experiencia laboral no pertenece a este candidato'];
+        }
+        
+        // Actualizar experiencia
+        $sql = "UPDATE experiencia_laboral SET
+                    empresa = '$empresa',
+                    puesto = '$puesto',
+                    fecha_inicio = '$fecha_inicio',
+                    fecha_fin = $fecha_fin,
+                    actual = $actual,
+                    ubicacion = $ubicacion,
+                    descripcion = $descripcion,
+                    logros = $logros,
+                    sector = $sector,
+                    razon_salida = $razon_salida,
+                    updated_at = NOW()
+                WHERE id = $id AND candidato_id = $candidato_id";
+                
+        if ($this->db->query($sql)) {
+            return ['success' => true, 'message' => 'Experiencia laboral actualizada correctamente'];
+        }
+        
+        return ['success' => false, 'message' => 'Error al actualizar experiencia laboral: ' . $this->db->getLastError()];
+    }
+    
+    /**
+     * Elimina una experiencia laboral
+     *
+     * @param int $id ID de la experiencia
+     * @param int $candidato_id ID del candidato
+     * @return array Resultado de la operación
+     */
+    public function deleteExperienciaLaboral($id, $candidato_id) {
+        $id = (int)$id;
+        $candidato_id = (int)$candidato_id;
+        
+        // Verificar que la experiencia pertenece al candidato
+        $checkSql = "SELECT id FROM experiencia_laboral WHERE id = $id AND candidato_id = $candidato_id";
+        $checkResult = $this->db->query($checkSql);
+        
+        if (!$checkResult || $checkResult->num_rows === 0) {
+            return ['success' => false, 'message' => 'La experiencia laboral no pertenece a este candidato'];
+        }
+        
+        // Eliminar experiencia
+        $sql = "DELETE FROM experiencia_laboral WHERE id = $id AND candidato_id = $candidato_id";
+        
+        if ($this->db->query($sql)) {
+            // Recalcular completitud del perfil
+            $this->calcularCompletitudPerfil($candidato_id);
+            
+            return ['success' => true, 'message' => 'Experiencia laboral eliminada correctamente'];
+        }
+        
+        return ['success' => false, 'message' => 'Error al eliminar experiencia laboral: ' . $this->db->getLastError()];
+    }
+    
+    /**
+     * Obtiene las referencias de un candidato
+     *
+     * @param int $candidato_id ID del candidato
+     * @return array Referencias
+     */
+    public function getReferencias($candidato_id) {
+        $candidato_id = (int)$candidato_id;
+        
+        $sql = "SELECT * FROM referencias 
+                WHERE candidato_id = $candidato_id 
+                ORDER BY created_at DESC";
+                
+        $result = $this->db->query($sql);
+        $referencias = [];
+        
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $referencias[] = $row;
+            }
+        }
+        
+        return $referencias;
+    }
+    
+    /**
+     * Añade una referencia
+     *
+     * @param array $data Datos de la referencia
+     * @return array Resultado de la operación
+     */
+    public function addReferencia($data) {
+        // Validar datos requeridos
+        if (empty($data['candidato_id']) || empty($data['nombre']) || empty($data['puesto']) || empty($data['empresa']) || empty($data['relacion'])) {
+            return ['success' => false, 'message' => 'Faltan datos requeridos'];
+        }
+        
+        // Sanitizar datos
+        $candidato_id = (int)$data['candidato_id'];
+        $nombre = $this->db->escape($data['nombre']);
+        $puesto = $this->db->escape($data['puesto']);
+        $empresa = $this->db->escape($data['empresa']);
+        $relacion = $this->db->escape($data['relacion']);
+        $email = !empty($data['email']) ? "'" . $this->db->escape($data['email']) . "'" : "NULL";
+        $telefono = !empty($data['telefono']) ? "'" . $this->db->escape($data['telefono']) . "'" : "NULL";
+        $autoriza_contacto = !empty($data['autoriza_contacto']) ? 1 : 0;
+        
+        // Insertar referencia
+        $sql = "INSERT INTO referencias (
+                    candidato_id, nombre, puesto, empresa, relacion, email, telefono, autoriza_contacto
+                ) VALUES (
+                    $candidato_id, '$nombre', '$puesto', '$empresa', '$relacion', $email, $telefono, $autoriza_contacto
+                )";
+                
+        if ($this->db->query($sql)) {
+            // Recalcular completitud del perfil
+            $this->calcularCompletitudPerfil($candidato_id);
+            
+            return ['success' => true, 'message' => 'Referencia añadida correctamente', 'id' => $this->db->lastInsertId()];
+        }
+        
+        return ['success' => false, 'message' => 'Error al añadir referencia: ' . $this->db->getLastError()];
+    }
+    
+    /**
+     * Actualiza una referencia
+     *
+     * @param array $data Datos de la referencia
+     * @return array Resultado de la operación
+     */
+    public function updateReferencia($data) {
+        // Validar datos requeridos
+        if (empty($data['id']) || empty($data['candidato_id']) || empty($data['nombre']) || empty($data['puesto']) || empty($data['empresa']) || empty($data['relacion'])) {
+            return ['success' => false, 'message' => 'Faltan datos requeridos'];
+        }
+        
+        // Sanitizar datos
+        $id = (int)$data['id'];
+        $candidato_id = (int)$data['candidato_id'];
+        $nombre = $this->db->escape($data['nombre']);
+        $puesto = $this->db->escape($data['puesto']);
+        $empresa = $this->db->escape($data['empresa']);
+        $relacion = $this->db->escape($data['relacion']);
+        $email = !empty($data['email']) ? "'" . $this->db->escape($data['email']) . "'" : "NULL";
+        $telefono = !empty($data['telefono']) ? "'" . $this->db->escape($data['telefono']) . "'" : "NULL";
+        $autoriza_contacto = !empty($data['autoriza_contacto']) ? 1 : 0;
+        
+        // Verificar que la referencia pertenece al candidato
+        $checkSql = "SELECT id FROM referencias WHERE id = $id AND candidato_id = $candidato_id";
+        $checkResult = $this->db->query($checkSql);
+        
+        if (!$checkResult || $checkResult->num_rows === 0) {
+            return ['success' => false, 'message' => 'La referencia no pertenece a este candidato'];
+        }
+        
+        // Actualizar referencia
+        $sql = "UPDATE referencias SET
+                    nombre = '$nombre',
+                    puesto = '$puesto',
+                    empresa = '$empresa',
+                    relacion = '$relacion',
+                    email = $email,
+                    telefono = $telefono,
+                    autoriza_contacto = $autoriza_contacto,
+                    updated_at = NOW()
+                WHERE id = $id AND candidato_id = $candidato_id";
+                
+        if ($this->db->query($sql)) {
+            return ['success' => true, 'message' => 'Referencia actualizada correctamente'];
+        }
+        
+        return ['success' => false, 'message' => 'Error al actualizar referencia: ' . $this->db->getLastError()];
+    }
+    
+    /**
+     * Elimina una referencia
+     *
+     * @param int $id ID de la referencia
+     * @param int $candidato_id ID del candidato
+     * @return array Resultado de la operación
+     */
+    public function deleteReferencia($id, $candidato_id) {
+        $id = (int)$id;
+        $candidato_id = (int)$candidato_id;
+        
+        // Verificar que la referencia pertenece al candidato
+        $checkSql = "SELECT id FROM referencias WHERE id = $id AND candidato_id = $candidato_id";
+        $checkResult = $this->db->query($checkSql);
+        
+        if (!$checkResult || $checkResult->num_rows === 0) {
+            return ['success' => false, 'message' => 'La referencia no pertenece a este candidato'];
+        }
+        
+        // Eliminar referencia
+        $sql = "DELETE FROM referencias WHERE id = $id AND candidato_id = $candidato_id";
+        
+        if ($this->db->query($sql)) {
+            // Recalcular completitud del perfil
+            $this->calcularCompletitudPerfil($candidato_id);
+            
+            return ['success' => true, 'message' => 'Referencia eliminada correctamente'];
+        }
+        
+        return ['success' => false, 'message' => 'Error al eliminar referencia: ' . $this->db->getLastError()];
+    }
+    
+    /**
+     * Calcula el porcentaje de completitud del perfil de un candidato
+     *
+     * @param int $candidato_id ID del candidato
+     * @return int Porcentaje de completitud
+     */
+    public function calcularCompletitudPerfil($candidato_id) {
+        $candidato_id = (int)$candidato_id;
+        
+        // Obtener datos del candidato
+        $candidato = $this->getCandidateById($candidato_id);
+        if (!$candidato) {
+            return 0;
+        }
+        
+        // Campos obligatorios de información personal
+        $campos_personales = [
+            'nombre',
+            'apellido',
+            'email',
+            'telefono',
+            'ubicacion'
+        ];
+        
+        $personales_completos = 0;
+        foreach ($campos_personales as $campo) {
+            if (!empty($candidato[$campo])) {
+                $personales_completos++;
+            }
+        }
+        
+        // Campos obligatorios de información profesional
+        $campos_profesionales = [
+            'nivel_educativo',
+            'areas_interes',
+            'habilidades_destacadas',
+            'experiencia_general'
+        ];
+        
+        $profesionales_completos = 0;
+        foreach ($campos_profesionales as $campo) {
+            if (!empty($candidato[$campo])) {
+                $profesionales_completos++;
+            }
+        }
+        
+        // Verificar experiencia laboral
+        $sql = "SELECT COUNT(*) as total FROM experiencia_laboral WHERE candidato_id = $candidato_id";
+        $result = $this->db->query($sql);
+        $experiencia_completa = 0;
+        
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            if ($row['total'] > 0) {
+                $experiencia_completa = 1;
+            }
+        }
+        
+        // Verificar referencias
+        $sql = "SELECT COUNT(*) as total FROM referencias WHERE candidato_id = $candidato_id";
+        $result = $this->db->query($sql);
+        $referencias_completas = 0;
+        
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            if ($row['total'] > 0) {
+                $referencias_completas = 1;
+            }
+        }
+        
+        // Calcular porcentaje total
+        $total_campos = count($campos_personales) + count($campos_profesionales) + 2; // +2 por experiencia y referencias
+        $total_completos = $personales_completos + $profesionales_completos + $experiencia_completa + $referencias_completas;
+        
+        $porcentaje = round(($total_completos / $total_campos) * 100);
+        
+        // Actualizar porcentaje en la base de datos
+        $sql = "UPDATE candidatos SET 
+                perfil_completitud = $porcentaje, 
+                perfil_completo = " . ($porcentaje == 100 ? 1 : 0) . " 
+                WHERE id = $candidato_id";
+                
+        $this->db->query($sql);
+        
+        return $porcentaje;
+    }
+    
+    /**
+     * Obtiene qué secciones del perfil están completas
+     *
+     * @param int $candidato_id ID del candidato
+     * @return array Estado de completitud de cada sección
+     */
+    public function obtenerSeccionesCompletas($candidato_id) {
+        $candidato_id = (int)$candidato_id;
+        
+        // Obtener datos del candidato
+        $candidato = $this->getCandidateById($candidato_id);
+        if (!$candidato) {
             return [
-                'success' => true,
-                'message' => 'Candidato actualizado con éxito'
-            ];
-        } else {
-            return [
-                'success' => false,
-                'message' => 'Error al actualizar el candidato: ' . $this->db->getConnection()->error
+                'personal' => false,
+                'profesional' => false,
+                'experiencia' => false,
+                'referencias' => false
             ];
         }
+        
+        // Verificar información personal
+        $campos_personales = ['nombre', 'apellido', 'email', 'telefono', 'ubicacion'];
+        $personal_completa = true;
+        foreach ($campos_personales as $campo) {
+            if (empty($candidato[$campo])) {
+                $personal_completa = false;
+                break;
+            }
+        }
+        
+        // Verificar información profesional
+        $campos_profesionales = ['nivel_educativo', 'areas_interes', 'habilidades_destacadas', 'experiencia_general'];
+        $profesional_completa = true;
+        foreach ($campos_profesionales as $campo) {
+            if (empty($candidato[$campo])) {
+                $profesional_completa = false;
+                break;
+            }
+        }
+        
+        // Verificar experiencia laboral
+        $sql = "SELECT COUNT(*) as total FROM experiencia_laboral WHERE candidato_id = $candidato_id";
+        $result = $this->db->query($sql);
+        $experiencia_completa = false;
+        
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            if ($row['total'] > 0) {
+                $experiencia_completa = true;
+            }
+        }
+        
+        // Verificar referencias
+        $sql = "SELECT COUNT(*) as total FROM referencias WHERE candidato_id = $candidato_id";
+        $result = $this->db->query($sql);
+        $referencias_completas = false;
+        
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            if ($row['total'] > 0) {
+                $referencias_completas = true;
+            }
+        }
+        
+        return [
+            'personal' => $personal_completa,
+            'profesional' => $profesional_completa,
+            'experiencia' => $experiencia_completa,
+            'referencias' => $referencias_completas
+        ];
     }
 	
 		/**
