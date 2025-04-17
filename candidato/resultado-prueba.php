@@ -56,50 +56,173 @@ try {
         $error_message = "No se encontraron resultados para esta evaluación.";
     }
     
+    // Determinar resultado global PRIMERO
+    $resultado_global = null;
+    if (isset($resultados['sesion']['resultado_global'])) {
+        $resultado_global = $resultados['sesion']['resultado_global'];
+    } else if (isset($session_info['resultado_global'])) {
+        $resultado_global = $session_info['resultado_global'];
+    }
+
     // Mejorar visualización de dimensiones con datos reales
     $dimensiones = [];
-    
-    // Verificar si tenemos dimensiones en resultados
-    if (isset($resultados['dimensiones']) && !empty($resultados['dimensiones'])) {
-        // Usar dimensiones de resultados
-        $dimensiones = $resultados['dimensiones'];
-    } 
-    // Si no hay dimensiones en resultados pero hay datos en formato alternativo
-    else if (!empty($resultados) && isset($resultados[0]) && isset($resultados[0]['dimension_nombre'])) {
-        // Crear un array de dimensiones a partir de los resultados
-        $dimensionesTmp = [];
-        foreach ($resultados as $resultado) {
-            if (!isset($dimensionesTmp[$resultado['dimension_id']])) {
-                $dimensionesTmp[$resultado['dimension_id']] = [
-                    'nombre' => $resultado['dimension_nombre'],
-                    'porcentaje' => $resultado['valor'],
-                    'interpretacion' => $resultado['interpretacion'] ?? null
+	
+    // Determinar el tipo de prueba basado en su estructura
+    $db = Database::getInstance();
+    $sql = "SELECT COUNT(*) as count FROM preguntas 
+            WHERE prueba_id = {$session_info['prueba_id']} AND tipo_pregunta = 'pares'";
+    $result_tipo = $db->query($sql);
+    $es_prueba_pares = ($result_tipo && $result_tipo->fetch_assoc()['count'] > 0);
+
+    if ($es_prueba_pares) {
+        // Procesamiento especial para pruebas tipo "pares" (CMV, IPL)
+        $sql = "SELECT o.dimension_id, d.nombre, COUNT(*) as count
+                FROM respuestas r
+                JOIN opciones_respuesta o ON r.opcion_id = o.id
+                JOIN dimensiones d ON o.dimension_id = d.id
+                WHERE r.sesion_id = $sesion_id
+                GROUP BY o.dimension_id, d.nombre";
+        
+        $result = $db->query($sql);
+        $total_respuestas = 0;
+        $conteo_dimensiones = [];
+        
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $conteo_dimensiones[$row['dimension_id']] = [
+                    'nombre' => $row['nombre'],
+                    'count' => $row['count']
+                ];
+                $total_respuestas += $row['count'];
+            }
+            
+            // Calcular porcentajes
+            foreach ($conteo_dimensiones as $dim_id => $data) {
+                $porcentaje = round(($data['count'] / $total_respuestas) * 100);
+                $dimensiones[] = [
+                    'nombre' => $data['nombre'],
+                    'porcentaje' => $porcentaje
                 ];
             }
         }
-        $dimensiones = array_values($dimensionesTmp);
+    } else {
+        // Consultar directamente la base de datos para obtener dimensiones
+        try {
+            $db = Database::getInstance();
+            
+            // Solo obtener resultados con valor > 0
+            $sql = "SELECT r.*, d.nombre as dimension_nombre 
+                    FROM resultados r
+                    JOIN dimensiones d ON r.dimension_id = d.id
+                    WHERE r.sesion_id = $sesion_id AND r.valor > 0
+                    ORDER BY r.valor DESC";
+            
+            $result = $db->query($sql);
+            
+            if ($result && $result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $dimensiones[] = [
+                        'nombre' => $row['dimension_nombre'],
+                        'porcentaje' => $row['valor'],
+                        'interpretacion' => $row['interpretacion'] ?? null
+                    ];
+                }
+            }
+        } catch (Exception $e) {
+            error_log("Error al obtener dimensiones: " . $e->getMessage());
+        }
+        
+        // Si la consulta directa no devolvió resultados, probar otros métodos
+        if (empty($dimensiones)) {
+            // Si existe la estructura dimensiones en resultados
+            if (isset($resultados['dimensiones']) && !empty($resultados['dimensiones'])) {
+                $dimensiones = $resultados['dimensiones'];
+            } 
+            // Si los resultados tienen el formato alternativo
+            elseif (!empty($resultados) && isset($resultados[0]) && isset($resultados[0]['dimension_nombre'])) {
+                $dimensionesTmp = [];
+                foreach ($resultados as $resultado) {
+                    if (!isset($dimensionesTmp[$resultado['dimension_id']]) && ($resultado['valor'] > 0 || $resultado['valor_normalizado'] > 0)) {
+                        $dimensionesTmp[$resultado['dimension_id']] = [
+                            'nombre' => $resultado['dimension_nombre'],
+                            'porcentaje' => $resultado['valor'] ?? $resultado['valor_normalizado'] ?? 0,
+                            'interpretacion' => $resultado['interpretacion'] ?? null
+                        ];
+                    }
+                }
+                $dimensiones = array_values($dimensionesTmp);
+            }
+        }
+        
+        // Si todavía no hay dimensiones pero tenemos resultado global, crear una dimensión genérica
+        if (empty($dimensiones) && $resultado_global !== null && $resultado_global > 0) {
+            $dimensiones = [
+                [
+                    'nombre' => 'Motivación General',
+                    'porcentaje' => $resultado_global,
+                    'interpretacion' => 'Nivel general de motivación basado en todas las áreas evaluadas.'
+                ]
+            ];
+        }
+        
+        // Si todavía no tenemos resultado global pero tenemos dimensiones, calcularlo
+        if (($resultado_global === null || $resultado_global === 0) && !empty($dimensiones)) {
+            $total = 0;
+            $count = count($dimensiones);
+            foreach ($dimensiones as $dimension) {
+                $total += $dimension['porcentaje'];
+            }
+            $resultado_global = round($total / $count);
+        }
+        
+        // Si todavía no tenemos resultados, intentar forzar la consulta más general
+        if (empty($dimensiones)) {
+            try {
+                $db = Database::getInstance();
+                $sql = "SELECT r.*, d.nombre as dimension_nombre 
+                        FROM resultados r
+                        JOIN dimensiones d ON r.dimension_id = d.id
+                        WHERE r.sesion_id = $sesion_id
+                        ORDER BY r.valor DESC
+                        LIMIT 8";
+                
+                $result = $db->query($sql);
+                
+                if ($result && $result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        $dimensiones[] = [
+                            'nombre' => $row['dimension_nombre'],
+                            'porcentaje' => max(1, $row['valor']), // Asegurar un valor mínimo visible
+                            'interpretacion' => $row['interpretacion'] ?? null
+                        ];
+                    }
+                }
+            } catch (Exception $e) {
+                error_log("Error en consulta final para dimensiones: " . $e->getMessage());
+            }
+        }
+        
+        // Si todavía no hay dimensiones, intentar obtenerlas directamente de resultados
+        if (empty($dimensiones)) {
+            $sql = "SELECT r.*, d.nombre as dimension_nombre
+                    FROM resultados r
+                    JOIN dimensiones d ON r.dimension_id = d.id
+                    WHERE r.sesion_id = $sesion_id AND r.valor > 0
+                    ORDER BY r.valor DESC";
+            
+            $result = $db->query($sql);
+            
+            if ($result && $result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $dimensiones[] = [
+                        'nombre' => $row['dimension_nombre'],
+                        'porcentaje' => $row['valor'],
+                        'interpretacion' => $row['interpretacion'] ?? null
+                    ];
+                }
+            }
+        }
     }
-    
-    // Determinar resultado global
-	$resultado_global = null;
-	if (isset($resultados['sesion']['resultado_global'])) {
-		$resultado_global = $resultados['sesion']['resultado_global'];
-	} else if (isset($session_info['resultado_global'])) {
-		$resultado_global = $session_info['resultado_global'];
-	} else if (!empty($dimensiones)) {
-		// Calcular promedio de dimensiones
-		$total = 0;
-		$count = count($dimensiones);
-		foreach ($dimensiones as $dimension) {
-			$total += $dimension['porcentaje'];
-		}
-		$resultado_global = round($total / $count);
-	}
-
-	// Si resultado_global sigue siendo null o 0 y tenemos datos, asignar un valor por defecto
-	if (($resultado_global === null || $resultado_global === 0) && !empty($dimensiones)) {
-		$resultado_global = 50; // Valor por defecto para evitar mostrar 0%
-	}
     
     // Verificar si el usuario tiene premium
     $isPremium = isset($candidato['premium']) && $candidato['premium'] == 1;
@@ -351,7 +474,7 @@ $recomendaciones = isset($resultados['recomendaciones']) ? $resultados['recomend
         margin-bottom: 15px;
     }
     
-    .blur-overlay-content h4 {
+.blur-overlay-content h4 {
         margin-bottom: 10px;
     }
     
@@ -436,14 +559,34 @@ $recomendaciones = isset($resultados['recomendaciones']) ? $resultados['recomend
                             echo '<p>Tu evaluación indica que hay áreas de oportunidad para mejorar. ' . ($isPremium ? '' : 'Obtén recomendaciones personalizadas sobre cómo desarrollar tus habilidades con nuestros planes premium.') . '</p></div>';
                             echo '</div>';
                         }
+						
+					echo '<pre style="display:none;">';
+					print_r($resultados);
+					echo '</pre>';
                         ?>
                     </div>
+					
+
                     
 <!-- Después de la sección del mensaje de alerta -->
 
 <div class="result-sections">
     <div class="result-section">
         <h3><i class="fas fa-chart-bar"></i> Resultados por dimensión</h3>
+        
+        <?php 
+        // Debug detallado
+        if (isset($_GET['debug']) && $_GET['debug'] == 1): 
+        ?>
+        <div style="background: #f8f9fa; padding: 10px; border: 1px solid #ddd; margin-bottom: 20px; font-family: monospace; font-size: 12px;">
+            <h4>Debug Información:</h4>
+            <p>Resultado global: <?php echo $resultado_global; ?></p>
+            <p>Dimensiones encontradas: <?php echo count($dimensiones); ?></p>
+            <pre><?php print_r($dimensiones); ?></pre>
+            <p>Estructura de resultados:</p>
+            <pre><?php print_r($resultados); ?></pre>
+        </div>
+        <?php endif; ?>
         
         <div class="result-bars">
             <?php 
@@ -469,26 +612,38 @@ $recomendaciones = isset($resultados['recomendaciones']) ? $resultados['recomend
                     // Si no es premium, mostrar solo 2 dimensiones o todas si hay menos de 2
                     $dimensionesToShow = array_slice($dimensiones, 0, min(2, count($dimensiones)));
                 }
+				
+				foreach ($dimensionesToShow as $key => $dimension) {
+					// Asegurar que las claves necesarias estén presentes
+					if (!isset($dimension['nombre'])) {
+						$dimensionesToShow[$key]['nombre'] = 'Dimensión ' . ($key + 1);
+					}
+					if (!isset($dimension['porcentaje'])) {
+						$dimensionesToShow[$key]['porcentaje'] = 0;
+					}
+				} ?>
                 
-                foreach ($dimensionesToShow as $dimension): 
-            ?>
-            <div class="result-bar-item">
-                <div class="result-bar-label">
-                    <span class="result-bar-name"><?php echo htmlspecialchars($dimension['nombre']); ?></span>
-                    <span class="result-bar-value"><?php echo $dimension['porcentaje']; ?>%</span>
-                </div>
-                <div class="result-bar-container">
-                    <div class="result-bar-fill <?php echo $dimension['porcentaje'] >= 80 ? 'high' : ($dimension['porcentaje'] >= 60 ? 'medium' : 'low'); ?>" style="width: <?php echo $dimension['porcentaje']; ?>%"></div>
-                </div>
-                <?php if ($isPremium && isset($dimension['interpretacion']) && !empty($dimension['interpretacion'])): ?>
-                <div class="dimension-interpretation">
-                    <?php echo htmlspecialchars($dimension['interpretacion']); ?>
-                </div>
-                <?php endif; ?>
-            </div>
-            <?php 
-                endforeach;
-                
+<?php foreach ($dimensionesToShow as $dimension): ?>
+<div class="result-bar-item">
+    <div class="result-bar-label">
+        <span class="result-bar-name"><?php echo htmlspecialchars($dimension['nombre'] ?? 'Dimensión sin nombre'); ?></span>
+        <span class="result-bar-value"><?php echo isset($dimension['porcentaje']) ? $dimension['porcentaje'] : 0; ?>%</span>
+    </div>
+    <div class="result-bar-container">
+        <?php 
+        $porcentaje = isset($dimension['porcentaje']) ? $dimension['porcentaje'] : 0;
+        $barClass = $porcentaje >= 80 ? 'high' : ($porcentaje >= 60 ? 'medium' : 'low');
+        ?>
+        <div class="result-bar-fill <?php echo $barClass; ?>" style="width: <?php echo $porcentaje; ?>%"></div>
+    </div>
+    <?php if ($isPremium && isset($dimension['interpretacion']) && !empty($dimension['interpretacion'])): ?>
+    <div class="dimension-interpretation">
+        <?php echo htmlspecialchars($dimension['interpretacion']); ?>
+    </div>
+    <?php endif; ?>
+</div>
+<?php endforeach; ?>
+             <?php   
                 if (!$isPremium && count($dimensiones) > 2): 
             ?>
             <!-- Sección difuminada para usuarios no premium -->
