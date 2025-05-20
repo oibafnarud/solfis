@@ -1,0 +1,558 @@
+/**
+ * Estilos personalizados para la visualización de resultados del candidato
+ */
+
+:root {
+    --primary: #4e73df;
+    --primary-light: #e6ecff;
+    --secondary: #858796;
+    --success: #1cc88a;
+    --success-light: #e3fcef;
+    --info: #36b9cc;
+    --info-light: #e3f8fb;
+    --warning: #f6c23e;
+    --warning-light: #fef7e6;
+    --danger: #e74a3b;
+    --danger-light: #fce8e6;
+    --dark: #5a5c69;
+    --light: #f8f9fc;
+    --white: #fff;
+    --shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    --border-radius: 0.35rem;
+}
+
+/* Cards y Contenedores */
+.card {
+    box-shadow: var(--shadow);
+    border: none;
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background-color: var(--white);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.card-footer {
+    background-color: var(--white);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1rem 1.25rem;
+}
+
+.tab-content {
+    background-color: var(--white);
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: var(--secondary);
+    font-weight: 500;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary-light);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary);
+    background-color: var(--white);
+    border-bottom: 2px solid var(--primary);
+    font-weight: 600;
+}
+
+.tab-pane {
+    animation: fadeIn 0.5s;
+}
+
+/* Gauges y Gráficos Circulares */
+.gauge-container {
+    position: relative;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gauge-value {
+    position: absolute;
+    top: 75%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--dark);
+}
+
+.progress-radial-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+.progress-radial {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary) calc(var(--progress) * 1%), #e9ecef 0%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.progress-radial::before {
+    content: "";
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background-color: white;
+}
+
+.percentile-value {
+    position: relative;
+    font-size: 2rem;
+    font-weight: bold;
+    z-index: 2;
+}
+
+/* Competency Circles */
+.competency-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.competency-circle::before {
+    content: "";
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background-color: white;
+}
+
+.competency-value {
+    position: relative;
+    font-size: 1.5rem;
+    font-weight: bold;
+    z-index: 2;
+}
+
+/* Listas de fortalezas y debilidades */
+.strength-list, .weakness-list {
+    list-style: none;
+    padding-left: 1.5rem;
+    margin-bottom: 0;
+}
+
+.strength-list li, .weakness-list li {
+    position: relative;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+.strength-list li::before {
+    content: "";
+    position: absolute;
+    left: -1rem;
+    top: 0.5rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--success);
+}
+
+.weakness-list li::before {
+    content: "";
+    position: absolute;
+    left: -1rem;
+    top: 0.5rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--warning);
+}
+
+/* Dimensiones bipolares */
+.bipolar-dimension {
+    margin-bottom: 1.25rem;
+}
+
+.bipolar-dimension .progress {
+    height: 12px;
+    border-radius: 6px;
+    background-color: #e9ecef;
+}
+
+.bipolar-dimension .progress-bar {
+    background-color: var(--primary);
+    border-radius: 6px;
+}
+
+/* Contenedores de gráficos */
+.chart-container, .radar-chart-container, .horizontal-bar-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Perfiles y coincidencias */
+.profile-match {
+    background-color: var(--light);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
+
+.profile-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    background-color: var(--primary-light);
+    border-radius: 50%;
+    color: var(--primary);
+}
+
+.profile-info h5 {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.profile-info .progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+.match-percentage {
+    margin-top: 0.5rem;
+}
+
+/* Core motivations */
+.core-motivations {
+    margin-top: 1rem;
+}
+
+.core-motivation {
+    margin-bottom: 1.25rem;
+}
+
+.motivation-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.motivation-title .badge {
+    margin-right: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.core-motivation .progress {
+    height: 10px;
+    border-radius: 5px;
+    background-color: #e9ecef;
+}
+
+.core-motivation .progress-bar {
+    border-radius: 5px;
+}
+
+/* Compound indices */
+.compound-index {
+    margin-bottom: 1rem;
+}
+
+.compound-index h6 {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.compound-index .progress {
+    height: 10px;
+    border-radius: 5px;
+    background-color: #e9ecef;
+}
+
+.compound-index .progress-bar {
+    border-radius: 5px;
+}
+
+/* Acordeón de personalidad */
+#personalityDetailsAccordion .card {
+    margin-bottom: 0.5rem;
+    border: 1px solid rgba(0,0,0,.125);
+    box-shadow: none;
+}
+
+#personalityDetailsAccordion .card:hover {
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+    transform: none;
+}
+
+#personalityDetailsAccordion .card-header {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+}
+
+#personalityDetailsAccordion .btn-link {
+    color: var(--dark);
+    font-weight: 600;
+    text-decoration: none;
+    width: 100%;
+    text-align: left;
+    padding: 0;
+}
+
+#personalityDetailsAccordion .btn-link:hover, 
+#personalityDetailsAccordion .btn-link:focus {
+    text-decoration: none;
+    color: var(--primary);
+}
+
+#personalityDetailsAccordion .card-body {
+    padding: 1rem;
+}
+
+.personality-description {
+    margin-bottom: 1rem;
+}
+
+/* Listas para interpretaciones y recomendaciones */
+.environment-list, .development-list, .recommendation-list {
+    padding-left: 1.25rem;
+    margin-bottom: 0;
+}
+
+.environment-list li, .development-list li, .recommendation-list li {
+    position: relative;
+    margin-bottom: 0.75rem;
+    padding-left: 0.5rem;
+}
+
+.environment-list li::before, 
+.development-list li::before, 
+.recommendation-list li::before {
+    content: "→";
+    position: absolute;
+    left: -1rem;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+/* Tablas */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    border-bottom: 2px solid var(--light);
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 0.75rem 1rem;
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--light);
+}
+
+/* Estilos para Cards con bordes de color */
+.border-left-primary {
+    border-left: 0.25rem solid var(--primary) !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid var(--success) !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid var(--info) !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid var(--warning) !important;
+}
+
+.border-left-danger {
+    border-left: 0.25rem solid var(--danger) !important;
+}
+
+/* Perfil del candidato */
+.rounded-circle.img-thumbnail {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    padding: 0.25rem;
+}
+
+.rounded-circle.bg-light {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Botones */
+.btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary);
+    color: var(--white);
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover {
+    background-color: #4262c5;
+    border-color: #4262c5;
+}
+
+.btn-outline-success {
+    color: var(--success);
+    border-color: var(--success);
+}
+
+.btn-outline-success:hover {
+    background-color: var(--success);
+    color: var(--white);
+}
+
+/* Modal */
+.modal-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s;
+}
+
+/* Dispositivos pequeños */
+@media (max-width: 767.98px) {
+    .gauge-container {
+        height: 160px;
+    }
+    
+    .gauge-value {
+        font-size: 1.5rem;
+    }
+    
+    .chart-container, 
+    .radar-chart-container, 
+    .horizontal-bar-container {
+        height: 250px;
+    }
+    
+    .progress-radial {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .progress-radial::before {
+        width: 90px;
+        height: 90px;
+    }
+    
+    .percentile-value {
+        font-size: 1.5rem;
+    }
+    
+    .competency-circle {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .competency-circle::before {
+        width: 76px;
+        height: 76px;
+    }
+    
+    .competency-value {
+        font-size: 1.25rem;
+    }
+}
+
+/* Tooltips personalizados */
+.custom-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.custom-tooltip .tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: var(--dark);
+    color: var(--white);
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.custom-tooltip .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--dark) transparent transparent transparent;
+}
+
+.custom-tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}

@@ -19,62 +19,64 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
-// Verificar parámetros
+// Verificar que se proporciona un ID de nota
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header('Location: index.php?error=missing_id');
+    $_SESSION['error'] = "ID de nota no proporcionado";
+    header('Location: index.php');
     exit;
 }
 
-// Obtener ID de la nota
-$id = (int)$_GET['id'];
+$nota_id = (int)$_GET['id'];
 
-// Instanciar clases necesarias
-$candidateManager = new CandidateManager();
+// Obtener datos de la nota
+$db = Database::getInstance();
+$nota_id = $db->real_escape_string($nota_id);
+$sql = "SELECT n.*, c.id as candidato_id, c.nombre as candidato_nombre, c.apellido as candidato_apellido, 
+               u.nombre as usuario_nombre 
+        FROM notas_candidatos n 
+        LEFT JOIN candidatos c ON n.candidato_id = c.id 
+        LEFT JOIN usuarios u ON n.usuario_id = u.id 
+        WHERE n.id = '$nota_id'";
 
-// Obtener nota
-$nota = $candidateManager->getNoteById($id);
-if (!$nota) {
-    header('Location: index.php?error=note_not_found');
+$result = $db->query($sql);
+
+if (!$result || $result->num_rows === 0) {
+    $_SESSION['error'] = "Nota no encontrada";
+    header('Location: index.php');
     exit;
 }
 
-// Verificar que la nota pertenece a un candidato
-if (empty($nota['candidato_id'])) {
-    header('Location: index.php?error=invalid_note');
-    exit;
-}
+// Obtener los datos de la nota
+$nota = $result->fetch_assoc();
+$candidato_id = $nota['candidato_id'];
 
-// Obtener candidato
-$candidato = $candidateManager->getCandidateById($nota['candidato_id']);
-if (!$candidato) {
-    header('Location: index.php?error=candidate_not_found');
-    exit;
-}
-
-// Procesar formulario
-$result = ['success' => false, 'message' => ''];
-
+// Procesar formulario de actualización
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validar datos
-    if (empty($_POST['titulo']) || empty($_POST['contenido'])) {
-        $result = [
-            'success' => false,
-            'message' => 'Los campos Título y Contenido son obligatorios.'
-        ];
+    $contenido = trim($_POST['contenido']);
+    $tipo = isset($_POST['tipo']) ? trim($_POST['tipo']) : '';
+    
+    if (empty($contenido)) {
+        $_SESSION['error'] = "El contenido de la nota no puede estar vacío";
     } else {
-        // Preparar datos
-        $data = [
-            'titulo' => $_POST['titulo'],
-            'contenido' => $_POST['contenido']
-        ];
+        // Actualizar nota en la base de datos
+        $contenido = $db->real_escape_string($contenido);
+        $tipo = $db->real_escape_string($tipo);
+        $usuario_id = $auth->getUserId();
         
-        // Actualizar nota
-        $result = $candidateManager->editCandidateNote($id, $data);
+        $sql = "UPDATE notas_candidatos 
+                SET contenido = '$contenido', 
+                    tipo = '$tipo', 
+                    usuario_id = '$usuario_id', 
+                    updated_at = NOW() 
+                WHERE id = '$nota_id'";
         
-        if ($result['success']) {
-            // Redireccionar a la página de detalle
-            header('Location: detalle.php?id=' . $candidato['id'] . '&tab=notes&message=note-updated');
+        if ($db->query($sql)) {
+            $_SESSION['success'] = "Nota actualizada correctamente";
+            header("Location: detalle.php?id=$candidato_id&tab=notas");
             exit;
+        } else {
+            $_SESSION['error'] = "Error al actualizar la nota: " . $db->error;
         }
     }
 }
@@ -83,61 +85,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pageTitle = 'Editar Nota - Panel de Administración';
 ?>
 
-<?php include '../includes/header.php'; ?>
-
-<div class="admin-main">
-    <div class="container-fluid">
-        <div class="row">
-            <?php include '../includes/sidebar.php'; ?>
-            
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Editar Nota</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <div class="btn-group me-2">
-                            <a href="detalle.php?id=<?php echo $candidato['id']; ?>&tab=notes" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-arrow-left"></i> Volver al Candidato
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $pageTitle; ?></title>
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+    <!-- Header -->
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="admin-main">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <?php include '../includes/sidebar.php'; ?>
+                
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Editar Nota</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <a href="detalle.php?id=<?php echo $candidato_id; ?>&tab=notas" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Volver
                             </a>
                         </div>
                     </div>
-                </div>
-                
-                <?php if (!$result['success'] && !empty($result['message'])): ?>
-                <div class="alert alert-danger" role="alert">
-                    <?php echo $result['message']; ?>
-                </div>
-                <?php endif; ?>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Editar nota para <?php echo htmlspecialchars($candidato['nombre'] . ' ' . $candidato['apellido']); ?></h5>
+                    
+                    <?php if (isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    <div class="card-body">
-                        <form action="editar-nota.php?id=<?php echo $id; ?>" method="post">
-                            <div class="mb-3">
-                                <label for="titulo" class="form-label">Título <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="titulo" name="titulo" value="<?php echo htmlspecialchars($nota['titulo']); ?>" required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="contenido" class="form-label">Contenido <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="contenido" name="contenido" rows="5" required><?php echo htmlspecialchars($nota['contenido']); ?></textarea>
-                            </div>
-                            
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Guardar Cambios
-                                </button>
-                                <a href="detalle.php?id=<?php echo $candidato['id']; ?>&tab=notes" class="btn btn-outline-secondary">
-                                    <i class="fas fa-times"></i> Cancelar
-                                </a>
-                            </div>
-                        </form>
+                    <?php endif; ?>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Editando nota para <?php echo htmlspecialchars($nota['candidato_nombre'] . ' ' . $nota['candidato_apellido']); ?></h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="editar-nota.php?id=<?php echo $nota_id; ?>" method="post">
+                                <div class="mb-3">
+                                    <label for="contenido" class="form-label">Contenido de la nota</label>
+                                    <textarea class="form-control" id="contenido" name="contenido" rows="5" required><?php echo htmlspecialchars($nota['contenido']); ?></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="tipo" class="form-label">Tipo de nota</label>
+                                    <select class="form-select" id="tipo" name="tipo">
+                                        <option value="">Sin categoría</option>
+                                        <option value="entrevista" <?php echo $nota['tipo'] === 'entrevista' ? 'selected' : ''; ?>>Entrevista</option>
+                                        <option value="evaluacion" <?php echo $nota['tipo'] === 'evaluacion' ? 'selected' : ''; ?>>Evaluación</option>
+                                        <option value="seguimiento" <?php echo $nota['tipo'] === 'seguimiento' ? 'selected' : ''; ?>>Seguimiento</option>
+                                        <option value="importante" <?php echo $nota['tipo'] === 'importante' ? 'selected' : ''; ?>>Importante</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">
+                                        Creada por: <?php echo htmlspecialchars($nota['usuario_nombre'] ?? 'Usuario desconocido'); ?> - 
+                                        Fecha: <?php echo date('d/m/Y H:i', strtotime($nota['created_at'])); ?>
+                                    </small>
+                                </div>
+                                
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="detalle.php?id=<?php echo $candidato_id; ?>&tab=notas" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     </div>
-</div>
-
-<?php include '../includes/footer.php'; ?>
+    
+    <!-- Footer -->
+    <?php include '../includes/footer.php'; ?>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

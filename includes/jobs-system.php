@@ -111,137 +111,80 @@ if (file_exists(__DIR__ . '/EmailSender.php')) {
     }
 }*/
 
+
 /**
- * Clase para gestionar vacantes
+ * Clase para gestionar candidatos
  */
-class VacancyManager {
+class CandidateManager {
     public $db; // Cambiado a público para facilitar el acceso
     
     public function __construct() {
-        // Usar siempre la clase Database
-        $this->db = Database::getInstance();
+        // Intentar usar la clase Database existente, si no, usar VacanciesDatabase
+        if (class_exists('Database')) {
+            $this->db = Database::getInstance();
+        } else {
+            $this->db = VacanciesDatabase::getInstance();
+        }
     }
-    
-    /**
-     * Obtener todas las vacantes con paginación y filtros opcionales
+
+	/**
+     * Verifica si un email ya existe en la base de datos
      */
-    public function getVacancies($page = 1, $per_page = 10, $filters = []) {
+    public function checkEmailExists($email) {
+        $email = $this->db->escape($email);
+        
+        $sql = "SELECT * FROM candidatos WHERE email = '$email' LIMIT 1";
+        return $this->db->query($sql);
+    }
+	
+    /**
+     * Obtener todos los candidatos con paginación y filtros opcionales
+     */
+    public function getCandidates($page = 1, $per_page = 10, $filters = []) {
         $offset = ($page - 1) * $per_page;
         
-        $sql = "SELECT v.*, c.nombre as categoria_nombre 
-                FROM vacantes v
-                LEFT JOIN categorias_vacantes c ON v.categoria_id = c.id
+        $sql = "SELECT c.*, 
+                       COUNT(DISTINCT a.id) as aplicaciones_count,
+                       COUNT(DISTINCT e.id) as experiencias_count,
+                       COUNT(DISTINCT ed.id) as educacion_count
+                FROM candidatos c
+                LEFT JOIN aplicaciones a ON c.id = a.candidato_id
+                LEFT JOIN experiencia_laboral e ON c.id = e.candidato_id
+                LEFT JOIN educacion ed ON c.id = ed.candidato_id
                 WHERE 1=1";
         
         // Aplicar filtros
-        if (!empty($filters['estado'])) {
-            $estado = $this->db->escape($filters['estado']);
-            $sql .= " AND v.estado = '$estado'";
-        }
-        
-        if (!empty($filters['categoria'])) {
-            $categoria = (int)$filters['categoria'];
-            $sql .= " AND v.categoria_id = $categoria";
-        }
-        
         if (!empty($filters['busqueda'])) {
             $busqueda = $this->db->escape($filters['busqueda']);
-            $sql .= " AND (v.titulo LIKE '%$busqueda%' OR v.descripcion LIKE '%$busqueda%')";
+            $sql .= " AND (c.nombre LIKE '%$busqueda%' OR c.apellido LIKE '%$busqueda%' OR c.email LIKE '%$busqueda%')";
         }
         
-        if (!empty($filters['destacada'])) {
-            $sql .= " AND v.destacada = 1";
-        }
-        
-        if (!empty($filters['ubicacion'])) {
-            $ubicacion = $this->db->escape($filters['ubicacion']);
-            $sql .= " AND v.ubicacion = '$ubicacion'";
-        }
-        
-        if (!empty($filters['modalidad'])) {
-            $modalidad = $this->db->escape($filters['modalidad']);
-            $sql .= " AND v.modalidad = '$modalidad'";
-        }
-        
-        if (!empty($filters['excluir_id'])) {
-            $excluir_id = (int)$filters['excluir_id'];
-            $sql .= " AND v.id != $excluir_id";
-        }
-        
-        // Ordenar
-        if (!empty($filters['orden'])) {
-            switch ($filters['orden']) {
-                case 'fecha_asc':
-                    $sql .= " ORDER BY v.fecha_publicacion ASC";
-                    break;
-                case 'titulo_asc':
-                    $sql .= " ORDER BY v.titulo ASC";
-                    break;
-                case 'titulo_desc':
-                    $sql .= " ORDER BY v.titulo DESC";
-                    break;
-                default:
-                    $sql .= " ORDER BY v.fecha_publicacion DESC";
-                    break;
-            }
-        } else {
-            $sql .= " ORDER BY v.fecha_publicacion DESC";
-        }
-        
-        $sql .= " LIMIT $offset, $per_page";
+        // Agrupar y ordenar
+        $sql .= " GROUP BY c.id ORDER BY c.created_at DESC LIMIT $offset, $per_page";
         
         // Ejecutar consulta
         $result = $this->db->query($sql);
-        $vacancies = [];
+        $candidates = [];
         
         // Si hay resultados, procesarlos
         if ($result) {
             while ($row = $result->fetch_assoc()) {
-                $vacancies[] = $row;
+                $candidates[] = $row;
             }
             
             // Contar total para paginación
-            $countSql = "SELECT COUNT(*) as total FROM vacantes v WHERE 1=1";
-            
-            if (!empty($filters['estado'])) {
-                $estado = $this->db->escape($filters['estado']);
-                $countSql .= " AND v.estado = '$estado'";
-            }
-            
-            if (!empty($filters['categoria'])) {
-                $categoria = (int)$filters['categoria'];
-                $countSql .= " AND v.categoria_id = $categoria";
-            }
+            $countSql = "SELECT COUNT(*) as total FROM candidatos c WHERE 1=1";
             
             if (!empty($filters['busqueda'])) {
                 $busqueda = $this->db->escape($filters['busqueda']);
-                $countSql .= " AND (v.titulo LIKE '%$busqueda%' OR v.descripcion LIKE '%$busqueda%')";
-            }
-            
-            if (!empty($filters['destacada'])) {
-                $countSql .= " AND v.destacada = 1";
-            }
-            
-            if (!empty($filters['ubicacion'])) {
-                $ubicacion = $this->db->escape($filters['ubicacion']);
-                $countSql .= " AND v.ubicacion = '$ubicacion'";
-            }
-            
-            if (!empty($filters['modalidad'])) {
-                $modalidad = $this->db->escape($filters['modalidad']);
-                $countSql .= " AND v.modalidad = '$modalidad'";
-            }
-            
-            if (!empty($filters['excluir_id'])) {
-                $excluir_id = (int)$filters['excluir_id'];
-                $countSql .= " AND v.id != $excluir_id";
+                $countSql .= " AND (c.nombre LIKE '%$busqueda%' OR c.apellido LIKE '%$busqueda%' OR c.email LIKE '%$busqueda%')";
             }
             
             $countResult = $this->db->query($countSql);
             $total = ($countResult) ? $countResult->fetch_assoc()['total'] : 0;
             
             return [
-                'vacancies' => $vacancies,
+                'candidates' => $candidates,
                 'total' => $total,
                 'pages' => ceil($total / $per_page),
                 'current_page' => $page
@@ -250,7 +193,7 @@ class VacancyManager {
         
         // Si no hay resultados, devolver array vacío
         return [
-            'vacancies' => [],
+            'candidates' => [],
             'total' => 0,
             'pages' => 0,
             'current_page' => $page
@@ -258,281 +201,1068 @@ class VacancyManager {
     }
     
     /**
-     * Crear una nueva vacante
+     * Obtener un candidato por su ID
      */
-    public function createVacancy($data) {
+    public function getCandidateById($id) {
+        $id = (int)$id;
+        
+        $sql = "SELECT * FROM candidatos WHERE id = $id";
+        $result = $this->db->query($sql);
+        
+        return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
+    }
+    
+    
+    /**
+     * Crea un nuevo candidato
+     * 
+     * @param array $data Datos del candidato
+     * @return array Resultado de la operación
+     */
+    public function createCandidate($data) {
         // Validar datos requeridos
-        if (empty($data['titulo']) || empty($data['categoria']) || empty($data['descripcion'])) {
+        if (empty($data['nombre']) || empty($data['apellido']) || empty($data['email'])) {
             return [
                 'success' => false,
                 'message' => 'Faltan campos obligatorios'
             ];
         }
         
-        // Preparar datos
-        $titulo = $this->db->escape($data['titulo']);
-        $slug = $this->generateSlug($titulo);
-        $descripcion = $this->db->escape($data['descripcion']);
-        $requisitos = $this->db->escape($data['requisitos'] ?? '');
-        $responsabilidades = $this->db->escape($data['responsabilidades'] ?? '');
-        $beneficios = $this->db->escape($data['beneficios'] ?? '');
-        $categoria_id = (int)$data['categoria'];
-        $ubicacion = $this->db->escape($data['ubicacion'] ?? '');
-        $modalidad = $this->db->escape($data['modalidad'] ?? 'presencial');
-        $tipo_contrato = $this->db->escape($data['tipo_contrato'] ?? 'tiempo_completo');
-        $experiencia = $this->db->escape($data['experiencia'] ?? '');
-        $salario_min = !empty($data['salario_min']) ? (float)$data['salario_min'] : 0;
-        $salario_max = !empty($data['salario_max']) ? (float)$data['salario_max'] : 0;
-        $mostrar_salario = !empty($data['mostrar_salario']) ? 1 : 0;
-        $estado = $this->db->escape($data['estado'] ?? 'borrador');
-        $destacada = !empty($data['destacada']) ? 1 : 0;
-		$empresa_contratante = $this->db->escape($data['empresa_contratante'] ?? '');
-		$mostrar_empresa = !empty($data['mostrar_empresa']) ? 1 : 0;
+        // Verificar si el email ya existe
+        $email = $this->db->escape($data['email']);
+        $checkSql = "SELECT id FROM candidatos WHERE email = '$email'";
+        $checkResult = $this->db->query($checkSql);
         
-        // Fechas
-        $fecha_publicacion = !empty($data['fecha_publicacion']) ? "'" . $this->db->escape($data['fecha_publicacion']) . "'" : 'NULL';
-        $fecha_cierre = !empty($data['fecha_cierre']) ? "'" . $this->db->escape($data['fecha_cierre']) . "'" : 'NULL';
+        if ($checkResult && $checkResult->num_rows > 0) {
+            return [
+                'success' => false,
+                'message' => 'Ya existe un candidato con este email'
+            ];
+        }
         
-        // Consulta SQL
-		$sql = "INSERT INTO vacantes (
-					titulo, slug, descripcion, requisitos, responsabilidades, beneficios, 
-					categoria_id, ubicacion, modalidad, tipo_contrato, experiencia,
-					salario_min, salario_max, mostrar_salario, estado, destacada,
-					empresa_contratante, mostrar_empresa,
-					fecha_publicacion, fecha_cierre, created_at, updated_at
-				) VALUES (
-					'$titulo', '$slug', '$descripcion', '$requisitos', '$responsabilidades', '$beneficios',
-					$categoria_id, '$ubicacion', '$modalidad', '$tipo_contrato', '$experiencia',
-					$salario_min, $salario_max, $mostrar_salario, '$estado', $destacada,
-					'$empresa_contratante', $mostrar_empresa,
-					$fecha_publicacion, $fecha_cierre, NOW(), NOW()
-				)";
+        // Construir la consulta SQL dinámicamente
+        $fields = [];
+        $values = [];
         
+        // Campos conocidos que podrían venir en $data
+        $posibles_campos = [
+            'nombre', 'apellido', 'email', 'telefono', 'ubicacion', 'resumen',
+            'cv_path', 'foto_path', 'linkedin', 'portfolio', 'user_id',
+            'password', 'nivel_educativo', 'fecha_nacimiento', 'genero',
+            'areas_interes', 'habilidades_destacadas', 'experiencia_general',
+            'salario_esperado', 'modalidad_preferida', 'tipo_contrato_preferido',
+            'disponibilidad', 'evaluaciones_pendientes', 'recibir_notificaciones',
+            'disponibilidad_viajar', 'ubicacion_preferida', 'resumen_profesional'
+        ];
+        
+        // Procesar cada campo posible
+        foreach ($posibles_campos as $campo) {
+            if (isset($data[$campo])) {
+                $fields[] = $campo;
+                
+                // Tratar el valor según su tipo
+                if ($campo === 'user_id' || $campo === 'evaluaciones_pendientes' || $campo === 'recibir_notificaciones') {
+                    // Campos enteros
+                    $values[] = !empty($data[$campo]) ? (int)$data[$campo] : 'NULL';
+                } elseif ($campo === 'fecha_nacimiento') {
+                    // Fechas
+                    $values[] = !empty($data[$campo]) ? "'" . $this->db->escape($data[$campo]) . "'" : 'NULL';
+                } else {
+                    // Cadenas de texto
+                    $values[] = "'" . $this->db->escape($data[$campo]) . "'";
+                }
+            }
+        }
+        
+        // Añadir campos de fecha de creación/actualización
+        $fields[] = 'created_at';
+        $values[] = 'NOW()';
+        $fields[] = 'updated_at';
+        $values[] = 'NOW()';
+        
+        // Construir la consulta SQL
+        $fields_str = implode(', ', $fields);
+        $values_str = implode(', ', $values);
+        
+        $sql = "INSERT INTO candidatos ($fields_str) VALUES ($values_str)";
+        
+        // Ejecutar la consulta
         if ($this->db->query($sql)) {
             return [
                 'success' => true,
-                'message' => 'Vacante creada con éxito',
+                'message' => 'Candidato creado con éxito',
                 'id' => $this->db->lastInsertId()
             ];
         } else {
             return [
                 'success' => false,
-                'message' => 'Error al crear la vacante: ' . $this->db->getConnection()->error
+                'message' => 'Error al crear el candidato: ' . $this->db->getConnection()->error
             ];
         }
     }
     
     /**
-     * Generar un slug a partir de un título
+     * Actualiza información de Drive para un candidato existente
+     * 
+     * @param int $id ID del candidato
+     * @param array $driveData Datos de Google Drive
+     * @return boolean Resultado de la operación
      */
-    private function generateSlug($text) {
-        // Convertir a minúsculas
-        $text = strtolower($text);
-        
-        // Reemplazar caracteres especiales
-        $text = preg_replace('/[^a-z0-9\s-]/', '', $text);
-        
-        // Reemplazar espacios con guiones
-        $text = preg_replace('/[\s-]+/', '-', $text);
-        
-        // Eliminar guiones al principio y al final
-        $text = trim($text, '-');
-        
-        return $text;
-    }
-    
-    /**
-     * Obtener una vacante por su ID
-     */
-	public function getVacancyById($id) {
-		$id = (int)$id;
-		
-		$sql = "SELECT v.*, c.nombre as categoria_nombre 
-				FROM vacantes v
-				LEFT JOIN categorias_vacantes c ON v.categoria_id = c.id
-				WHERE v.id = $id";
-				
-		$result = $this->db->query($sql);
-		
-		return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
-	}
-    
-    /**
-     * Actualizar una vacante existente
-     */
-    public function updateVacancy($id, $data) {
-        // Validar datos requeridos
-        if (empty($data['titulo']) || empty($data['categoria']) || empty($data['descripcion'])) {
-            return [
-                'success' => false,
-                'message' => 'Faltan campos obligatorios'
-            ];
-        }
-        
-        // Preparar datos
+    public function updateCandidateDriveInfo($id, $driveData) {
         $id = (int)$id;
-        $titulo = $this->db->escape($data['titulo']);
-        $descripcion = $this->db->escape($data['descripcion']);
-        $requisitos = $this->db->escape($data['requisitos'] ?? '');
-        $responsabilidades = $this->db->escape($data['responsabilidades'] ?? '');
-        $beneficios = $this->db->escape($data['beneficios'] ?? '');
-        $categoria_id = (int)$data['categoria'];
-        $ubicacion = $this->db->escape($data['ubicacion'] ?? '');
-        $modalidad = $this->db->escape($data['modalidad'] ?? 'presencial');
-        $tipo_contrato = $this->db->escape($data['tipo_contrato'] ?? 'tiempo_completo');
-        $experiencia = $this->db->escape($data['experiencia'] ?? '');
-        $salario_min = !empty($data['salario_min']) ? (float)$data['salario_min'] : 0;
-        $salario_max = !empty($data['salario_max']) ? (float)$data['salario_max'] : 0;
-        $mostrar_salario = !empty($data['mostrar_salario']) ? 1 : 0;
-        $estado = $this->db->escape($data['estado'] ?? 'borrador');
-        $destacada = !empty($data['destacada']) ? 1 : 0;
-		$empresa_contratante = $this->db->escape($data['empresa_contratante'] ?? '');
-		$mostrar_empresa = !empty($data['mostrar_empresa']) ? 1 : 0;
+        $fileId = $this->db->escape($driveData['fileId'] ?? '');
+        $webViewLink = $this->db->escape($driveData['webViewLink'] ?? '');
+        $folderId = $this->db->escape($driveData['folderId'] ?? '');
         
-        // Fechas
-        $fecha_publicacion = !empty($data['fecha_publicacion']) ? "'" . $this->db->escape($data['fecha_publicacion']) . "'" : 'NULL';
-        $fecha_cierre = !empty($data['fecha_cierre']) ? "'" . $this->db->escape($data['fecha_cierre']) . "'" : 'NULL';
+        $sql = "UPDATE candidatos SET
+                    drive_file_id = '$fileId',
+                    drive_view_link = '$webViewLink',
+                    drive_folder_id = '$folderId',
+                    updated_at = NOW()
+                WHERE id = $id";
         
-        // Consulta SQL
-		$sql = "UPDATE vacantes SET 
-					titulo = '$titulo',
-					descripcion = '$descripcion',
-					requisitos = '$requisitos',
-					responsabilidades = '$responsabilidades',
-					beneficios = '$beneficios',
-					categoria_id = $categoria_id,
-					ubicacion = '$ubicacion',
-					modalidad = '$modalidad',
-					tipo_contrato = '$tipo_contrato',
-					experiencia = '$experiencia',
-					salario_min = $salario_min,
-					salario_max = $salario_max,
-					mostrar_salario = $mostrar_salario,
-					estado = '$estado',
-					destacada = $destacada,
-					empresa_contratante = '$empresa_contratante',
-					mostrar_empresa = $mostrar_empresa,
-					fecha_publicacion = $fecha_publicacion,
-					fecha_cierre = $fecha_cierre,
-					updated_at = NOW()
-				WHERE id = $id";
+        return $this->db->query($sql);
+    }
+    
+ /**
+ * Actualiza los datos de un candidato
+ *
+ * @param int $id ID del candidato
+ * @param array $data Datos a actualizar
+ * @return array Resultado de la operación
+ */
+public function updateCandidate($id, $data) {
+    // Validar ID
+    $id = (int)$id;
+    if ($id <= 0) {
+        return ['success' => false, 'message' => 'ID de candidato inválido'];
+    }
+    
+    // Validar datos requeridos
+    if (empty($data['nombre']) || empty($data['apellido']) || empty($data['email'])) {
+        return [
+            'success' => false,
+            'message' => 'Faltan campos obligatorios'
+        ];
+    }
+    
+    // Verificar si el email ya existe para otro candidato
+    $email = $this->db->escape($data['email']);
+    $checkSql = "SELECT id FROM candidatos WHERE email = '$email' AND id != $id";
+    $checkResult = $this->db->query($checkSql);
+    
+    if ($checkResult && $checkResult->num_rows > 0) {
+        return [
+            'success' => false,
+            'message' => 'El email ya está en uso por otro candidato'
+        ];
+    }
+    
+    // Construir la consulta SQL dinámicamente
+    $updates = [];
+    
+    // Campos conocidos que podrían venir en $data
+    $posibles_campos = [
+        'nombre', 'apellido', 'email', 'telefono', 'ubicacion', 'resumen',
+        'cv_path', 'foto_path', 'linkedin', 'portfolio', 'user_id',
+        'password', 'nivel_educativo', 'fecha_nacimiento', 'genero',
+        'areas_interes', 'habilidades_destacadas', 'experiencia_general',
+        'salario_esperado', 'modalidad_preferida', 'tipo_contrato_preferido',
+        'disponibilidad', 'evaluaciones_pendientes', 'recibir_notificaciones',
+        'disponibilidad_viajar', 'ubicacion_preferida', 'resumen_profesional',
+        'status'
+    ];
+    
+    // Procesar cada campo posible
+    foreach ($posibles_campos as $campo) {
+        if (isset($data[$campo])) {
+            // Tratar el valor según su tipo
+            if (in_array($campo, ['user_id', 'evaluaciones_pendientes', 'recibir_notificaciones', 'status'])) {
+                // Campos enteros
+                $updates[] = "$campo = " . (!empty($data[$campo]) ? (int)$data[$campo] : 'NULL');
+            } elseif ($campo === 'fecha_nacimiento') {
+                // Fechas
+                $updates[] = "$campo = " . (!empty($data[$campo]) ? "'" . $this->db->escape($data[$campo]) . "'" : 'NULL');
+            } else {
+                // Cadenas de texto
+                $updates[] = "$campo = '" . $this->db->escape($data[$campo]) . "'";
+            }
+        }
+    }
+    
+    // Añadir campo de actualización
+    $updates[] = "updated_at = NOW()";
+    
+    // Construir la consulta SQL
+    $updates_str = implode(', ', $updates);
+    
+    $sql = "UPDATE candidatos SET $updates_str WHERE id = $id";
+    
+    // Ejecutar la consulta
+    if ($this->db->query($sql)) {
+        // Recalcular completitud del perfil
+        $this->calcularCompletitudPerfil($id);
+        
+        return [
+            'success' => true,
+            'message' => 'Candidato actualizado con éxito'
+        ];
+    } else {
+        return [
+            'success' => false,
+            'message' => 'Error al actualizar el candidato: ' . $this->db->getConnection()->error
+        ];
+    }
+}	
+	
+	    /**
+     * Obtiene la experiencia laboral de un candidato
+     *
+     * @param int $candidato_id ID del candidato
+     * @return array Experiencias laborales
+     */
+    public function getExperienciaLaboral($candidato_id) {
+        $candidato_id = (int)$candidato_id;
+        
+        $sql = "SELECT * FROM experiencia_laboral 
+                WHERE candidato_id = $candidato_id 
+                ORDER BY actual DESC, fecha_inicio DESC";
+                
+        $result = $this->db->query($sql);
+        $experiencias = [];
+        
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $experiencias[] = $row;
+            }
+        }
+        
+        return $experiencias;
+    }
+    
+    /**
+     * Añade una experiencia laboral
+     *
+     * @param array $data Datos de la experiencia
+     * @return array Resultado de la operación
+     */
+    public function addExperienciaLaboral($data) {
+        // Validar datos requeridos
+        if (empty($data['candidato_id']) || empty($data['empresa']) || empty($data['puesto']) || empty($data['fecha_inicio'])) {
+            return ['success' => false, 'message' => 'Faltan datos requeridos'];
+        }
+        
+        // Sanitizar datos
+        $candidato_id = (int)$data['candidato_id'];
+        $empresa = $this->db->escape($data['empresa']);
+        $puesto = $this->db->escape($data['puesto']);
+        $fecha_inicio = $this->db->escape($data['fecha_inicio']);
+        $fecha_fin = !empty($data['fecha_fin']) ? "'" . $this->db->escape($data['fecha_fin']) . "'" : "NULL";
+        $actual = !empty($data['actual']) ? 1 : 0;
+        $ubicacion = !empty($data['ubicacion']) ? "'" . $this->db->escape($data['ubicacion']) . "'" : "NULL";
+        $descripcion = !empty($data['descripcion']) ? "'" . $this->db->escape($data['descripcion']) . "'" : "NULL";
+        $logros = !empty($data['logros']) ? "'" . $this->db->escape($data['logros']) . "'" : "NULL";
+        $sector = !empty($data['sector']) ? "'" . $this->db->escape($data['sector']) . "'" : "NULL";
+        $razon_salida = !empty($data['razon_salida']) ? "'" . $this->db->escape($data['razon_salida']) . "'" : "NULL";
+        
+        // Insertar experiencia
+        $sql = "INSERT INTO experiencia_laboral (
+                    candidato_id, empresa, puesto, fecha_inicio, fecha_fin, actual, 
+                    ubicacion, descripcion, logros, sector, razon_salida
+                ) VALUES (
+                    $candidato_id, '$empresa', '$puesto', '$fecha_inicio', $fecha_fin, $actual,
+                    $ubicacion, $descripcion, $logros, $sector, $razon_salida
+                )";
+                
+        if ($this->db->query($sql)) {
+            // Recalcular completitud del perfil
+            $this->calcularCompletitudPerfil($candidato_id);
+            
+            return ['success' => true, 'message' => 'Experiencia laboral añadida correctamente', 'id' => $this->db->lastInsertId()];
+        }
+        
+        return ['success' => false, 'message' => 'Error al añadir experiencia laboral: ' . $this->db->getLastError()];
+    }
+    
+    /**
+     * Actualiza una experiencia laboral
+     *
+     * @param array $data Datos de la experiencia
+     * @return array Resultado de la operación
+     */
+    public function updateExperienciaLaboral($data) {
+        // Validar datos requeridos
+        if (empty($data['id']) || empty($data['candidato_id']) || empty($data['empresa']) || empty($data['puesto']) || empty($data['fecha_inicio'])) {
+            return ['success' => false, 'message' => 'Faltan datos requeridos'];
+        }
+        
+        // Sanitizar datos
+        $id = (int)$data['id'];
+        $candidato_id = (int)$data['candidato_id'];
+        $empresa = $this->db->escape($data['empresa']);
+        $puesto = $this->db->escape($data['puesto']);
+        $fecha_inicio = $this->db->escape($data['fecha_inicio']);
+        $fecha_fin = !empty($data['fecha_fin']) ? "'" . $this->db->escape($data['fecha_fin']) . "'" : "NULL";
+        $actual = !empty($data['actual']) ? 1 : 0;
+        $ubicacion = !empty($data['ubicacion']) ? "'" . $this->db->escape($data['ubicacion']) . "'" : "NULL";
+        $descripcion = !empty($data['descripcion']) ? "'" . $this->db->escape($data['descripcion']) . "'" : "NULL";
+        $logros = !empty($data['logros']) ? "'" . $this->db->escape($data['logros']) . "'" : "NULL";
+        $sector = !empty($data['sector']) ? "'" . $this->db->escape($data['sector']) . "'" : "NULL";
+        $razon_salida = !empty($data['razon_salida']) ? "'" . $this->db->escape($data['razon_salida']) . "'" : "NULL";
+        
+        // Verificar que la experiencia pertenece al candidato
+        $checkSql = "SELECT id FROM experiencia_laboral WHERE id = $id AND candidato_id = $candidato_id";
+        $checkResult = $this->db->query($checkSql);
+        
+        if (!$checkResult || $checkResult->num_rows === 0) {
+            return ['success' => false, 'message' => 'La experiencia laboral no pertenece a este candidato'];
+        }
+        
+        // Actualizar experiencia
+        $sql = "UPDATE experiencia_laboral SET
+                    empresa = '$empresa',
+                    puesto = '$puesto',
+                    fecha_inicio = '$fecha_inicio',
+                    fecha_fin = $fecha_fin,
+                    actual = $actual,
+                    ubicacion = $ubicacion,
+                    descripcion = $descripcion,
+                    logros = $logros,
+                    sector = $sector,
+                    razon_salida = $razon_salida,
+                    updated_at = NOW()
+                WHERE id = $id AND candidato_id = $candidato_id";
+                
+        if ($this->db->query($sql)) {
+            return ['success' => true, 'message' => 'Experiencia laboral actualizada correctamente'];
+        }
+        
+        return ['success' => false, 'message' => 'Error al actualizar experiencia laboral: ' . $this->db->getLastError()];
+    }
+    
+    /**
+     * Elimina una experiencia laboral
+     *
+     * @param int $id ID de la experiencia
+     * @param int $candidato_id ID del candidato
+     * @return array Resultado de la operación
+     */
+    public function deleteExperienciaLaboral($id, $candidato_id) {
+        $id = (int)$id;
+        $candidato_id = (int)$candidato_id;
+        
+        // Verificar que la experiencia pertenece al candidato
+        $checkSql = "SELECT id FROM experiencia_laboral WHERE id = $id AND candidato_id = $candidato_id";
+        $checkResult = $this->db->query($checkSql);
+        
+        if (!$checkResult || $checkResult->num_rows === 0) {
+            return ['success' => false, 'message' => 'La experiencia laboral no pertenece a este candidato'];
+        }
+        
+        // Eliminar experiencia
+        $sql = "DELETE FROM experiencia_laboral WHERE id = $id AND candidato_id = $candidato_id";
         
         if ($this->db->query($sql)) {
+            // Recalcular completitud del perfil
+            $this->calcularCompletitudPerfil($candidato_id);
+            
+            return ['success' => true, 'message' => 'Experiencia laboral eliminada correctamente'];
+        }
+        
+        return ['success' => false, 'message' => 'Error al eliminar experiencia laboral: ' . $this->db->getLastError()];
+    }
+    
+    /**
+     * Obtiene las referencias de un candidato
+     *
+     * @param int $candidato_id ID del candidato
+     * @return array Referencias
+     */
+    public function getReferencias($candidato_id) {
+        $candidato_id = (int)$candidato_id;
+        
+        $sql = "SELECT * FROM referencias 
+                WHERE candidato_id = $candidato_id 
+                ORDER BY created_at DESC";
+                
+        $result = $this->db->query($sql);
+        $referencias = [];
+        
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $referencias[] = $row;
+            }
+        }
+        
+        return $referencias;
+    }
+    
+    /**
+     * Añade una referencia
+     *
+     * @param array $data Datos de la referencia
+     * @return array Resultado de la operación
+     */
+    public function addReferencia($data) {
+        // Validar datos requeridos
+        if (empty($data['candidato_id']) || empty($data['nombre']) || empty($data['puesto']) || empty($data['empresa']) || empty($data['relacion'])) {
+            return ['success' => false, 'message' => 'Faltan datos requeridos'];
+        }
+        
+        // Sanitizar datos
+        $candidato_id = (int)$data['candidato_id'];
+        $nombre = $this->db->escape($data['nombre']);
+        $puesto = $this->db->escape($data['puesto']);
+        $empresa = $this->db->escape($data['empresa']);
+        $relacion = $this->db->escape($data['relacion']);
+        $email = !empty($data['email']) ? "'" . $this->db->escape($data['email']) . "'" : "NULL";
+        $telefono = !empty($data['telefono']) ? "'" . $this->db->escape($data['telefono']) . "'" : "NULL";
+        $autoriza_contacto = !empty($data['autoriza_contacto']) ? 1 : 0;
+        
+        // Insertar referencia
+        $sql = "INSERT INTO referencias (
+                    candidato_id, nombre, puesto, empresa, relacion, email, telefono, autoriza_contacto
+                ) VALUES (
+                    $candidato_id, '$nombre', '$puesto', '$empresa', '$relacion', $email, $telefono, $autoriza_contacto
+                )";
+                
+        if ($this->db->query($sql)) {
+            // Recalcular completitud del perfil
+            $this->calcularCompletitudPerfil($candidato_id);
+            
+            return ['success' => true, 'message' => 'Referencia añadida correctamente', 'id' => $this->db->lastInsertId()];
+        }
+        
+        return ['success' => false, 'message' => 'Error al añadir referencia: ' . $this->db->getLastError()];
+    }
+    
+    /**
+     * Actualiza una referencia
+     *
+     * @param array $data Datos de la referencia
+     * @return array Resultado de la operación
+     */
+    public function updateReferencia($data) {
+        // Validar datos requeridos
+        if (empty($data['id']) || empty($data['candidato_id']) || empty($data['nombre']) || empty($data['puesto']) || empty($data['empresa']) || empty($data['relacion'])) {
+            return ['success' => false, 'message' => 'Faltan datos requeridos'];
+        }
+        
+        // Sanitizar datos
+        $id = (int)$data['id'];
+        $candidato_id = (int)$data['candidato_id'];
+        $nombre = $this->db->escape($data['nombre']);
+        $puesto = $this->db->escape($data['puesto']);
+        $empresa = $this->db->escape($data['empresa']);
+        $relacion = $this->db->escape($data['relacion']);
+        $email = !empty($data['email']) ? "'" . $this->db->escape($data['email']) . "'" : "NULL";
+        $telefono = !empty($data['telefono']) ? "'" . $this->db->escape($data['telefono']) . "'" : "NULL";
+        $autoriza_contacto = !empty($data['autoriza_contacto']) ? 1 : 0;
+        
+        // Verificar que la referencia pertenece al candidato
+        $checkSql = "SELECT id FROM referencias WHERE id = $id AND candidato_id = $candidato_id";
+        $checkResult = $this->db->query($checkSql);
+        
+        if (!$checkResult || $checkResult->num_rows === 0) {
+            return ['success' => false, 'message' => 'La referencia no pertenece a este candidato'];
+        }
+        
+        // Actualizar referencia
+        $sql = "UPDATE referencias SET
+                    nombre = '$nombre',
+                    puesto = '$puesto',
+                    empresa = '$empresa',
+                    relacion = '$relacion',
+                    email = $email,
+                    telefono = $telefono,
+                    autoriza_contacto = $autoriza_contacto,
+                    updated_at = NOW()
+                WHERE id = $id AND candidato_id = $candidato_id";
+                
+        if ($this->db->query($sql)) {
+            return ['success' => true, 'message' => 'Referencia actualizada correctamente'];
+        }
+        
+        return ['success' => false, 'message' => 'Error al actualizar referencia: ' . $this->db->getLastError()];
+    }
+    
+    /**
+     * Elimina una referencia
+     *
+     * @param int $id ID de la referencia
+     * @param int $candidato_id ID del candidato
+     * @return array Resultado de la operación
+     */
+    public function deleteReferencia($id, $candidato_id) {
+        $id = (int)$id;
+        $candidato_id = (int)$candidato_id;
+        
+        // Verificar que la referencia pertenece al candidato
+        $checkSql = "SELECT id FROM referencias WHERE id = $id AND candidato_id = $candidato_id";
+        $checkResult = $this->db->query($checkSql);
+        
+        if (!$checkResult || $checkResult->num_rows === 0) {
+            return ['success' => false, 'message' => 'La referencia no pertenece a este candidato'];
+        }
+        
+        // Eliminar referencia
+        $sql = "DELETE FROM referencias WHERE id = $id AND candidato_id = $candidato_id";
+        
+        if ($this->db->query($sql)) {
+            // Recalcular completitud del perfil
+            $this->calcularCompletitudPerfil($candidato_id);
+            
+            return ['success' => true, 'message' => 'Referencia eliminada correctamente'];
+        }
+        
+        return ['success' => false, 'message' => 'Error al eliminar referencia: ' . $this->db->getLastError()];
+    }
+    
+    /**
+     * Calcula el porcentaje de completitud del perfil de un candidato
+     *
+     * @param int $candidato_id ID del candidato
+     * @return int Porcentaje de completitud
+     */
+    public function calcularCompletitudPerfil($candidato_id) {
+        $candidato_id = (int)$candidato_id;
+        
+        // Obtener datos del candidato
+        $candidato = $this->getCandidateById($candidato_id);
+        if (!$candidato) {
+            return 0;
+        }
+        
+        // Campos obligatorios de información personal
+        $campos_personales = [
+            'nombre',
+            'apellido',
+            'email',
+            'telefono',
+            'ubicacion'
+        ];
+        
+        $personales_completos = 0;
+        foreach ($campos_personales as $campo) {
+            if (!empty($candidato[$campo])) {
+                $personales_completos++;
+            }
+        }
+        
+        // Campos obligatorios de información profesional
+        $campos_profesionales = [
+            'nivel_educativo',
+            'areas_interes',
+            'habilidades_destacadas',
+            'experiencia_general'
+        ];
+        
+        $profesionales_completos = 0;
+        foreach ($campos_profesionales as $campo) {
+            if (!empty($candidato[$campo])) {
+                $profesionales_completos++;
+            }
+        }
+        
+        // Verificar experiencia laboral
+        $sql = "SELECT COUNT(*) as total FROM experiencia_laboral WHERE candidato_id = $candidato_id";
+        $result = $this->db->query($sql);
+        $experiencia_completa = 0;
+        
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            if ($row['total'] > 0) {
+                $experiencia_completa = 1;
+            }
+        }
+        
+        // Verificar referencias
+        $sql = "SELECT COUNT(*) as total FROM referencias WHERE candidato_id = $candidato_id";
+        $result = $this->db->query($sql);
+        $referencias_completas = 0;
+        
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            if ($row['total'] > 0) {
+                $referencias_completas = 1;
+            }
+        }
+        
+        // Calcular porcentaje total
+        $total_campos = count($campos_personales) + count($campos_profesionales) + 2; // +2 por experiencia y referencias
+        $total_completos = $personales_completos + $profesionales_completos + $experiencia_completa + $referencias_completas;
+        
+        $porcentaje = round(($total_completos / $total_campos) * 100);
+        
+        // Actualizar porcentaje en la base de datos
+        $sql = "UPDATE candidatos SET 
+                perfil_completitud = $porcentaje, 
+                perfil_completo = " . ($porcentaje == 100 ? 1 : 0) . " 
+                WHERE id = $candidato_id";
+                
+        $this->db->query($sql);
+        
+        return $porcentaje;
+    }
+    
+    /**
+     * Obtiene qué secciones del perfil están completas
+     *
+     * @param int $candidato_id ID del candidato
+     * @return array Estado de completitud de cada sección
+     */
+    public function obtenerSeccionesCompletas($candidato_id) {
+        $candidato_id = (int)$candidato_id;
+        
+        // Obtener datos del candidato
+        $candidato = $this->getCandidateById($candidato_id);
+        if (!$candidato) {
             return [
-                'success' => true,
-                'message' => 'Vacante actualizada con éxito'
-            ];
-        } else {
-            return [
-                'success' => false,
-                'message' => 'Error al actualizar la vacante: ' . $this->db->getConnection()->error
+                'personal' => false,
+                'profesional' => false,
+                'experiencia' => false,
+                'referencias' => false
             ];
         }
-    }
-    
-    /**
-     * Cambiar el estado de una vacante
-     */
-    public function changeVacancyStatus($id, $status) {
-        $id = (int)$id;
-        $status = $this->db->escape($status);
         
-        $sql = "UPDATE vacantes SET estado = '$status', updated_at = NOW() WHERE id = $id";
+        // Verificar información personal
+        $campos_personales = ['nombre', 'apellido', 'email', 'telefono', 'ubicacion'];
+        $personal_completa = true;
+        foreach ($campos_personales as $campo) {
+            if (empty($candidato[$campo])) {
+                $personal_completa = false;
+                break;
+            }
+        }
         
-        return $this->db->query($sql);
-    }
-    
-    /**
-     * Eliminar una vacante
-     */
-    public function deleteVacancy($id) {
-        $id = (int)$id;
+        // Verificar información profesional
+        $campos_profesionales = ['nivel_educativo', 'areas_interes', 'habilidades_destacadas', 'experiencia_general'];
+        $profesional_completa = true;
+        foreach ($campos_profesionales as $campo) {
+            if (empty($candidato[$campo])) {
+                $profesional_completa = false;
+                break;
+            }
+        }
         
-        $sql = "DELETE FROM vacantes WHERE id = $id";
+        // Verificar experiencia laboral
+        $sql = "SELECT COUNT(*) as total FROM experiencia_laboral WHERE candidato_id = $candidato_id";
+        $result = $this->db->query($sql);
+        $experiencia_completa = false;
         
-        return $this->db->query($sql);
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            if ($row['total'] > 0) {
+                $experiencia_completa = true;
+            }
+        }
+        
+        // Verificar referencias
+        $sql = "SELECT COUNT(*) as total FROM referencias WHERE candidato_id = $candidato_id";
+        $result = $this->db->query($sql);
+        $referencias_completas = false;
+        
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            if ($row['total'] > 0) {
+                $referencias_completas = true;
+            }
+        }
+        
+        return [
+            'personal' => $personal_completa,
+            'profesional' => $profesional_completa,
+            'experiencia' => $experiencia_completa,
+            'referencias' => $referencias_completas
+        ];
     }
 	
+		/**
+	 * Agregar nota a un candidato
+	 * 
+	 * @param int $candidatoId ID del candidato
+	 * @param string $titulo Título de la nota
+	 * @param string $contenido Contenido de la nota
+	 * @return array Resultado de la operación
+	 */
+/**
+ * Agrega una nueva nota a un candidato
+ */
+public function addCandidateNote($candidatoId, $titulo, $contenido, $usuarioId = 0) {
+    $candidatoId = (int)$candidatoId;
+    $usuarioId = (int)$usuarioId;
+    $titulo = $this->db->escape($titulo);
+    $contenido = $this->db->escape($contenido);
+    $currentDateTime = date('Y-m-d H:i:s');
+    
+    $sql = "INSERT INTO candidato_notas 
+            (candidato_id, titulo, contenido, usuario_id, created_at, updated_at) 
+            VALUES 
+            ($candidatoId, '$titulo', '$contenido', $usuarioId, '$currentDateTime', '$currentDateTime')";
+    
+    $result = $this->db->query($sql);
+    
+    if ($result) {
+        return $this->db->insert_id;
+    }
+    
+    return false;
+}
+
 
 /**
- * Obtiene vacantes recomendadas para un candidato
- * basado en su perfil y preferencias
+ * Obtiene las notas de un candidato
  */
-public function getRecommendedVacancies($candidato_id, $limit = 5) {
-    $candidato_id = (int)$candidato_id;
-    $limit = (int)$limit;
+public function getCandidateNotes($candidatoId) {
+    $candidatoId = (int)$candidatoId;
     
-    // Obtener información del candidato
-    $candidateManager = new CandidateManager();
-    $candidato = $candidateManager->getCandidateById($candidato_id);
+    // Consulta SQL modificada para no depender de la tabla users
+    $sql = "SELECT cn.*
+            FROM candidato_notas cn
+            WHERE cn.candidato_id = $candidatoId
+            ORDER BY cn.created_at DESC";
     
-    if (!$candidato) {
-        return [];
-    }
-    
-    // Construir consulta base - SIN usar la función inexistente
-    $sql = "SELECT v.*, c.nombre as categoria_nombre ";
-    
-    // Ya no intentamos usar getProfileMatchPercentage aquí
-    // Simplemente agregamos un valor simulado para match_percentage
-    $sql .= ", 80 as match_percentage "; // Valor fijo por ahora
-    
-    $sql .= "FROM vacantes v
-            LEFT JOIN categorias_vacantes c ON v.categoria_id = c.id
-            WHERE v.estado = 'publicada' ";
-    
-    // Filtrar por áreas de interés si están definidas
-    if (!empty($candidato['areas_interes'])) {
-        $areas = explode(',', $candidato['areas_interes']);
-        $areas_escaped = array_map(function($area) {
-            return (int)$area;
-        }, $areas);
-        
-        if (!empty($areas_escaped)) {
-            $areas_str = implode(',', $areas_escaped);
-            $sql .= "AND v.categoria_id IN ($areas_str) ";
-        }
-    }
-    
-    // Filtrar por modalidad preferida si está definida
-    if (!empty($candidato['modalidad_preferida'])) {
-        $modalidad = $this->db->escape($candidato['modalidad_preferida']);
-        $sql .= "AND (v.modalidad = '$modalidad' OR v.modalidad = 'hibrido') ";
-    }
-    
-    // Filtrar por tipo de contrato preferido si está definido
-    if (!empty($candidato['tipo_contrato_preferido'])) {
-        $tipo_contrato = $this->db->escape($candidato['tipo_contrato_preferido']);
-        $sql .= "AND v.tipo_contrato = '$tipo_contrato' ";
-    }
-    
-    // Ordenar por fecha de publicación
-    $sql .= "ORDER BY v.fecha_publicacion DESC ";
-    
-    // Limitar resultados
-    $sql .= "LIMIT $limit";
-    
-    // Ejecutar consulta
     $result = $this->db->query($sql);
-    $vacancies = [];
+    $notes = [];
     
     if ($result) {
         while ($row = $result->fetch_assoc()) {
-            $vacancies[] = $row;
+            $notes[] = $row;
         }
     }
     
-    return $vacancies;
+    return $notes;
 }
+	
+	/**
+ * Obtener una nota específica por su ID
+ * 
+ * @param int $notaId ID de la nota
+ * @return array|null Datos de la nota o null si no existe
+ */
+public function getNoteById($notaId) {
+    $notaId = (int)$notaId;
+    
+    $sql = "SELECT * FROM candidato_notas WHERE id = $notaId";
+    $result = $this->db->query($sql);
+    
+    return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
+}
+
+/**
+ * Editar una nota de candidato
+ * 
+ * @param int $notaId ID de la nota
+ * @param array $data Datos actualizados
+ * @return array Resultado de la operación
+ */
+public function editCandidateNote($notaId, $data) {
+    // Validar datos requeridos
+    if (empty($notaId) || (empty($data['titulo']) && empty($data['contenido']))) {
+        return [
+            'success' => false,
+            'message' => 'Faltan campos obligatorios'
+        ];
+    }
+    
+    // Preparar datos
+    $notaId = (int)$notaId;
+    $updates = [];
+    
+    if (!empty($data['titulo'])) {
+        $titulo = $this->db->escape($data['titulo']);
+        $updates[] = "titulo = '$titulo'";
+    }
+    
+    if (isset($data['contenido'])) {
+        $contenido = $this->db->escape($data['contenido']);
+        $updates[] = "contenido = '$contenido'";
+    }
+    
+    $updates[] = "updated_at = NOW()";
+    
+    // Consulta SQL
+    $sql = "UPDATE candidato_notas SET " . implode(", ", $updates) . " WHERE id = $notaId";
+    
+    if ($this->db->query($sql)) {
+        return ['success' => true,
+            'message' => 'Nota actualizada con éxito',
+            'id' => $notaId
+        ];
+    } else {
+        return [
+            'success' => false,
+            'message' => 'Error al actualizar nota: ' . $this->db->getConnection()->error
+        ];
+    }
+}
+
+/**
+ * Eliminar una nota de candidato
+ * 
+ * @param int $notaId ID de la nota
+ * @return array Resultado de la operación
+ */
+public function deleteCandidateNote($notaId) {
+    $notaId = (int)$notaId;
+    
+    $sql = "DELETE FROM candidato_notas WHERE id = $notaId";
+    
+    if ($this->db->query($sql)) {
+        return [
+            'success' => true,
+            'message' => 'Nota eliminada con éxito'
+        ];
+    } else {
+        return [
+            'success' => false,
+            'message' => 'Error al eliminar nota: ' . $this->db->getConnection()->error
+        ];
+    }
+}
+
+/**
+ * Busca un candidato por su dirección de email
+ * 
+ * @param string $email Email del candidato a buscar
+ * @return array Información sobre el resultado de la búsqueda
+ */
+public function findCandidateByEmail($email) {
+    $email = $this->db->escape($email);
+    
+    $sql = "SELECT * FROM candidatos WHERE email = '$email' LIMIT 1";
+    $result = $this->db->query($sql);
+    
+    if ($result && $result->num_rows > 0) {
+        return [
+            'success' => true, 
+            'exists' => true, 
+            'candidate' => $result->fetch_assoc()
+        ];
+    } else {
+        return [
+            'success' => true, 
+            'exists' => false
+        ];
+    }
+}
+
+
+/**
+ * Obtiene las etapas del proceso de una aplicación
+ */
+public function getApplicationStages($aplicacionId) {
+    $aplicacionId = (int)$aplicacionId;
+    
+    $sql = "SELECT ep.*
+            FROM etapas_proceso ep
+            WHERE ep.aplicacion_id = $aplicacionId
+            ORDER BY ep.fecha DESC, ep.id DESC";
+    
+    $result = $this->db->query($sql);
+    $stages = [];
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $stages[] = $row;
+        }
+    }
+    
+    return $stages;
+}
+
+/**
+ * Obtiene una categoría por ID
+ */
+public function getCategoryById($categoryId) {
+    $categoryId = (int)$categoryId;
+    
+    $sql = "SELECT * FROM categorias_vacantes WHERE id = $categoryId LIMIT 1";
+    
+    $result = $this->db->query($sql);
+    
+    if ($result && $result->num_rows > 0) {
+        return $result->fetch_assoc();
+    }
+    
+    return null;
+}
+
+/**
+ * Obtiene las aplicaciones de un candidato
+ */
+public function getCandidateApplications($candidatoId) {
+    $candidatoId = (int)$candidatoId;
+    
+    $sql = "SELECT a.*, v.titulo as titulo_vacante, v.empresa_contratante, v.ubicacion
+            FROM aplicaciones a
+            JOIN vacantes v ON a.vacante_id = v.id
+            WHERE a.candidato_id = $candidatoId
+            ORDER BY a.fecha_aplicacion DESC";
+    
+    $result = $this->db->query($sql);
+    $applications = [];
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $applications[] = $row;
+        }
+    }
+    
+    return $applications;
+}
+
+/**
+ * Obtiene la experiencia laboral de un candidato
+ */
+public function getCandidateExperiences($candidatoId) {
+    $candidatoId = (int)$candidatoId;
+    
+    $sql = "SELECT * FROM experiencia_laboral 
+            WHERE candidato_id = $candidatoId 
+            ORDER BY actual DESC, fecha_fin DESC, fecha_inicio DESC";
+    
+    $result = $this->db->query($sql);
+    $experiences = [];
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $experiences[] = $row;
+        }
+    }
+    
+    return $experiences;
+}
+
+/**
+ * Obtiene las referencias de un candidato
+ */
+public function getCandidateReferences($candidatoId) {
+    $candidatoId = (int)$candidatoId;
+    
+    $sql = "SELECT * FROM referencias 
+            WHERE candidato_id = $candidatoId";
+    
+    $result = $this->db->query($sql);
+    $references = [];
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $references[] = $row;
+        }
+    }
+    
+    return $references;
+}
+
+		
 }
 
 
 
 /**
- * Clase para gestionar categorías de vacantes
+ * Funciones de utilidad para el sistema de vacantes
  */
-class CategoryManager {
-    public $db; // Cambiado a público para facilitar el acceso
+class VacancyUtils {
+    /**
+     * Formatear fecha para mostrar
+     */
+    public static function formatDate($date, $format = 'd/m/Y') {
+        return date($format, strtotime($date));
+    }
+    
+    /**
+     * Obtener estado de vacante formateado
+     */
+    public static function getStatusBadge($status) {
+        $statuses = [
+            'borrador' => '<span class="badge bg-secondary">Borrador</span>',
+            'publicada' => '<span class="badge bg-success">Publicada</span>',
+            'cerrada' => '<span class="badge bg-danger">Cerrada</span>'
+        ];
+        
+        return $statuses[$status] ?? '<span class="badge bg-secondary">Desconocido</span>';
+    }
+    
+    /**
+     * Obtener estado de aplicación formateado
+     */
+    public static function getApplicationStatusBadge($status) {
+        $statuses = [
+            'recibida' => '<span class="badge bg-info">Recibida</span>',
+            'revision' => '<span class="badge bg-primary">En Revisión</span>',
+            'entrevista' => '<span class="badge bg-warning text-dark">Entrevista</span>',
+            'prueba' => '<span class="badge bg-warning text-dark">Prueba</span>',
+            'oferta' => '<span class="badge bg-warning text-dark">Oferta</span>',
+            'contratado' => '<span class="badge bg-success">Contratado</span>',
+            'rechazado' => '<span class="badge bg-danger">Rechazado</span>'
+        ];
+        
+        return $statuses[$status] ?? '<span class="badge bg-secondary">Desconocido</span>';
+    }
+    
+    /**
+     * Truncar texto
+     */
+    public static function truncate($text, $length = 100, $append = '...') {
+        if (strlen($text) <= $length) {
+            return $text;
+        }
+        
+        $text = substr($text, 0, $length);
+        $text = substr($text, 0, strrpos($text, ' '));
+        
+        return $text . $append;
+    }
+	
+/**
+ * Agregar etapa a una aplicación
+ */
+public function addApplicationStage($data) {
+    // Validar datos requeridos
+    if (empty($data['aplicacion_id']) || empty($data['etapa'])) {
+        return [
+            'success' => false,
+            'message' => 'Faltan campos obligatorios'
+        ];
+    }
+    
+    // Preparar datos
+    $aplicacion_id = (int)$data['aplicacion_id'];
+    $etapa = $this->db->escape($data['etapa']);
+    $notas = $this->db->escape($data['notas'] ?? '');
+    $estado = $this->db->escape($data['estado'] ?? 'completada');
+    $fecha = !empty($data['fecha']) ? "'" . $this->db->escape($data['fecha']) . "'" : 'NOW()';
+    
+    // QUITAR usuario_id de la consulta SQL
+    $sql = "INSERT INTO etapas_proceso (
+                aplicacion_id, etapa, notas, estado, fecha, created_at, updated_at
+            ) VALUES (
+                $aplicacion_id, '$etapa', '$notas', '$estado', $fecha, NOW(), NOW()
+            )";
+    
+    if ($this->db->query($sql)) {
+        return [
+            'success' => true,
+            'message' => 'Etapa agregada con éxito',
+            'id' => $this->db->lastInsertId()
+        ];
+    } else {
+        return [
+            'success' => false,
+            'message' => 'Error al agregar etapa: ' . $this->db->getConnection()->error
+        ];
+    }
+}
+
+}
+
+
+/**
+ * Clase para gestionar habilidades de candidatos
+ */
+class SkillManager {
+    private $db;
     
     public function __construct() {
         // Intentar usar la clase Database existente, si no, usar VacanciesDatabase
@@ -544,134 +1274,113 @@ class CategoryManager {
     }
     
     /**
-     * Obtener todas las categorías
+     * Obtener todas las habilidades
      */
-    public function getCategories() {
-        $sql = "SELECT c.*, COUNT(v.id) as vacantes_count 
-                FROM categorias_vacantes c
-                LEFT JOIN vacantes v ON c.id = v.categoria_id AND v.estado = 'publicada'
-                GROUP BY c.id
-                ORDER BY c.nombre ASC";
-                
+    public function getAllSkills() {
+        $sql = "SELECT * FROM habilidades ORDER BY nombre ASC";
         $result = $this->db->query($sql);
-        $categories = [];
+        $skills = [];
         
         if ($result) {
             while ($row = $result->fetch_assoc()) {
-                $categories[] = $row;
+                $skills[] = $row;
             }
         }
         
-        return $categories;
+        return $skills;
     }
     
-    /**
-     * Obtener categoría por ID
-     */
-    public function getCategoryById($id) {
-        $id = (int)$id;
-        
-        $sql = "SELECT * FROM categorias_vacantes WHERE id = $id";
-        $result = $this->db->query($sql);
-        
-        return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
+/**
+ * Obtiene las habilidades de un candidato
+ */
+public function getCandidateSkills($candidatoId) {
+    $candidatoId = (int)$candidatoId;
+    
+    $sql = "SELECT ch.*, h.nombre, h.tipo 
+            FROM candidato_habilidades ch
+            JOIN habilidades h ON ch.habilidad_id = h.id
+            WHERE ch.candidato_id = $candidatoId 
+            ORDER BY h.tipo, ch.nivel DESC";
+    
+    $result = $this->db->query($sql);
+    $skills = [];
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $skills[] = $row;
+        }
     }
     
+    return $skills;
+}
+    
     /**
-     * Crear nueva categoría
+     * Agregar habilidad a un candidato
      */
-    public function createCategory($data) {
+    public function addCandidateSkill($data) {
         // Validar datos requeridos
-        if (empty($data['nombre'])) {
+        if (empty($data['candidato_id']) || empty($data['habilidad_id'])) {
             return [
                 'success' => false,
-                'message' => 'El nombre de la categoría es obligatorio'
+                'message' => 'Faltan campos obligatorios'
             ];
         }
         
-        $nombre = $this->db->escape($data['nombre']);
-        $descripcion = $this->db->escape($data['descripcion'] ?? '');
-        $icono = $this->db->escape($data['icono'] ?? 'fas fa-briefcase');
+        $candidato_id = (int)$data['candidato_id'];
+        $habilidad_id = (int)$data['habilidad_id'];
+        $nivel = $this->db->escape($data['nivel'] ?? 'intermedio');
         
-        $sql = "INSERT INTO categorias_vacantes (nombre, descripcion, icono, created_at, updated_at)
-                VALUES ('$nombre', '$descripcion', '$icono', NOW(), NOW())";
-        
-        if ($this->db->query($sql)) {
-            return [
-                'success' => true,
-                'message' => 'Categoría creada con éxito',
-                'id' => $this->db->lastInsertId()
-            ];
-        } else {
-            return [
-                'success' => false,
-                'message' => 'Error al crear la categoría: ' . $this->db->getConnection()->error
-            ];
-        }
-    }
-    
-    /**
-     * Actualizar categoría
-     */
-    public function updateCategory($id, $data) {
-        // Validar datos requeridos
-        if (empty($data['nombre'])) {
-            return [
-                'success' => false,
-                'message' => 'El nombre de la categoría es obligatorio'
-            ];
-        }
-        
-        $id = (int)$id;
-        $nombre = $this->db->escape($data['nombre']);
-        $descripcion = $this->db->escape($data['descripcion'] ?? '');
-        $icono = $this->db->escape($data['icono'] ?? 'fas fa-briefcase');
-        
-        $sql = "UPDATE categorias_vacantes
-                SET nombre = '$nombre', descripcion = '$descripcion', icono = '$icono', updated_at = NOW()
-                WHERE id = $id";
-        
-        if ($this->db->query($sql)) {
-            return [
-                'success' => true,
-                'message' => 'Categoría actualizada con éxito'
-            ];
-        } else {
-            return [
-                'success' => false,
-                'message' => 'Error al actualizar la categoría: ' . $this->db->getConnection()->error
-            ];
-        }
-    }
-    
-    /**
-     * Eliminar categoría
-     */
-    public function deleteCategory($id) {
-        $id = (int)$id;
-        
-        // Verificar si hay vacantes asociadas
-        $checkSql = "SELECT COUNT(*) as total FROM vacantes WHERE categoria_id = $id";
+        // Verificar si ya existe esta habilidad para el candidato
+        $checkSql = "SELECT id FROM candidato_habilidades 
+                     WHERE candidato_id = $candidato_id AND habilidad_id = $habilidad_id";
         $checkResult = $this->db->query($checkSql);
         
-        if ($checkResult && $checkResult->fetch_assoc()['total'] > 0) {
-            return [
-                'success' => false,
-                'message' => 'No se puede eliminar esta categoría porque tiene vacantes asociadas'
-            ];
+        if ($checkResult && $checkResult->num_rows > 0) {
+            // Actualizar nivel si ya existe
+            $sql = "UPDATE candidato_habilidades 
+                    SET nivel = '$nivel', updated_at = NOW()
+                    WHERE candidato_id = $candidato_id AND habilidad_id = $habilidad_id";
+        } else {
+            // Insertar nueva relación
+            $sql = "INSERT INTO candidato_habilidades (
+                        candidato_id, habilidad_id, nivel, created_at, updated_at
+                    ) VALUES (
+                        $candidato_id, $habilidad_id, '$nivel', NOW(), NOW()
+                    )";
         }
-        
-        $sql = "DELETE FROM categorias_vacantes WHERE id = $id";
         
         if ($this->db->query($sql)) {
             return [
                 'success' => true,
-                'message' => 'Categoría eliminada con éxito'
+                'message' => 'Habilidad agregada con éxito'
             ];
         } else {
             return [
                 'success' => false,
-                'message' => 'Error al eliminar la categoría: ' . $this->db->getConnection()->error
+                'message' => 'Error al agregar habilidad: ' . $this->db->getConnection()->error
+            ];
+        }
+    }
+    
+    /**
+     * Eliminar habilidad de un candidato
+     */
+    public function deleteCandidateSkill($candidatoId, $habilidadId) {
+        $candidatoId = (int)$candidatoId;
+        $habilidadId = (int)$habilidadId;
+        
+        $sql = "DELETE FROM candidato_habilidades 
+                WHERE candidato_id = $candidatoId AND habilidad_id = $habilidadId";
+        
+        if ($this->db->query($sql)) {
+            return [
+                'success' => true,
+                'message' => 'Habilidad eliminada con éxito'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Error al eliminar habilidad: ' . $this->db->getConnection()->error
             ];
         }
     }
@@ -1270,9 +1979,9 @@ public function getNoteById($notaId) {
 }
 
 /**
- * Clase para gestionar candidatos
+ * Clase para gestionar categorías de vacantes
  */
-class CandidateManager {
+class CategoryManager {
     public $db; // Cambiado a público para facilitar el acceso
     
     public function __construct() {
@@ -1283,65 +1992,272 @@ class CandidateManager {
             $this->db = VacanciesDatabase::getInstance();
         }
     }
-
-	/**
-     * Verifica si un email ya existe en la base de datos
-     */
-    public function checkEmailExists($email) {
-        $email = $this->db->escape($email);
-        
-        $sql = "SELECT * FROM candidatos WHERE email = '$email' LIMIT 1";
-        return $this->db->query($sql);
-    }
-	
+    
     /**
-     * Obtener todos los candidatos con paginación y filtros opcionales
+     * Obtener todas las categorías
      */
-    public function getCandidates($page = 1, $per_page = 10, $filters = []) {
+    public function getCategories() {
+        $sql = "SELECT c.*, COUNT(v.id) as vacantes_count 
+                FROM categorias_vacantes c
+                LEFT JOIN vacantes v ON c.id = v.categoria_id AND v.estado = 'publicada'
+                GROUP BY c.id
+                ORDER BY c.nombre ASC";
+                
+        $result = $this->db->query($sql);
+        $categories = [];
+        
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $categories[] = $row;
+            }
+        }
+        
+        return $categories;
+    }
+    
+    /**
+     * Obtener categoría por ID
+     */
+    public function getCategoryById($id) {
+        $id = (int)$id;
+        
+        $sql = "SELECT * FROM categorias_vacantes WHERE id = $id";
+        $result = $this->db->query($sql);
+        
+        return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
+    }
+    
+    /**
+     * Crear nueva categoría
+     */
+    public function createCategory($data) {
+        // Validar datos requeridos
+        if (empty($data['nombre'])) {
+            return [
+                'success' => false,
+                'message' => 'El nombre de la categoría es obligatorio'
+            ];
+        }
+        
+        $nombre = $this->db->escape($data['nombre']);
+        $descripcion = $this->db->escape($data['descripcion'] ?? '');
+        $icono = $this->db->escape($data['icono'] ?? 'fas fa-briefcase');
+        
+        $sql = "INSERT INTO categorias_vacantes (nombre, descripcion, icono, created_at, updated_at)
+                VALUES ('$nombre', '$descripcion', '$icono', NOW(), NOW())";
+        
+        if ($this->db->query($sql)) {
+            return [
+                'success' => true,
+                'message' => 'Categoría creada con éxito',
+                'id' => $this->db->lastInsertId()
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Error al crear la categoría: ' . $this->db->getConnection()->error
+            ];
+        }
+    }
+    
+    /**
+     * Actualizar categoría
+     */
+    public function updateCategory($id, $data) {
+        // Validar datos requeridos
+        if (empty($data['nombre'])) {
+            return [
+                'success' => false,
+                'message' => 'El nombre de la categoría es obligatorio'
+            ];
+        }
+        
+        $id = (int)$id;
+        $nombre = $this->db->escape($data['nombre']);
+        $descripcion = $this->db->escape($data['descripcion'] ?? '');
+        $icono = $this->db->escape($data['icono'] ?? 'fas fa-briefcase');
+        
+        $sql = "UPDATE categorias_vacantes
+                SET nombre = '$nombre', descripcion = '$descripcion', icono = '$icono', updated_at = NOW()
+                WHERE id = $id";
+        
+        if ($this->db->query($sql)) {
+            return [
+                'success' => true,
+                'message' => 'Categoría actualizada con éxito'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Error al actualizar la categoría: ' . $this->db->getConnection()->error
+            ];
+        }
+    }
+    
+    /**
+     * Eliminar categoría
+     */
+    public function deleteCategory($id) {
+        $id = (int)$id;
+        
+        // Verificar si hay vacantes asociadas
+        $checkSql = "SELECT COUNT(*) as total FROM vacantes WHERE categoria_id = $id";
+        $checkResult = $this->db->query($checkSql);
+        
+        if ($checkResult && $checkResult->fetch_assoc()['total'] > 0) {
+            return [
+                'success' => false,
+                'message' => 'No se puede eliminar esta categoría porque tiene vacantes asociadas'
+            ];
+        }
+        
+        $sql = "DELETE FROM categorias_vacantes WHERE id = $id";
+        
+        if ($this->db->query($sql)) {
+            return [
+                'success' => true,
+                'message' => 'Categoría eliminada con éxito'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Error al eliminar la categoría: ' . $this->db->getConnection()->error
+            ];
+        }
+    }
+}
+
+/**
+ * Clase para gestionar vacantes
+ */
+class VacancyManager {
+    public $db; // Cambiado a público para facilitar el acceso
+    
+    public function __construct() {
+        // Usar siempre la clase Database
+        $this->db = Database::getInstance();
+    }
+    
+    /**
+     * Obtener todas las vacantes con paginación y filtros opcionales
+     */
+    public function getVacancies($page = 1, $per_page = 10, $filters = []) {
         $offset = ($page - 1) * $per_page;
         
-        $sql = "SELECT c.*, 
-                       COUNT(DISTINCT a.id) as aplicaciones_count,
-                       COUNT(DISTINCT e.id) as experiencias_count,
-                       COUNT(DISTINCT ed.id) as educacion_count
-                FROM candidatos c
-                LEFT JOIN aplicaciones a ON c.id = a.candidato_id
-                LEFT JOIN experiencia_laboral e ON c.id = e.candidato_id
-                LEFT JOIN educacion ed ON c.id = ed.candidato_id
+        $sql = "SELECT v.*, c.nombre as categoria_nombre 
+                FROM vacantes v
+                LEFT JOIN categorias_vacantes c ON v.categoria_id = c.id
                 WHERE 1=1";
         
         // Aplicar filtros
-        if (!empty($filters['busqueda'])) {
-            $busqueda = $this->db->escape($filters['busqueda']);
-            $sql .= " AND (c.nombre LIKE '%$busqueda%' OR c.apellido LIKE '%$busqueda%' OR c.email LIKE '%$busqueda%')";
+        if (!empty($filters['estado'])) {
+            $estado = $this->db->escape($filters['estado']);
+            $sql .= " AND v.estado = '$estado'";
         }
         
-        // Agrupar y ordenar
-        $sql .= " GROUP BY c.id ORDER BY c.created_at DESC LIMIT $offset, $per_page";
+        if (!empty($filters['categoria'])) {
+            $categoria = (int)$filters['categoria'];
+            $sql .= " AND v.categoria_id = $categoria";
+        }
+        
+        if (!empty($filters['busqueda'])) {
+            $busqueda = $this->db->escape($filters['busqueda']);
+            $sql .= " AND (v.titulo LIKE '%$busqueda%' OR v.descripcion LIKE '%$busqueda%')";
+        }
+        
+        if (!empty($filters['destacada'])) {
+            $sql .= " AND v.destacada = 1";
+        }
+        
+        if (!empty($filters['ubicacion'])) {
+            $ubicacion = $this->db->escape($filters['ubicacion']);
+            $sql .= " AND v.ubicacion = '$ubicacion'";
+        }
+        
+        if (!empty($filters['modalidad'])) {
+            $modalidad = $this->db->escape($filters['modalidad']);
+            $sql .= " AND v.modalidad = '$modalidad'";
+        }
+        
+        if (!empty($filters['excluir_id'])) {
+            $excluir_id = (int)$filters['excluir_id'];
+            $sql .= " AND v.id != $excluir_id";
+        }
+        
+        // Ordenar
+        if (!empty($filters['orden'])) {
+            switch ($filters['orden']) {
+                case 'fecha_asc':
+                    $sql .= " ORDER BY v.fecha_publicacion ASC";
+                    break;
+                case 'titulo_asc':
+                    $sql .= " ORDER BY v.titulo ASC";
+                    break;
+                case 'titulo_desc':
+                    $sql .= " ORDER BY v.titulo DESC";
+                    break;
+                default:
+                    $sql .= " ORDER BY v.fecha_publicacion DESC";
+                    break;
+            }
+        } else {
+            $sql .= " ORDER BY v.fecha_publicacion DESC";
+        }
+        
+        $sql .= " LIMIT $offset, $per_page";
         
         // Ejecutar consulta
         $result = $this->db->query($sql);
-        $candidates = [];
+        $vacancies = [];
         
         // Si hay resultados, procesarlos
         if ($result) {
             while ($row = $result->fetch_assoc()) {
-                $candidates[] = $row;
+                $vacancies[] = $row;
             }
             
             // Contar total para paginación
-            $countSql = "SELECT COUNT(*) as total FROM candidatos c WHERE 1=1";
+            $countSql = "SELECT COUNT(*) as total FROM vacantes v WHERE 1=1";
+            
+            if (!empty($filters['estado'])) {
+                $estado = $this->db->escape($filters['estado']);
+                $countSql .= " AND v.estado = '$estado'";
+            }
+            
+            if (!empty($filters['categoria'])) {
+                $categoria = (int)$filters['categoria'];
+                $countSql .= " AND v.categoria_id = $categoria";
+            }
             
             if (!empty($filters['busqueda'])) {
                 $busqueda = $this->db->escape($filters['busqueda']);
-                $countSql .= " AND (c.nombre LIKE '%$busqueda%' OR c.apellido LIKE '%$busqueda%' OR c.email LIKE '%$busqueda%')";
+                $countSql .= " AND (v.titulo LIKE '%$busqueda%' OR v.descripcion LIKE '%$busqueda%')";
+            }
+            
+            if (!empty($filters['destacada'])) {
+                $countSql .= " AND v.destacada = 1";
+            }
+            
+            if (!empty($filters['ubicacion'])) {
+                $ubicacion = $this->db->escape($filters['ubicacion']);
+                $countSql .= " AND v.ubicacion = '$ubicacion'";
+            }
+            
+            if (!empty($filters['modalidad'])) {
+                $modalidad = $this->db->escape($filters['modalidad']);
+                $countSql .= " AND v.modalidad = '$modalidad'";
+            }
+            
+            if (!empty($filters['excluir_id'])) {
+                $excluir_id = (int)$filters['excluir_id'];
+                $countSql .= " AND v.id != $excluir_id";
             }
             
             $countResult = $this->db->query($countSql);
             $total = ($countResult) ? $countResult->fetch_assoc()['total'] : 0;
             
             return [
-                'candidates' => $candidates,
+                'vacancies' => $vacancies,
                 'total' => $total,
                 'pages' => ceil($total / $per_page),
                 'current_page' => $page
@@ -1350,7 +2266,7 @@ class CandidateManager {
         
         // Si no hay resultados, devolver array vacío
         return [
-            'candidates' => [],
+            'vacancies' => [],
             'total' => 0,
             'pages' => 0,
             'current_page' => $page
@@ -1358,856 +2274,272 @@ class CandidateManager {
     }
     
     /**
-     * Obtener un candidato por su ID
+     * Crear una nueva vacante
      */
-    public function getCandidateById($id) {
-        $id = (int)$id;
-        
-        $sql = "SELECT * FROM candidatos WHERE id = $id";
-        $result = $this->db->query($sql);
-        
-        return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
-    }
-    
-    
-    /**
-     * Crea un nuevo candidato
-     * 
-     * @param array $data Datos del candidato
-     * @return array Resultado de la operación
-     */
-    public function createCandidate($data) {
+    public function createVacancy($data) {
         // Validar datos requeridos
-        if (empty($data['nombre']) || empty($data['apellido']) || empty($data['email'])) {
+        if (empty($data['titulo']) || empty($data['categoria']) || empty($data['descripcion'])) {
             return [
                 'success' => false,
                 'message' => 'Faltan campos obligatorios'
             ];
         }
         
-        // Verificar si el email ya existe
-        $email = $this->db->escape($data['email']);
-        $checkSql = "SELECT id FROM candidatos WHERE email = '$email'";
-        $checkResult = $this->db->query($checkSql);
+        // Preparar datos
+        $titulo = $this->db->escape($data['titulo']);
+        $slug = $this->generateSlug($titulo);
+        $descripcion = $this->db->escape($data['descripcion']);
+        $requisitos = $this->db->escape($data['requisitos'] ?? '');
+        $responsabilidades = $this->db->escape($data['responsabilidades'] ?? '');
+        $beneficios = $this->db->escape($data['beneficios'] ?? '');
+        $categoria_id = (int)$data['categoria'];
+        $ubicacion = $this->db->escape($data['ubicacion'] ?? '');
+        $modalidad = $this->db->escape($data['modalidad'] ?? 'presencial');
+        $tipo_contrato = $this->db->escape($data['tipo_contrato'] ?? 'tiempo_completo');
+        $experiencia = $this->db->escape($data['experiencia'] ?? '');
+        $salario_min = !empty($data['salario_min']) ? (float)$data['salario_min'] : 0;
+        $salario_max = !empty($data['salario_max']) ? (float)$data['salario_max'] : 0;
+        $mostrar_salario = !empty($data['mostrar_salario']) ? 1 : 0;
+        $estado = $this->db->escape($data['estado'] ?? 'borrador');
+        $destacada = !empty($data['destacada']) ? 1 : 0;
+		$empresa_contratante = $this->db->escape($data['empresa_contratante'] ?? '');
+		$mostrar_empresa = !empty($data['mostrar_empresa']) ? 1 : 0;
         
-        if ($checkResult && $checkResult->num_rows > 0) {
-            return [
-                'success' => false,
-                'message' => 'Ya existe un candidato con este email'
-            ];
-        }
+        // Fechas
+        $fecha_publicacion = !empty($data['fecha_publicacion']) ? "'" . $this->db->escape($data['fecha_publicacion']) . "'" : 'NULL';
+        $fecha_cierre = !empty($data['fecha_cierre']) ? "'" . $this->db->escape($data['fecha_cierre']) . "'" : 'NULL';
         
-        // Construir la consulta SQL dinámicamente
-        $fields = [];
-        $values = [];
+        // Consulta SQL
+		$sql = "INSERT INTO vacantes (
+					titulo, slug, descripcion, requisitos, responsabilidades, beneficios, 
+					categoria_id, ubicacion, modalidad, tipo_contrato, experiencia,
+					salario_min, salario_max, mostrar_salario, estado, destacada,
+					empresa_contratante, mostrar_empresa,
+					fecha_publicacion, fecha_cierre, created_at, updated_at
+				) VALUES (
+					'$titulo', '$slug', '$descripcion', '$requisitos', '$responsabilidades', '$beneficios',
+					$categoria_id, '$ubicacion', '$modalidad', '$tipo_contrato', '$experiencia',
+					$salario_min, $salario_max, $mostrar_salario, '$estado', $destacada,
+					'$empresa_contratante', $mostrar_empresa,
+					$fecha_publicacion, $fecha_cierre, NOW(), NOW()
+				)";
         
-        // Campos conocidos que podrían venir en $data
-        $posibles_campos = [
-            'nombre', 'apellido', 'email', 'telefono', 'ubicacion', 'resumen',
-            'cv_path', 'foto_path', 'linkedin', 'portfolio', 'user_id',
-            'password', 'nivel_educativo', 'fecha_nacimiento', 'genero',
-            'areas_interes', 'habilidades_destacadas', 'experiencia_general',
-            'salario_esperado', 'modalidad_preferida', 'tipo_contrato_preferido',
-            'disponibilidad', 'evaluaciones_pendientes', 'recibir_notificaciones',
-            'disponibilidad_viajar', 'ubicacion_preferida', 'resumen_profesional'
-        ];
-        
-        // Procesar cada campo posible
-        foreach ($posibles_campos as $campo) {
-            if (isset($data[$campo])) {
-                $fields[] = $campo;
-                
-                // Tratar el valor según su tipo
-                if ($campo === 'user_id' || $campo === 'evaluaciones_pendientes' || $campo === 'recibir_notificaciones') {
-                    // Campos enteros
-                    $values[] = !empty($data[$campo]) ? (int)$data[$campo] : 'NULL';
-                } elseif ($campo === 'fecha_nacimiento') {
-                    // Fechas
-                    $values[] = !empty($data[$campo]) ? "'" . $this->db->escape($data[$campo]) . "'" : 'NULL';
-                } else {
-                    // Cadenas de texto
-                    $values[] = "'" . $this->db->escape($data[$campo]) . "'";
-                }
-            }
-        }
-        
-        // Añadir campos de fecha de creación/actualización
-        $fields[] = 'created_at';
-        $values[] = 'NOW()';
-        $fields[] = 'updated_at';
-        $values[] = 'NOW()';
-        
-        // Construir la consulta SQL
-        $fields_str = implode(', ', $fields);
-        $values_str = implode(', ', $values);
-        
-        $sql = "INSERT INTO candidatos ($fields_str) VALUES ($values_str)";
-        
-        // Ejecutar la consulta
         if ($this->db->query($sql)) {
             return [
                 'success' => true,
-                'message' => 'Candidato creado con éxito',
+                'message' => 'Vacante creada con éxito',
                 'id' => $this->db->lastInsertId()
             ];
         } else {
             return [
                 'success' => false,
-                'message' => 'Error al crear el candidato: ' . $this->db->getConnection()->error
+                'message' => 'Error al crear la vacante: ' . $this->db->getConnection()->error
             ];
         }
     }
     
     /**
-     * Actualiza información de Drive para un candidato existente
-     * 
-     * @param int $id ID del candidato
-     * @param array $driveData Datos de Google Drive
-     * @return boolean Resultado de la operación
+     * Generar un slug a partir de un título
      */
-    public function updateCandidateDriveInfo($id, $driveData) {
-        $id = (int)$id;
-        $fileId = $this->db->escape($driveData['fileId'] ?? '');
-        $webViewLink = $this->db->escape($driveData['webViewLink'] ?? '');
-        $folderId = $this->db->escape($driveData['folderId'] ?? '');
+    private function generateSlug($text) {
+        // Convertir a minúsculas
+        $text = strtolower($text);
         
-        $sql = "UPDATE candidatos SET
-                    drive_file_id = '$fileId',
-                    drive_view_link = '$webViewLink',
-                    drive_folder_id = '$folderId',
-                    updated_at = NOW()
-                WHERE id = $id";
+        // Reemplazar caracteres especiales
+        $text = preg_replace('/[^a-z0-9\s-]/', '', $text);
+        
+        // Reemplazar espacios con guiones
+        $text = preg_replace('/[\s-]+/', '-', $text);
+        
+        // Eliminar guiones al principio y al final
+        $text = trim($text, '-');
+        
+        return $text;
+    }
+    
+    /**
+     * Obtener una vacante por su ID
+     */
+	public function getVacancyById($id) {
+		$id = (int)$id;
+		
+		$sql = "SELECT v.*, c.nombre as categoria_nombre 
+				FROM vacantes v
+				LEFT JOIN categorias_vacantes c ON v.categoria_id = c.id
+				WHERE v.id = $id";
+				
+		$result = $this->db->query($sql);
+		
+		return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
+	}
+    
+    /**
+     * Actualizar una vacante existente
+     */
+    public function updateVacancy($id, $data) {
+        // Validar datos requeridos
+        if (empty($data['titulo']) || empty($data['categoria']) || empty($data['descripcion'])) {
+            return [
+                'success' => false,
+                'message' => 'Faltan campos obligatorios'
+            ];
+        }
+        
+        // Preparar datos
+        $id = (int)$id;
+        $titulo = $this->db->escape($data['titulo']);
+        $descripcion = $this->db->escape($data['descripcion']);
+        $requisitos = $this->db->escape($data['requisitos'] ?? '');
+        $responsabilidades = $this->db->escape($data['responsabilidades'] ?? '');
+        $beneficios = $this->db->escape($data['beneficios'] ?? '');
+        $categoria_id = (int)$data['categoria'];
+        $ubicacion = $this->db->escape($data['ubicacion'] ?? '');
+        $modalidad = $this->db->escape($data['modalidad'] ?? 'presencial');
+        $tipo_contrato = $this->db->escape($data['tipo_contrato'] ?? 'tiempo_completo');
+        $experiencia = $this->db->escape($data['experiencia'] ?? '');
+        $salario_min = !empty($data['salario_min']) ? (float)$data['salario_min'] : 0;
+        $salario_max = !empty($data['salario_max']) ? (float)$data['salario_max'] : 0;
+        $mostrar_salario = !empty($data['mostrar_salario']) ? 1 : 0;
+        $estado = $this->db->escape($data['estado'] ?? 'borrador');
+        $destacada = !empty($data['destacada']) ? 1 : 0;
+		$empresa_contratante = $this->db->escape($data['empresa_contratante'] ?? '');
+		$mostrar_empresa = !empty($data['mostrar_empresa']) ? 1 : 0;
+        
+        // Fechas
+        $fecha_publicacion = !empty($data['fecha_publicacion']) ? "'" . $this->db->escape($data['fecha_publicacion']) . "'" : 'NULL';
+        $fecha_cierre = !empty($data['fecha_cierre']) ? "'" . $this->db->escape($data['fecha_cierre']) . "'" : 'NULL';
+        
+        // Consulta SQL
+		$sql = "UPDATE vacantes SET 
+					titulo = '$titulo',
+					descripcion = '$descripcion',
+					requisitos = '$requisitos',
+					responsabilidades = '$responsabilidades',
+					beneficios = '$beneficios',
+					categoria_id = $categoria_id,
+					ubicacion = '$ubicacion',
+					modalidad = '$modalidad',
+					tipo_contrato = '$tipo_contrato',
+					experiencia = '$experiencia',
+					salario_min = $salario_min,
+					salario_max = $salario_max,
+					mostrar_salario = $mostrar_salario,
+					estado = '$estado',
+					destacada = $destacada,
+					empresa_contratante = '$empresa_contratante',
+					mostrar_empresa = $mostrar_empresa,
+					fecha_publicacion = $fecha_publicacion,
+					fecha_cierre = $fecha_cierre,
+					updated_at = NOW()
+				WHERE id = $id";
+        
+        if ($this->db->query($sql)) {
+            return [
+                'success' => true,
+                'message' => 'Vacante actualizada con éxito'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Error al actualizar la vacante: ' . $this->db->getConnection()->error
+            ];
+        }
+    }
+    
+    /**
+     * Cambiar el estado de una vacante
+     */
+    public function changeVacancyStatus($id, $status) {
+        $id = (int)$id;
+        $status = $this->db->escape($status);
+        
+        $sql = "UPDATE vacantes SET estado = '$status', updated_at = NOW() WHERE id = $id";
         
         return $this->db->query($sql);
     }
     
- /**
- * Actualiza los datos de un candidato
- *
- * @param int $id ID del candidato
- * @param array $data Datos a actualizar
- * @return array Resultado de la operación
- */
-public function updateCandidate($id, $data) {
-    // Validar ID
-    $id = (int)$id;
-    if ($id <= 0) {
-        return ['success' => false, 'message' => 'ID de candidato inválido'];
-    }
-    
-    // Validar datos requeridos
-    if (empty($data['nombre']) || empty($data['apellido']) || empty($data['email'])) {
-        return [
-            'success' => false,
-            'message' => 'Faltan campos obligatorios'
-        ];
-    }
-    
-    // Verificar si el email ya existe para otro candidato
-    $email = $this->db->escape($data['email']);
-    $checkSql = "SELECT id FROM candidatos WHERE email = '$email' AND id != $id";
-    $checkResult = $this->db->query($checkSql);
-    
-    if ($checkResult && $checkResult->num_rows > 0) {
-        return [
-            'success' => false,
-            'message' => 'El email ya está en uso por otro candidato'
-        ];
-    }
-    
-    // Construir la consulta SQL dinámicamente
-    $updates = [];
-    
-    // Campos conocidos que podrían venir en $data
-    $posibles_campos = [
-        'nombre', 'apellido', 'email', 'telefono', 'ubicacion', 'resumen',
-        'cv_path', 'foto_path', 'linkedin', 'portfolio', 'user_id',
-        'password', 'nivel_educativo', 'fecha_nacimiento', 'genero',
-        'areas_interes', 'habilidades_destacadas', 'experiencia_general',
-        'salario_esperado', 'modalidad_preferida', 'tipo_contrato_preferido',
-        'disponibilidad', 'evaluaciones_pendientes', 'recibir_notificaciones',
-        'disponibilidad_viajar', 'ubicacion_preferida', 'resumen_profesional',
-        'status'
-    ];
-    
-    // Procesar cada campo posible
-    foreach ($posibles_campos as $campo) {
-        if (isset($data[$campo])) {
-            // Tratar el valor según su tipo
-            if (in_array($campo, ['user_id', 'evaluaciones_pendientes', 'recibir_notificaciones', 'status'])) {
-                // Campos enteros
-                $updates[] = "$campo = " . (!empty($data[$campo]) ? (int)$data[$campo] : 'NULL');
-            } elseif ($campo === 'fecha_nacimiento') {
-                // Fechas
-                $updates[] = "$campo = " . (!empty($data[$campo]) ? "'" . $this->db->escape($data[$campo]) . "'" : 'NULL');
-            } else {
-                // Cadenas de texto
-                $updates[] = "$campo = '" . $this->db->escape($data[$campo]) . "'";
-            }
-        }
-    }
-    
-    // Añadir campo de actualización
-    $updates[] = "updated_at = NOW()";
-    
-    // Construir la consulta SQL
-    $updates_str = implode(', ', $updates);
-    
-    $sql = "UPDATE candidatos SET $updates_str WHERE id = $id";
-    
-    // Ejecutar la consulta
-    if ($this->db->query($sql)) {
-        // Recalcular completitud del perfil
-        $this->calcularCompletitudPerfil($id);
-        
-        return [
-            'success' => true,
-            'message' => 'Candidato actualizado con éxito'
-        ];
-    } else {
-        return [
-            'success' => false,
-            'message' => 'Error al actualizar el candidato: ' . $this->db->getConnection()->error
-        ];
-    }
-}
-	
-	    /**
-     * Obtiene la experiencia laboral de un candidato
-     *
-     * @param int $candidato_id ID del candidato
-     * @return array Experiencias laborales
-     */
-    public function getExperienciaLaboral($candidato_id) {
-        $candidato_id = (int)$candidato_id;
-        
-        $sql = "SELECT * FROM experiencia_laboral 
-                WHERE candidato_id = $candidato_id 
-                ORDER BY actual DESC, fecha_inicio DESC";
-                
-        $result = $this->db->query($sql);
-        $experiencias = [];
-        
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $experiencias[] = $row;
-            }
-        }
-        
-        return $experiencias;
-    }
-    
     /**
-     * Añade una experiencia laboral
-     *
-     * @param array $data Datos de la experiencia
-     * @return array Resultado de la operación
+     * Eliminar una vacante
      */
-    public function addExperienciaLaboral($data) {
-        // Validar datos requeridos
-        if (empty($data['candidato_id']) || empty($data['empresa']) || empty($data['puesto']) || empty($data['fecha_inicio'])) {
-            return ['success' => false, 'message' => 'Faltan datos requeridos'];
-        }
-        
-        // Sanitizar datos
-        $candidato_id = (int)$data['candidato_id'];
-        $empresa = $this->db->escape($data['empresa']);
-        $puesto = $this->db->escape($data['puesto']);
-        $fecha_inicio = $this->db->escape($data['fecha_inicio']);
-        $fecha_fin = !empty($data['fecha_fin']) ? "'" . $this->db->escape($data['fecha_fin']) . "'" : "NULL";
-        $actual = !empty($data['actual']) ? 1 : 0;
-        $ubicacion = !empty($data['ubicacion']) ? "'" . $this->db->escape($data['ubicacion']) . "'" : "NULL";
-        $descripcion = !empty($data['descripcion']) ? "'" . $this->db->escape($data['descripcion']) . "'" : "NULL";
-        $logros = !empty($data['logros']) ? "'" . $this->db->escape($data['logros']) . "'" : "NULL";
-        $sector = !empty($data['sector']) ? "'" . $this->db->escape($data['sector']) . "'" : "NULL";
-        $razon_salida = !empty($data['razon_salida']) ? "'" . $this->db->escape($data['razon_salida']) . "'" : "NULL";
-        
-        // Insertar experiencia
-        $sql = "INSERT INTO experiencia_laboral (
-                    candidato_id, empresa, puesto, fecha_inicio, fecha_fin, actual, 
-                    ubicacion, descripcion, logros, sector, razon_salida
-                ) VALUES (
-                    $candidato_id, '$empresa', '$puesto', '$fecha_inicio', $fecha_fin, $actual,
-                    $ubicacion, $descripcion, $logros, $sector, $razon_salida
-                )";
-                
-        if ($this->db->query($sql)) {
-            // Recalcular completitud del perfil
-            $this->calcularCompletitudPerfil($candidato_id);
-            
-            return ['success' => true, 'message' => 'Experiencia laboral añadida correctamente', 'id' => $this->db->lastInsertId()];
-        }
-        
-        return ['success' => false, 'message' => 'Error al añadir experiencia laboral: ' . $this->db->getLastError()];
-    }
-    
-    /**
-     * Actualiza una experiencia laboral
-     *
-     * @param array $data Datos de la experiencia
-     * @return array Resultado de la operación
-     */
-    public function updateExperienciaLaboral($data) {
-        // Validar datos requeridos
-        if (empty($data['id']) || empty($data['candidato_id']) || empty($data['empresa']) || empty($data['puesto']) || empty($data['fecha_inicio'])) {
-            return ['success' => false, 'message' => 'Faltan datos requeridos'];
-        }
-        
-        // Sanitizar datos
-        $id = (int)$data['id'];
-        $candidato_id = (int)$data['candidato_id'];
-        $empresa = $this->db->escape($data['empresa']);
-        $puesto = $this->db->escape($data['puesto']);
-        $fecha_inicio = $this->db->escape($data['fecha_inicio']);
-        $fecha_fin = !empty($data['fecha_fin']) ? "'" . $this->db->escape($data['fecha_fin']) . "'" : "NULL";
-        $actual = !empty($data['actual']) ? 1 : 0;
-        $ubicacion = !empty($data['ubicacion']) ? "'" . $this->db->escape($data['ubicacion']) . "'" : "NULL";
-        $descripcion = !empty($data['descripcion']) ? "'" . $this->db->escape($data['descripcion']) . "'" : "NULL";
-        $logros = !empty($data['logros']) ? "'" . $this->db->escape($data['logros']) . "'" : "NULL";
-        $sector = !empty($data['sector']) ? "'" . $this->db->escape($data['sector']) . "'" : "NULL";
-        $razon_salida = !empty($data['razon_salida']) ? "'" . $this->db->escape($data['razon_salida']) . "'" : "NULL";
-        
-        // Verificar que la experiencia pertenece al candidato
-        $checkSql = "SELECT id FROM experiencia_laboral WHERE id = $id AND candidato_id = $candidato_id";
-        $checkResult = $this->db->query($checkSql);
-        
-        if (!$checkResult || $checkResult->num_rows === 0) {
-            return ['success' => false, 'message' => 'La experiencia laboral no pertenece a este candidato'];
-        }
-        
-        // Actualizar experiencia
-        $sql = "UPDATE experiencia_laboral SET
-                    empresa = '$empresa',
-                    puesto = '$puesto',
-                    fecha_inicio = '$fecha_inicio',
-                    fecha_fin = $fecha_fin,
-                    actual = $actual,
-                    ubicacion = $ubicacion,
-                    descripcion = $descripcion,
-                    logros = $logros,
-                    sector = $sector,
-                    razon_salida = $razon_salida,
-                    updated_at = NOW()
-                WHERE id = $id AND candidato_id = $candidato_id";
-                
-        if ($this->db->query($sql)) {
-            return ['success' => true, 'message' => 'Experiencia laboral actualizada correctamente'];
-        }
-        
-        return ['success' => false, 'message' => 'Error al actualizar experiencia laboral: ' . $this->db->getLastError()];
-    }
-    
-    /**
-     * Elimina una experiencia laboral
-     *
-     * @param int $id ID de la experiencia
-     * @param int $candidato_id ID del candidato
-     * @return array Resultado de la operación
-     */
-    public function deleteExperienciaLaboral($id, $candidato_id) {
+    public function deleteVacancy($id) {
         $id = (int)$id;
-        $candidato_id = (int)$candidato_id;
         
-        // Verificar que la experiencia pertenece al candidato
-        $checkSql = "SELECT id FROM experiencia_laboral WHERE id = $id AND candidato_id = $candidato_id";
-        $checkResult = $this->db->query($checkSql);
+        $sql = "DELETE FROM vacantes WHERE id = $id";
         
-        if (!$checkResult || $checkResult->num_rows === 0) {
-            return ['success' => false, 'message' => 'La experiencia laboral no pertenece a este candidato'];
-        }
-        
-        // Eliminar experiencia
-        $sql = "DELETE FROM experiencia_laboral WHERE id = $id AND candidato_id = $candidato_id";
-        
-        if ($this->db->query($sql)) {
-            // Recalcular completitud del perfil
-            $this->calcularCompletitudPerfil($candidato_id);
-            
-            return ['success' => true, 'message' => 'Experiencia laboral eliminada correctamente'];
-        }
-        
-        return ['success' => false, 'message' => 'Error al eliminar experiencia laboral: ' . $this->db->getLastError()];
-    }
-    
-    /**
-     * Obtiene las referencias de un candidato
-     *
-     * @param int $candidato_id ID del candidato
-     * @return array Referencias
-     */
-    public function getReferencias($candidato_id) {
-        $candidato_id = (int)$candidato_id;
-        
-        $sql = "SELECT * FROM referencias 
-                WHERE candidato_id = $candidato_id 
-                ORDER BY created_at DESC";
-                
-        $result = $this->db->query($sql);
-        $referencias = [];
-        
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $referencias[] = $row;
-            }
-        }
-        
-        return $referencias;
-    }
-    
-    /**
-     * Añade una referencia
-     *
-     * @param array $data Datos de la referencia
-     * @return array Resultado de la operación
-     */
-    public function addReferencia($data) {
-        // Validar datos requeridos
-        if (empty($data['candidato_id']) || empty($data['nombre']) || empty($data['puesto']) || empty($data['empresa']) || empty($data['relacion'])) {
-            return ['success' => false, 'message' => 'Faltan datos requeridos'];
-        }
-        
-        // Sanitizar datos
-        $candidato_id = (int)$data['candidato_id'];
-        $nombre = $this->db->escape($data['nombre']);
-        $puesto = $this->db->escape($data['puesto']);
-        $empresa = $this->db->escape($data['empresa']);
-        $relacion = $this->db->escape($data['relacion']);
-        $email = !empty($data['email']) ? "'" . $this->db->escape($data['email']) . "'" : "NULL";
-        $telefono = !empty($data['telefono']) ? "'" . $this->db->escape($data['telefono']) . "'" : "NULL";
-        $autoriza_contacto = !empty($data['autoriza_contacto']) ? 1 : 0;
-        
-        // Insertar referencia
-        $sql = "INSERT INTO referencias (
-                    candidato_id, nombre, puesto, empresa, relacion, email, telefono, autoriza_contacto
-                ) VALUES (
-                    $candidato_id, '$nombre', '$puesto', '$empresa', '$relacion', $email, $telefono, $autoriza_contacto
-                )";
-                
-        if ($this->db->query($sql)) {
-            // Recalcular completitud del perfil
-            $this->calcularCompletitudPerfil($candidato_id);
-            
-            return ['success' => true, 'message' => 'Referencia añadida correctamente', 'id' => $this->db->lastInsertId()];
-        }
-        
-        return ['success' => false, 'message' => 'Error al añadir referencia: ' . $this->db->getLastError()];
-    }
-    
-    /**
-     * Actualiza una referencia
-     *
-     * @param array $data Datos de la referencia
-     * @return array Resultado de la operación
-     */
-    public function updateReferencia($data) {
-        // Validar datos requeridos
-        if (empty($data['id']) || empty($data['candidato_id']) || empty($data['nombre']) || empty($data['puesto']) || empty($data['empresa']) || empty($data['relacion'])) {
-            return ['success' => false, 'message' => 'Faltan datos requeridos'];
-        }
-        
-        // Sanitizar datos
-        $id = (int)$data['id'];
-        $candidato_id = (int)$data['candidato_id'];
-        $nombre = $this->db->escape($data['nombre']);
-        $puesto = $this->db->escape($data['puesto']);
-        $empresa = $this->db->escape($data['empresa']);
-        $relacion = $this->db->escape($data['relacion']);
-        $email = !empty($data['email']) ? "'" . $this->db->escape($data['email']) . "'" : "NULL";
-        $telefono = !empty($data['telefono']) ? "'" . $this->db->escape($data['telefono']) . "'" : "NULL";
-        $autoriza_contacto = !empty($data['autoriza_contacto']) ? 1 : 0;
-        
-        // Verificar que la referencia pertenece al candidato
-        $checkSql = "SELECT id FROM referencias WHERE id = $id AND candidato_id = $candidato_id";
-        $checkResult = $this->db->query($checkSql);
-        
-        if (!$checkResult || $checkResult->num_rows === 0) {
-            return ['success' => false, 'message' => 'La referencia no pertenece a este candidato'];
-        }
-        
-        // Actualizar referencia
-        $sql = "UPDATE referencias SET
-                    nombre = '$nombre',
-                    puesto = '$puesto',
-                    empresa = '$empresa',
-                    relacion = '$relacion',
-                    email = $email,
-                    telefono = $telefono,
-                    autoriza_contacto = $autoriza_contacto,
-                    updated_at = NOW()
-                WHERE id = $id AND candidato_id = $candidato_id";
-                
-        if ($this->db->query($sql)) {
-            return ['success' => true, 'message' => 'Referencia actualizada correctamente'];
-        }
-        
-        return ['success' => false, 'message' => 'Error al actualizar referencia: ' . $this->db->getLastError()];
-    }
-    
-    /**
-     * Elimina una referencia
-     *
-     * @param int $id ID de la referencia
-     * @param int $candidato_id ID del candidato
-     * @return array Resultado de la operación
-     */
-    public function deleteReferencia($id, $candidato_id) {
-        $id = (int)$id;
-        $candidato_id = (int)$candidato_id;
-        
-        // Verificar que la referencia pertenece al candidato
-        $checkSql = "SELECT id FROM referencias WHERE id = $id AND candidato_id = $candidato_id";
-        $checkResult = $this->db->query($checkSql);
-        
-        if (!$checkResult || $checkResult->num_rows === 0) {
-            return ['success' => false, 'message' => 'La referencia no pertenece a este candidato'];
-        }
-        
-        // Eliminar referencia
-        $sql = "DELETE FROM referencias WHERE id = $id AND candidato_id = $candidato_id";
-        
-        if ($this->db->query($sql)) {
-            // Recalcular completitud del perfil
-            $this->calcularCompletitudPerfil($candidato_id);
-            
-            return ['success' => true, 'message' => 'Referencia eliminada correctamente'];
-        }
-        
-        return ['success' => false, 'message' => 'Error al eliminar referencia: ' . $this->db->getLastError()];
-    }
-    
-    /**
-     * Calcula el porcentaje de completitud del perfil de un candidato
-     *
-     * @param int $candidato_id ID del candidato
-     * @return int Porcentaje de completitud
-     */
-    public function calcularCompletitudPerfil($candidato_id) {
-        $candidato_id = (int)$candidato_id;
-        
-        // Obtener datos del candidato
-        $candidato = $this->getCandidateById($candidato_id);
-        if (!$candidato) {
-            return 0;
-        }
-        
-        // Campos obligatorios de información personal
-        $campos_personales = [
-            'nombre',
-            'apellido',
-            'email',
-            'telefono',
-            'ubicacion'
-        ];
-        
-        $personales_completos = 0;
-        foreach ($campos_personales as $campo) {
-            if (!empty($candidato[$campo])) {
-                $personales_completos++;
-            }
-        }
-        
-        // Campos obligatorios de información profesional
-        $campos_profesionales = [
-            'nivel_educativo',
-            'areas_interes',
-            'habilidades_destacadas',
-            'experiencia_general'
-        ];
-        
-        $profesionales_completos = 0;
-        foreach ($campos_profesionales as $campo) {
-            if (!empty($candidato[$campo])) {
-                $profesionales_completos++;
-            }
-        }
-        
-        // Verificar experiencia laboral
-        $sql = "SELECT COUNT(*) as total FROM experiencia_laboral WHERE candidato_id = $candidato_id";
-        $result = $this->db->query($sql);
-        $experiencia_completa = 0;
-        
-        if ($result && $result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            if ($row['total'] > 0) {
-                $experiencia_completa = 1;
-            }
-        }
-        
-        // Verificar referencias
-        $sql = "SELECT COUNT(*) as total FROM referencias WHERE candidato_id = $candidato_id";
-        $result = $this->db->query($sql);
-        $referencias_completas = 0;
-        
-        if ($result && $result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            if ($row['total'] > 0) {
-                $referencias_completas = 1;
-            }
-        }
-        
-        // Calcular porcentaje total
-        $total_campos = count($campos_personales) + count($campos_profesionales) + 2; // +2 por experiencia y referencias
-        $total_completos = $personales_completos + $profesionales_completos + $experiencia_completa + $referencias_completas;
-        
-        $porcentaje = round(($total_completos / $total_campos) * 100);
-        
-        // Actualizar porcentaje en la base de datos
-        $sql = "UPDATE candidatos SET 
-                perfil_completitud = $porcentaje, 
-                perfil_completo = " . ($porcentaje == 100 ? 1 : 0) . " 
-                WHERE id = $candidato_id";
-                
-        $this->db->query($sql);
-        
-        return $porcentaje;
-    }
-    
-    /**
-     * Obtiene qué secciones del perfil están completas
-     *
-     * @param int $candidato_id ID del candidato
-     * @return array Estado de completitud de cada sección
-     */
-    public function obtenerSeccionesCompletas($candidato_id) {
-        $candidato_id = (int)$candidato_id;
-        
-        // Obtener datos del candidato
-        $candidato = $this->getCandidateById($candidato_id);
-        if (!$candidato) {
-            return [
-                'personal' => false,
-                'profesional' => false,
-                'experiencia' => false,
-                'referencias' => false
-            ];
-        }
-        
-        // Verificar información personal
-        $campos_personales = ['nombre', 'apellido', 'email', 'telefono', 'ubicacion'];
-        $personal_completa = true;
-        foreach ($campos_personales as $campo) {
-            if (empty($candidato[$campo])) {
-                $personal_completa = false;
-                break;
-            }
-        }
-        
-        // Verificar información profesional
-        $campos_profesionales = ['nivel_educativo', 'areas_interes', 'habilidades_destacadas', 'experiencia_general'];
-        $profesional_completa = true;
-        foreach ($campos_profesionales as $campo) {
-            if (empty($candidato[$campo])) {
-                $profesional_completa = false;
-                break;
-            }
-        }
-        
-        // Verificar experiencia laboral
-        $sql = "SELECT COUNT(*) as total FROM experiencia_laboral WHERE candidato_id = $candidato_id";
-        $result = $this->db->query($sql);
-        $experiencia_completa = false;
-        
-        if ($result && $result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            if ($row['total'] > 0) {
-                $experiencia_completa = true;
-            }
-        }
-        
-        // Verificar referencias
-        $sql = "SELECT COUNT(*) as total FROM referencias WHERE candidato_id = $candidato_id";
-        $result = $this->db->query($sql);
-        $referencias_completas = false;
-        
-        if ($result && $result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            if ($row['total'] > 0) {
-                $referencias_completas = true;
-            }
-        }
-        
-        return [
-            'personal' => $personal_completa,
-            'profesional' => $profesional_completa,
-            'experiencia' => $experiencia_completa,
-            'referencias' => $referencias_completas
-        ];
+        return $this->db->query($sql);
     }
 	
-		/**
-	 * Agregar nota a un candidato
-	 * 
-	 * @param int $candidatoId ID del candidato
-	 * @param string $titulo Título de la nota
-	 * @param string $contenido Contenido de la nota
-	 * @return array Resultado de la operación
-	 */
-	public function addCandidateNote($candidatoId, $titulo, $contenido) {
-		$candidatoId = (int)$candidatoId;
-		$titulo = $this->db->escape($titulo);
-		$contenido = $this->db->escape($contenido);
-		$usuario_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
-		
-		$sql = "INSERT INTO candidato_notas (
-					candidato_id, titulo, contenido, usuario_id, created_at, updated_at
-				) VALUES (
-					$candidatoId, '$titulo', '$contenido', $usuario_id, NOW(), NOW()
-				)";
-		
-		if ($this->db->query($sql)) {
-			return [
-				'success' => true,
-				'message' => 'Nota agregada con éxito',
-				'id' => $this->db->lastInsertId()
-			];
-		} else {
-			return [
-				'success' => false,
-				'message' => 'Error al agregar nota: ' . $this->db->getConnection()->error
-			];
-		}
-	}
 
-
-	/** Obtener notas de un candidato
-	 * 
-	 * @param int $candidatoId ID del candidato
-	 * @return array Notas del candidato
-	 */
-	public function getCandidateNotes($candidatoId) {
-		$candidatoId = (int)$candidatoId;
-		
-		// Modificar la consulta para eliminar el JOIN con usuarios
-		$sql = "SELECT cn.*
-				FROM candidato_notas cn
-				WHERE cn.candidato_id = $candidatoId
-				ORDER BY cn.created_at DESC";
-		
-		$result = $this->db->query($sql);
-		$notes = [];
-		
-		if ($result) {
-			while ($row = $result->fetch_assoc()) {
-				$notes[] = $row;
-			}
-		}
-		
-		return $notes;
-	}
-	
-	/**
- * Obtener una nota específica por su ID
- * 
- * @param int $notaId ID de la nota
- * @return array|null Datos de la nota o null si no existe
+/**
+ * Obtiene vacantes recomendadas para un candidato
+ * basado en su perfil y preferencias
  */
-public function getNoteById($notaId) {
-    $notaId = (int)$notaId;
+public function getRecommendedVacancies($candidato_id, $limit = 5) {
+    $candidato_id = (int)$candidato_id;
+    $limit = (int)$limit;
     
-    $sql = "SELECT * FROM candidato_notas WHERE id = $notaId";
+    // Obtener información del candidato
+    $candidateManager = new CandidateManager();
+    $candidato = $candidateManager->getCandidateById($candidato_id);
+    
+    if (!$candidato) {
+        return [];
+    }
+    
+    // Construir consulta base - SIN usar la función inexistente
+    $sql = "SELECT v.*, c.nombre as categoria_nombre ";
+    
+    // Ya no intentamos usar getProfileMatchPercentage aquí
+    // Simplemente agregamos un valor simulado para match_percentage
+    $sql .= ", 80 as match_percentage "; // Valor fijo por ahora
+    
+    $sql .= "FROM vacantes v
+            LEFT JOIN categorias_vacantes c ON v.categoria_id = c.id
+            WHERE v.estado = 'publicada' ";
+    
+    // Filtrar por áreas de interés si están definidas
+    if (!empty($candidato['areas_interes'])) {
+        $areas = explode(',', $candidato['areas_interes']);
+        $areas_escaped = array_map(function($area) {
+            return (int)$area;
+        }, $areas);
+        
+        if (!empty($areas_escaped)) {
+            $areas_str = implode(',', $areas_escaped);
+            $sql .= "AND v.categoria_id IN ($areas_str) ";
+        }
+    }
+    
+    // Filtrar por modalidad preferida si está definida
+    if (!empty($candidato['modalidad_preferida'])) {
+        $modalidad = $this->db->escape($candidato['modalidad_preferida']);
+        $sql .= "AND (v.modalidad = '$modalidad' OR v.modalidad = 'hibrido') ";
+    }
+    
+    // Filtrar por tipo de contrato preferido si está definido
+    if (!empty($candidato['tipo_contrato_preferido'])) {
+        $tipo_contrato = $this->db->escape($candidato['tipo_contrato_preferido']);
+        $sql .= "AND v.tipo_contrato = '$tipo_contrato' ";
+    }
+    
+    // Ordenar por fecha de publicación
+    $sql .= "ORDER BY v.fecha_publicacion DESC ";
+    
+    // Limitar resultados
+    $sql .= "LIMIT $limit";
+    
+    // Ejecutar consulta
     $result = $this->db->query($sql);
+    $vacancies = [];
     
-    return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $vacancies[] = $row;
+        }
+    }
+    
+    return $vacancies;
 }
-
-/**
- * Editar una nota de candidato
- * 
- * @param int $notaId ID de la nota
- * @param array $data Datos actualizados
- * @return array Resultado de la operación
- */
-public function editCandidateNote($notaId, $data) {
-    // Validar datos requeridos
-    if (empty($notaId) || (empty($data['titulo']) && empty($data['contenido']))) {
-        return [
-            'success' => false,
-            'message' => 'Faltan campos obligatorios'
-        ];
-    }
-    
-    // Preparar datos
-    $notaId = (int)$notaId;
-    $updates = [];
-    
-    if (!empty($data['titulo'])) {
-        $titulo = $this->db->escape($data['titulo']);
-        $updates[] = "titulo = '$titulo'";
-    }
-    
-    if (isset($data['contenido'])) {
-        $contenido = $this->db->escape($data['contenido']);
-        $updates[] = "contenido = '$contenido'";
-    }
-    
-    $updates[] = "updated_at = NOW()";
-    
-    // Consulta SQL
-    $sql = "UPDATE candidato_notas SET " . implode(", ", $updates) . " WHERE id = $notaId";
-    
-    if ($this->db->query($sql)) {
-        return ['success' => true,
-            'message' => 'Nota actualizada con éxito',
-            'id' => $notaId
-        ];
-    } else {
-        return [
-            'success' => false,
-            'message' => 'Error al actualizar nota: ' . $this->db->getConnection()->error
-        ];
-    }
-}
-
-/**
- * Eliminar una nota de candidato
- * 
- * @param int $notaId ID de la nota
- * @return array Resultado de la operación
- */
-public function deleteCandidateNote($notaId) {
-    $notaId = (int)$notaId;
-    
-    $sql = "DELETE FROM candidato_notas WHERE id = $notaId";
-    
-    if ($this->db->query($sql)) {
-        return [
-            'success' => true,
-            'message' => 'Nota eliminada con éxito'
-        ];
-    } else {
-        return [
-            'success' => false,
-            'message' => 'Error al eliminar nota: ' . $this->db->getConnection()->error
-        ];
-    }
-}
-
-/**
- * Busca un candidato por su dirección de email
- * 
- * @param string $email Email del candidato a buscar
- * @return array Información sobre el resultado de la búsqueda
- */
-public function findCandidateByEmail($email) {
-    $email = $this->db->escape($email);
-    
-    $sql = "SELECT * FROM candidatos WHERE email = '$email' LIMIT 1";
-    $result = $this->db->query($sql);
-    
-    if ($result && $result->num_rows > 0) {
-        return [
-            'success' => true, 
-            'exists' => true, 
-            'candidate' => $result->fetch_assoc()
-        ];
-    } else {
-        return [
-            'success' => true, 
-            'exists' => false
-        ];
-    }
-}
-
 }
 
 /**
@@ -2224,7 +2556,8 @@ class ExperienceManager {
             $this->db = VacanciesDatabase::getInstance();
         }
     }
-    
+	
+	    
     /**
      * Obtener experiencia laboral de un candidato
      */
@@ -2354,6 +2687,7 @@ class ExperienceManager {
             ];
         }
     }
+	
 }
 
 /**
@@ -2371,27 +2705,27 @@ class EducationManager {
         }
     }
     
-    /**
-     * Obtener educación de un candidato
-     */
-    public function getCandidateEducation($candidateId) {
-        $candidateId = (int)$candidateId;
-        
-        $sql = "SELECT * FROM educacion 
-                WHERE candidato_id = $candidateId 
-                ORDER BY actual DESC, fecha_inicio DESC";
-                
-        $result = $this->db->query($sql);
-        $education = [];
-        
-        if ($result) {
-            while ($row = $result->fetch_assoc()) {
-                $education[] = $row;
-            }
+/**
+ * Obtiene la educación de un candidato
+ */
+public function getCandidateEducation($candidatoId) {
+    $candidatoId = (int)$candidatoId;
+    
+    $sql = "SELECT * FROM educacion 
+            WHERE candidato_id = $candidatoId 
+            ORDER BY actual DESC, fecha_fin DESC, fecha_inicio DESC";
+    
+    $result = $this->db->query($sql);
+    $education = [];
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $education[] = $row;
         }
-        
-        return $education;
     }
+    
+    return $education;
+}
     
     /**
      * Agregar educación
@@ -2505,229 +2839,8 @@ class EducationManager {
     }
 }
 
-/**
- * Clase para gestionar habilidades de candidatos
- */
-class SkillManager {
-    private $db;
-    
-    public function __construct() {
-        // Intentar usar la clase Database existente, si no, usar VacanciesDatabase
-        if (class_exists('Database')) {
-            $this->db = Database::getInstance();
-        } else {
-            $this->db = VacanciesDatabase::getInstance();
-        }
-    }
-    
-    /**
-     * Obtener todas las habilidades
-     */
-    public function getAllSkills() {
-        $sql = "SELECT * FROM habilidades ORDER BY nombre ASC";
-        $result = $this->db->query($sql);
-        $skills = [];
-        
-        if ($result) {
-            while ($row = $result->fetch_assoc()) {
-                $skills[] = $row;
-            }
-        }
-        
-        return $skills;
-    }
-    
-    /**
-     * Obtener habilidades de un candidato
-     */
-    public function getCandidateSkills($candidateId) {
-        $candidateId = (int)$candidateId;
-        
-        $sql = "SELECT ch.*, h.nombre, h.tipo
-                FROM candidato_habilidades ch
-                JOIN habilidades h ON ch.habilidad_id = h.id
-                WHERE ch.candidato_id = $candidateId
-                ORDER BY h.tipo, h.nombre";
-                
-        $result = $this->db->query($sql);
-        $skills = [];
-        
-        if ($result) {
-            while ($row = $result->fetch_assoc()) {
-                $skills[] = $row;
-            }
-        }
-        
-        return $skills;
-    }
-    
-    /**
-     * Agregar habilidad a un candidato
-     */
-    public function addCandidateSkill($data) {
-        // Validar datos requeridos
-        if (empty($data['candidato_id']) || empty($data['habilidad_id'])) {
-            return [
-                'success' => false,
-                'message' => 'Faltan campos obligatorios'
-            ];
-        }
-        
-        $candidato_id = (int)$data['candidato_id'];
-        $habilidad_id = (int)$data['habilidad_id'];
-        $nivel = $this->db->escape($data['nivel'] ?? 'intermedio');
-        
-        // Verificar si ya existe esta habilidad para el candidato
-        $checkSql = "SELECT id FROM candidato_habilidades 
-                     WHERE candidato_id = $candidato_id AND habilidad_id = $habilidad_id";
-        $checkResult = $this->db->query($checkSql);
-        
-        if ($checkResult && $checkResult->num_rows > 0) {
-            // Actualizar nivel si ya existe
-            $sql = "UPDATE candidato_habilidades 
-                    SET nivel = '$nivel', updated_at = NOW()
-                    WHERE candidato_id = $candidato_id AND habilidad_id = $habilidad_id";
-        } else {
-            // Insertar nueva relación
-            $sql = "INSERT INTO candidato_habilidades (
-                        candidato_id, habilidad_id, nivel, created_at, updated_at
-                    ) VALUES (
-                        $candidato_id, $habilidad_id, '$nivel', NOW(), NOW()
-                    )";
-        }
-        
-        if ($this->db->query($sql)) {
-            return [
-                'success' => true,
-                'message' => 'Habilidad agregada con éxito'
-            ];
-        } else {
-            return [
-                'success' => false,
-                'message' => 'Error al agregar habilidad: ' . $this->db->getConnection()->error
-            ];
-        }
-    }
-    
-    /**
-     * Eliminar habilidad de un candidato
-     */
-    public function deleteCandidateSkill($candidatoId, $habilidadId) {
-        $candidatoId = (int)$candidatoId;
-        $habilidadId = (int)$habilidadId;
-        
-        $sql = "DELETE FROM candidato_habilidades 
-                WHERE candidato_id = $candidatoId AND habilidad_id = $habilidadId";
-        
-        if ($this->db->query($sql)) {
-            return [
-                'success' => true,
-                'message' => 'Habilidad eliminada con éxito'
-            ];
-        } else {
-            return [
-                'success' => false,
-                'message' => 'Error al eliminar habilidad: ' . $this->db->getConnection()->error
-            ];
-        }
-    }
-}
-
-/**
- * Funciones de utilidad para el sistema de vacantes
- */
-class VacancyUtils {
-    /**
-     * Formatear fecha para mostrar
-     */
-    public static function formatDate($date, $format = 'd/m/Y') {
-        return date($format, strtotime($date));
-    }
-    
-    /**
-     * Obtener estado de vacante formateado
-     */
-    public static function getStatusBadge($status) {
-        $statuses = [
-            'borrador' => '<span class="badge bg-secondary">Borrador</span>',
-            'publicada' => '<span class="badge bg-success">Publicada</span>',
-            'cerrada' => '<span class="badge bg-danger">Cerrada</span>'
-        ];
-        
-        return $statuses[$status] ?? '<span class="badge bg-secondary">Desconocido</span>';
-    }
-    
-    /**
-     * Obtener estado de aplicación formateado
-     */
-    public static function getApplicationStatusBadge($status) {
-        $statuses = [
-            'recibida' => '<span class="badge bg-info">Recibida</span>',
-            'revision' => '<span class="badge bg-primary">En Revisión</span>',
-            'entrevista' => '<span class="badge bg-warning text-dark">Entrevista</span>',
-            'prueba' => '<span class="badge bg-warning text-dark">Prueba</span>',
-            'oferta' => '<span class="badge bg-warning text-dark">Oferta</span>',
-            'contratado' => '<span class="badge bg-success">Contratado</span>',
-            'rechazado' => '<span class="badge bg-danger">Rechazado</span>'
-        ];
-        
-        return $statuses[$status] ?? '<span class="badge bg-secondary">Desconocido</span>';
-    }
-    
-    /**
-     * Truncar texto
-     */
-    public static function truncate($text, $length = 100, $append = '...') {
-        if (strlen($text) <= $length) {
-            return $text;
-        }
-        
-        $text = substr($text, 0, $length);
-        $text = substr($text, 0, strrpos($text, ' '));
-        
-        return $text . $append;
-    }
-	
-/**
- * Agregar etapa a una aplicación
- */
-public function addApplicationStage($data) {
-    // Validar datos requeridos
-    if (empty($data['aplicacion_id']) || empty($data['etapa'])) {
-        return [
-            'success' => false,
-            'message' => 'Faltan campos obligatorios'
-        ];
-    }
-    
-    // Preparar datos
-    $aplicacion_id = (int)$data['aplicacion_id'];
-    $etapa = $this->db->escape($data['etapa']);
-    $notas = $this->db->escape($data['notas'] ?? '');
-    $estado = $this->db->escape($data['estado'] ?? 'completada');
-    $fecha = !empty($data['fecha']) ? "'" . $this->db->escape($data['fecha']) . "'" : 'NOW()';
-    
-    // QUITAR usuario_id de la consulta SQL
-    $sql = "INSERT INTO etapas_proceso (
-                aplicacion_id, etapa, notas, estado, fecha, created_at, updated_at
-            ) VALUES (
-                $aplicacion_id, '$etapa', '$notas', '$estado', $fecha, NOW(), NOW()
-            )";
-    
-    if ($this->db->query($sql)) {
-        return [
-            'success' => true,
-            'message' => 'Etapa agregada con éxito',
-            'id' => $this->db->lastInsertId()
-        ];
-    } else {
-        return [
-            'success' => false,
-            'message' => 'Error al agregar etapa: ' . $this->db->getConnection()->error
-        ];
-    }
-}
 
 
-}
+
+
 ?>

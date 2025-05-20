@@ -1,0 +1,180 @@
+/* Mejoras en los contenedores de gráficos */
+.chart-container {
+    height: 300px;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+/* Estilos para la sección de índices compuestos */
+.indice-item {
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    background-color: #f8fafc;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.indice-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.indice-title .badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 1rem;
+}
+
+.indice-value {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.indice-interpretation {
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 1rem;
+    border-left: 4px solid #3b82f6;
+    border-radius: 0.25rem;
+    font-style: italic;
+    line-height: 1.6;
+}
+
+/* Mejorar las barras de competencias */
+.competency-row {
+    margin-bottom: 1.25rem;
+}
+
+.competency-bar {
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: #e5e7eb;
+}
+
+.competency-progress {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease;
+}
+
+/* Personalizar colores para niveles */
+.progress-exceptional {
+    background: linear-gradient(to right, #10b981, #059669);
+}
+
+.progress-outstanding {
+    background: linear-gradient(to right, #3b82f6, #2563eb);
+}
+
+.progress-notable {
+    background: linear-gradient(to right, #6366f1, #4f46e5);
+}
+
+.progress-adequate {
+    background: linear-gradient(to right, #8b5cf6, #7c3aed);
+}
+
+.progress-moderate {
+    background: linear-gradient(to right, #ec4899, #db2777);
+}
+
+.progress-developing {
+    background: linear-gradient(to right, #f59e0b, #d97706);
+}
+
+.progress-incipient {
+    background: linear-gradient(to right, #ef4444, #dc2626);
+}
+
+/* Mejorar gráficos de competencias */
+.dimension-item {
+    margin-bottom: 15px;
+}
+
+.dimension-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.dimension-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.dimension-score {
+    font-weight: 600;
+}
+
+.dimension-bar {
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dimension-progress {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.dimension-progress.high {
+    background: linear-gradient(to right, #10b981, #059669);
+}
+
+.dimension-progress.medium {
+    background: linear-gradient(to right, #3b82f6, #2563eb);
+}
+
+.dimension-progress.low {
+    background: linear-gradient(to right, #f59e0b, #d97706);
+}
+
+/* Mejorar tarjetas de perfil */
+.profile-section {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.profile-section-header {
+    background-color: #f9fafb;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profile-section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.profile-section-body {
+    padding: 1.5rem;
+}
+
+/* Mejorar presentación en dispositivos móviles */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 250px;
+    }
+    
+    .indice-title {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .indice-title .badge {
+        margin-top: 0.5rem;
+    }
+}

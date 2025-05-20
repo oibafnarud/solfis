@@ -1569,5 +1569,491 @@ class TestManager {
         
         return $indices;
     }
+	
+	/**
+ * Obtiene resultados agrupados por tipo de dimensión para un candidato
+ */
+public function getCandidateResultsByType($candidato_id, $dimension_type = null) {
+    $candidato_id = (int)$candidato_id;
+    
+    $typeFilter = "";
+    if ($dimension_type) {
+        $dimension_type = $this->db->escape($dimension_type);
+        $typeFilter = "AND d.tipo = '$dimension_type'";
+    }
+    
+    $sql = "SELECT d.id as dimension_id, d.nombre as dimension_nombre, 
+                   d.descripcion as dimension_descripcion, d.tipo as dimension_tipo,
+                   d.bipolar as dimension_bipolar, d.polo_positivo, d.polo_negativo,
+                   AVG(r.valor) as promedio, 
+                   ni.nombre as nivel_nombre, ni.color as nivel_color
+            FROM resultados r
+            JOIN dimensiones d ON r.dimension_id = d.id
+            JOIN sesiones_prueba sp ON r.sesion_id = sp.id
+            LEFT JOIN niveles_interpretacion ni ON 
+                (ni.rango_min <= AVG(r.valor) AND ni.rango_max >= AVG(r.valor))
+            WHERE sp.candidato_id = $candidato_id 
+            AND sp.estado = 'completada'
+            $typeFilter
+            GROUP BY d.id
+            ORDER BY promedio DESC";
+    
+    $result = $this->db->query($sql);
+    $results = [];
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $results[] = $row;
+        }
+    }
+    
+    return $results;
+}
+
+/**
+ * Obtiene las interpretaciones para un valor específico de una dimensión
+ */
+public function getInterpretationForDimension($dimension_id, $value) {
+    $dimension_id = (int)$dimension_id;
+    $value = (float)$value;
+    
+    $sql = "SELECT i.*
+            FROM interpretaciones i
+            WHERE i.dimension_id = $dimension_id
+            AND $value BETWEEN i.rango_min AND i.rango_max
+            LIMIT 1";
+    
+    $result = $this->db->query($sql);
+    
+    if ($result && $result->num_rows > 0) {
+        return $result->fetch_assoc();
+    }
+    
+    return null;
+}
+
+/**
+ * Obtiene los componentes de un índice compuesto
+ */
+public function getCompositeIndexComponents($index_id) {
+    $index_id = (int)$index_id;
+    
+    $sql = "SELECT ic.*, 
+                   CASE 
+                       WHEN ic.origen_tipo = 'dimension' THEN d.nombre 
+                       ELSE indx.nombre
+                   END as componente_nombre,
+                   CASE 
+                       WHEN ic.origen_tipo = 'dimension' THEN d.descripcion 
+                       ELSE indx.descripcion
+                   END as componente_descripcion
+            FROM indices_componentes ic
+            LEFT JOIN dimensiones d ON ic.origen_tipo = 'dimension' AND ic.origen_id = d.id
+            LEFT JOIN indices_compuestos indx ON ic.origen_tipo = 'indice' AND ic.origen_id = indx.id
+            WHERE ic.indice_id = $index_id
+            ORDER BY ic.ponderacion DESC";
+    
+    $result = $this->db->query($sql);
+    $components = [];
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $components[] = $row;
+        }
+    }
+    
+    return $components;
+}
+
+/**
+ * Calcula el valor de un índice compuesto para un candidato
+ */
+public function calculateCompositeIndex($candidato_id, $index_id) {
+    $candidato_id = (int)$candidato_id;
+    $index_id = (int)$index_id;
+    
+    // Obtener componentes del índice
+    $components = $this->getCompositeIndexComponents($index_id);
+    
+    if (empty($components)) {
+        return null;
+    }
+    
+    $totalValue = 0;
+    $totalWeight = 0;
+    
+    foreach ($components as $component) {
+        $componentValue = 0;
+        
+        if ($component['origen_tipo'] == 'dimension') {
+            // Obtener el valor promedio de la dimensión
+            $sql = "SELECT AVG(r.valor) as promedio
+                    FROM resultados r
+                    JOIN sesiones_prueba sp ON r.sesion_id = sp.id
+                    WHERE sp.candidato_id = $candidato_id 
+                    AND sp.estado = 'completada'
+                    AND r.dimension_id = {$component['origen_id']}";
+            
+            $result = $this->db->query($sql);
+            
+            if ($result && $result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                $componentValue = (float)$row['promedio'];
+            }
+        } else if ($component['origen_tipo'] == 'indice') {
+            // Calcular recursivamente el valor del índice anidado
+            $nestedIndexValue = $this->calculateCompositeIndex($candidato_id, $component['origen_id']);
+            
+            if ($nestedIndexValue !== null) {
+                $componentValue = $nestedIndexValue;
+            }
+        }
+        
+        $weight = (float)$component['ponderacion'];
+        $totalValue += $componentValue * $weight;
+        $totalWeight += $weight;
+    }
+    
+    if ($totalWeight > 0) {
+        return $totalValue / $totalWeight;
+    }
+    
+    return null;
+}
+
+/**
+ * Calcula todos los índices compuestos para un candidato 
+ * y guarda los resultados en la tabla resultados_indices
+ */
+public function calculateAndSaveAllCompositeIndices($candidato_id) {
+    $candidato_id = (int)$candidato_id;
+    
+    // Eliminar índices existentes para este candidato
+    $this->db->query("DELETE FROM resultados_indices WHERE candidato_id = $candidato_id");
+    
+    // Obtener todos los índices compuestos
+    $indices = $this->getIndicesCompuestos();
+    
+    foreach ($indices as $index) {
+        $index_id = (int)$index['id'];
+        $value = $this->calculateCompositeIndex($candidato_id, $index_id);
+        
+        if ($value !== null) {
+            // Determinar el nivel de interpretación
+            $nivel_id = null;
+            $sql = "SELECT id 
+                    FROM niveles_interpretacion 
+                    WHERE $value BETWEEN rango_min AND rango_max 
+                    ORDER BY orden 
+                    LIMIT 1";
+            
+            $result = $this->db->query($sql);
+            
+            if ($result && $result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                $nivel_id = (int)$row['id'];
+            }
+            
+            // Guardar el resultado
+            $sql = "INSERT INTO resultados_indices 
+                    (candidato_id, indice_id, valor, nivel_id, created_at) 
+                    VALUES 
+                    ($candidato_id, $index_id, $value, " . 
+                    ($nivel_id ? $nivel_id : "NULL") . 
+                    ", NOW())";
+            
+            $this->db->query($sql);
+        }
+    }
+    
+    return true;
+}
+
+/**
+ * Obtiene los resultados de índices compuestos para un candidato
+ */
+public function getCandidateCompositeIndices($candidato_id) {
+    $candidato_id = (int)$candidato_id;
+    
+    $sql = "SELECT ri.*, 
+                   ic.nombre as indice_nombre, 
+                   ic.descripcion as indice_descripcion,
+                   ni.nombre as nivel_nombre, 
+                   ni.color as nivel_color
+            FROM resultados_indices ri
+            JOIN indices_compuestos ic ON ri.indice_id = ic.id
+            LEFT JOIN niveles_interpretacion ni ON ri.nivel_id = ni.id
+            WHERE ri.candidato_id = $candidato_id
+            ORDER BY ri.valor DESC";
+    
+    $result = $this->db->query($sql);
+    $indices = [];
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $indices[] = $row;
+        }
+    } else {
+        // Si no hay resultados guardados, calcular y guardar
+        $this->calculateAndSaveAllCompositeIndices($candidato_id);
+        
+        // Intentar obtener nuevamente
+        $result = $this->db->query($sql);
+        
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $indices[] = $row;
+            }
+        }
+    }
+    
+    return $indices;
+}
+
+/**
+ * Obtiene el perfil motivacional predominante de un candidato
+ */
+public function getCandidateMotivationalProfile($candidato_id) {
+    $candidato_id = (int)$candidato_id;
+    
+    // Obtener resultados de las dimensiones de motivación
+    $sql = "SELECT d.id, d.nombre, AVG(r.valor) as promedio
+            FROM resultados r
+            JOIN dimensiones d ON r.dimension_id = d.id
+            JOIN sesiones_prueba sp ON r.sesion_id = sp.id
+            WHERE sp.candidato_id = $candidato_id 
+            AND sp.estado = 'completada'
+            AND d.tipo = 'motiv'
+            GROUP BY d.id
+            ORDER BY promedio DESC
+            LIMIT 3";
+    
+    $result = $this->db->query($sql);
+    $motivations = [];
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $motivations[] = $row;
+        }
+    }
+    
+    // Determinar el perfil motivacional basado en las motivaciones principales
+    if (!empty($motivations)) {
+        $sql = "SELECT * FROM perfiles_personalidad
+                WHERE (nombre LIKE '%{$motivations[0]['nombre']}%' 
+                      OR descripcion LIKE '%{$motivations[0]['nombre']}%')";
+        
+        if (isset($motivations[1])) {
+            $sql .= " AND (nombre LIKE '%{$motivations[1]['nombre']}%' 
+                          OR descripcion LIKE '%{$motivations[1]['nombre']}%')";
+        }
+        
+        if (isset($motivations[2])) {
+            $sql .= " AND (nombre LIKE '%{$motivations[2]['nombre']}%' 
+                          OR descripcion LIKE '%{$motivations[2]['nombre']}%')";
+        }
+        
+        $sql .= " LIMIT 1";
+        
+        $result = $this->db->query($sql);
+        
+        if ($result && $result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+    }
+    
+    return null;
+}
+
+/**
+ * Calcula el porcentaje de coincidencia entre un candidato y una vacante
+ */
+public function calculateVacancyMatchPercentage($candidato_id, $vacante_id) {
+    $candidato_id = (int)$candidato_id;
+    $vacante_id = (int)$vacante_id;
+    
+    // Obtener perfiles ideales asociados a la vacante
+    $sql = "SELECT p.* 
+            FROM perfiles_ideales p
+            JOIN vacantes_perfiles vp ON p.id = vp.perfil_id
+            WHERE vp.vacante_id = $vacante_id";
+    
+    $result = $this->db->query($sql);
+    
+    if (!$result || $result->num_rows == 0) {
+        return null;
+    }
+    
+    $perfiles = [];
+    while ($row = $result->fetch_assoc()) {
+        $perfiles[] = $row;
+    }
+    
+    $totalScore = 0;
+    $maxScore = 0;
+    
+    foreach ($perfiles as $perfil) {
+        // Obtener valores ideales del perfil
+        $sql = "SELECT pv.*, d.nombre as dimension_nombre
+                FROM perfiles_valores pv
+                JOIN dimensiones d ON pv.dimension_id = d.id
+                WHERE pv.perfil_id = {$perfil['id']}";
+        
+        $result = $this->db->query($sql);
+        
+        if (!$result || $result->num_rows == 0) {
+            continue;
+        }
+        
+        $valores = [];
+        while ($row = $result->fetch_assoc()) {
+            $valores[] = $row;
+        }
+        
+        // Comparar con los valores del candidato
+        foreach ($valores as $valor) {
+            $dimension_id = (int)$valor['dimension_id'];
+            $valor_ideal = (float)$valor['valor_ideal'];
+            $min = (float)$valor['valor_min'];
+            $max = (float)$valor['valor_max'];
+            $ponderacion = (float)$valor['ponderacion'];
+            
+            // Obtener valor del candidato para esta dimensión
+            $sql = "SELECT AVG(r.valor) as promedio
+                    FROM resultados r
+                    JOIN sesiones_prueba sp ON r.sesion_id = sp.id
+                    WHERE sp.candidato_id = $candidato_id 
+                    AND sp.estado = 'completada'
+                    AND r.dimension_id = $dimension_id";
+            
+            $result = $this->db->query($sql);
+            
+            if ($result && $result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                $valor_candidato = (float)$row['promedio'];
+                
+                // Calcular puntuación de coincidencia
+                $matchScore = 0;
+                
+                if ($valor_candidato >= $min && $valor_candidato <= $max) {
+                    // Dentro del rango aceptable
+                    $distance = abs($valor_candidato - $valor_ideal);
+                    $maxDistance = max(abs($max - $valor_ideal), abs($min - $valor_ideal));
+                    
+                    if ($maxDistance > 0) {
+                        $matchScore = (1 - ($distance / $maxDistance)) * 100 * $ponderacion;
+                    } else {
+                        $matchScore = 100 * $ponderacion;
+                    }
+                }
+                
+                $totalScore += $matchScore;
+                $maxScore += 100 * $ponderacion;
+            }
+        }
+    }
+    
+    if ($maxScore > 0) {
+        return ($totalScore / $maxScore) * 100;
+    }
+    
+    return null;
+}
+
+/**
+ * Genera un informe completo de evaluación psicométrica para un candidato
+ */
+public function generatePsychometricReport($candidato_id) {
+    $candidato_id = (int)$candidato_id;
+    
+    // Obtener datos del candidato
+    require_once 'CandidateManager.php';
+    $candidateManager = new CandidateManager();
+    $candidato = $candidateManager->getCandidateById($candidato_id);
+    
+    if (!$candidato) {
+        return null;
+    }
+    
+    // Obtener pruebas completadas
+    $pruebasCompletadas = $this->getCompletedTests($candidato_id);
+    
+    if (empty($pruebasCompletadas)) {
+        return null;
+    }
+    
+    // Calcular índices compuestos
+    $this->calculateAndSaveAllCompositeIndices($candidato_id);
+    $indicesCompuestos = $this->getCandidateCompositeIndices($candidato_id);
+    
+    // Obtener resultados por tipo de dimensión
+    $resultadosPersonalidad = $this->getCandidateResultsByType($candidato_id, 'primaria');
+    $resultadosAptitudes = $this->getCandidateResultsByType($candidato_id, 'cognitiva');
+    $resultadosMotivacion = $this->getCandidateResultsByType($candidato_id, 'motiv');
+    
+    // Obtener perfil motivacional
+    $perfilMotivacional = $this->getCandidateMotivationalProfile($candidato_id);
+    
+    // Estructurar el informe
+    $report = [
+        'candidato' => $candidato,
+        'fecha_generacion' => date('Y-m-d H:i:s'),
+        'pruebas_completadas' => $pruebasCompletadas,
+        'indices_compuestos' => $indicesCompuestos,
+        'resultados_personalidad' => $resultadosPersonalidad,
+        'resultados_aptitudes' => $resultadosAptitudes,
+        'resultados_motivacion' => $resultadosMotivacion,
+        'perfil_motivacional' => $perfilMotivacional,
+        'interpretaciones' => []
+    ];
+    
+    // Obtener interpretaciones para cada dimensión
+    foreach ($resultadosPersonalidad as $resultado) {
+        $interpretation = $this->getInterpretationForDimension(
+            $resultado['dimension_id'], 
+            $resultado['promedio']
+        );
+        
+        if ($interpretation) {
+            $report['interpretaciones'][$resultado['dimension_id']] = $interpretation;
+        }
+    }
+    
+    // Guardar el informe generado
+    $reportJson = json_encode($report);
+    
+    $sql = "INSERT INTO informes_generados 
+            (candidato_id, tipo, contenido, fecha_generacion)
+            VALUES 
+            ($candidato_id, 'completo', '" . $this->db->escape($reportJson) . "', NOW())";
+    
+    $this->db->query($sql);
+    
+    return $report;
+}
+
+/**
+ * Obtiene el último informe generado para un candidato
+ */
+public function getLatestCandidateReport($candidato_id, $tipo = 'completo') {	
+    $candidato_id = (int)$candidato_id;
+    $tipo = $this->db->escape($tipo);
+    
+    $sql = "SELECT * FROM informes_generados 
+            WHERE candidato_id = $candidato_id
+            AND tipo = '$tipo'
+            ORDER BY fecha_generacion DESC
+            LIMIT 1";
+    
+    $result = $this->db->query($sql);
+    
+    if ($result && $result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $row['contenido'] = json_decode($row['contenido'], true);
+        return $row;
+    }
+    
+    return null;
+}
 }
 ?>
